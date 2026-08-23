@@ -6,6 +6,13 @@
 ![RocketRide Multi-Agent](https://img.shields.io/badge/RocketRide-Orchestration%20Load--Bearing-10b981?style=for-the-badge)
 ![Human-in-the-Loop](https://img.shields.io/badge/Compliance-Human--in--the--Loop%20Gated-f59e0b?style=for-the-badge)
 
+> **Quick Summary (5 Lines)**:
+> 1. **What it does**: SQUAWK is an AI-powered operations control platform for airline Technical Operations managing Aircraft On Ground (AOG) recovery.
+> 2. **Orchestration**: Runs RocketRide multi-agent pipelines (`.pipe`) with parallel specialist agents, AI-checking-AI validation, and human-in-the-loop gating.
+> 3. **Backend Run**: `cd backend && pip install -r requirements.txt && python -m uvicorn app.main:app --port 8000 --reload`
+> 4. **Frontend Run**: `cd frontend && npm install && npm run dev`
+> 5. **Access**: Navigate to `http://localhost:5173` (Frontend) or `http://localhost:8000/docs` (Swagger API).
+
 ---
 
 ## 1. What SQUAWK Does
