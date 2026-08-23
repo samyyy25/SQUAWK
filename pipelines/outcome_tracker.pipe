@@ -1,0 +1,37 @@
+pipeline outcome_tracker {
+    description: "Close the operational feedback loop by ingesting verified physical outcomes and updating vendor reliability memory models."
+
+    step receive_verified_outcome {
+        action: "intake_outcome_record"
+        params: {
+            require: ["case_id", "vendor_id", "actual_delivery_hours", "actual_cost", "documentation_accepted"]
+        }
+    }
+
+    step compute_delta_metrics {
+        action: "calculate_performance"
+        after: [receive_verified_outcome]
+        params: {
+            metrics: ["eta_variance_minutes", "cost_variance_percent", "document_defect_flag"]
+        }
+    }
+
+    step update_vendor_memory {
+        action: "memory_update"
+        after: [compute_delta_metrics]
+        params: {
+            table: "vendor_memories"
+            learning_rate: 0.15
+            policy: "VERIFIED_PHYSICAL_OUTCOMES_ONLY"
+        }
+    }
+
+    step append_audit_activity {
+        action: "log_activity"
+        after: [update_vendor_memory]
+        params: {
+            category: "OUTCOME_LEARNED"
+            event: "Vendor memory weights updated with verified recovery outcome"
+        }
+    }
+}

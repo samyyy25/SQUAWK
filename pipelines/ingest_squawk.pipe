@@ -1,0 +1,46 @@
+pipeline ingest_squawk {
+    description: "Ingest and normalize raw AOG defect reports, perform structural validation, and enforce manual tagging on missing mandatory fields."
+
+    step intake_webhook {
+        action: "receive_payload"
+        params: {
+            channels: ["pilot_acars", "techlog_pdf", "maintenance_radio_audio", "web_portal"]
+        }
+    }
+
+    step parse_and_normalize {
+        action: "ai_extractor"
+        after: [intake_webhook]
+        params: {
+            model: "gemini-2.5-flash"
+            extract_fields: [
+                "tail_number",
+                "aircraft_type",
+                "defect_description",
+                "ata_chapter",
+                "part_number",
+                "part_name",
+                "priority",
+                "location"
+            ]
+        }
+    }
+
+    step validate_mandatory_fields {
+        action: "field_validator"
+        after: [parse_and_normalize]
+        rules: {
+            require: ["tail_number", "defect_description", "location"]
+            on_failure: "ROUTE_TO_MANUAL_TAGGING_QUEUE"
+        }
+    }
+
+    step store_normalized_case {
+        action: "db_upsert"
+        after: [validate_mandatory_fields]
+        params: {
+            table: "squawk_cases"
+            initial_stage: "PARSED_READY_FOR_SPECIALISTS"
+        }
+    }
+}
