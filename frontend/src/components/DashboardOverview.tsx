@@ -8,10 +8,16 @@ import {
   TrendingDown, 
   ShieldAlert, 
   CheckCircle2, 
-  ExternalLink,
   ChevronRight,
-  SlidersHorizontal,
-  Plus
+  Plus,
+  AlertTriangle,
+  Sparkles,
+  ShieldCheck,
+  Building,
+  UserCheck,
+  Layers,
+  ArrowUpRight,
+  SlidersHorizontal
 } from 'lucide-react';
 import { 
   ResponsiveContainer, 
@@ -36,7 +42,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 }) => {
   const totalAog = cases.length;
   const activeRecovery = cases.filter(c => c.status === 'Processing' || c.status === 'Awaiting Approval').length;
-  const needsReview = cases.filter(c => c.status === 'Needs Review').length;
+  const awaitingHumanCases = cases.filter(c => c.status === 'Awaiting Approval' || c.status === 'Needs Review');
+  const criticalCases = cases.filter(c => c.priority === 'AOG');
 
   // 24H recovery operations curve mock data
   const recoveryHourlyData = [
@@ -50,7 +57,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     { hour: '21:00', ops: 8, grounded: 7 },
   ];
 
-  // Active flight / AOG recovery tracking records
+  // Priority Attention Cases for Command Center Top Section
+  const priorityAttentionCases = cases.slice(0, 4);
+
+
+  // Active flight / AOG recovery tracking records (Simulated courier & aircraft network)
   const liveAogTracking = [
     {
       flightNo: 'SK0142',
@@ -61,8 +72,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       status: 'AOG Recovery',
       stage: 'Human Approval',
       eta: '4.0 hrs',
-      progress: 68,
-      isHero: true
+      progress: 82,
+      isHero: true,
+      caseId: 'CASE-N42Q-01',
+      supplier: 'AeroParts Inc.',
+      risk: 'LOW'
     },
     {
       flightNo: 'SK0078',
@@ -74,7 +88,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       stage: 'Logistics Hot-Shot',
       eta: '6.0 hrs',
       progress: 42,
-      isHero: false
+      isHero: false,
+      caseId: 'CASE-N18AX-03',
+      supplier: 'Midwest Aero Supply',
+      risk: 'LOW'
     },
     {
       flightNo: 'SK0911',
@@ -86,7 +103,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       stage: 'Doc Tag Check',
       eta: '8.0 hrs',
       progress: 25,
-      isHero: false
+      isHero: false,
+      caseId: 'CASE-N72LK-07',
+      supplier: 'Pacific Aero Hub',
+      risk: 'HIGH'
     },
     {
       flightNo: 'SK0517',
@@ -97,15 +117,156 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
       status: 'Dispatched',
       stage: 'Part In Transit',
       eta: '7.0 hrs',
-      progress: 85,
-      isHero: false
+      progress: 88,
+      isHero: false,
+      caseId: 'CASE-N882DL-02',
+      supplier: 'EuroRotable Spares',
+      risk: 'LOW'
     }
   ];
 
   return (
-    <div className="p-6 space-y-5 bg-[#0b0c0e] min-h-full">
+    <div className="p-6 space-y-6 bg-[#0b0c0e] min-h-full">
       
-      {/* 4 Sleek Top KPI Cards */}
+      {/* ========================================================================= */}
+      {/* TASK 1: TOP PRIORITY COMMAND CENTER SECTION: CRITICAL AOG ATTENTION */}
+      {/* ========================================================================= */}
+      <section className="space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#1e2025] pb-3">
+          <div className="flex items-center space-x-2.5">
+            <div className="p-1.5 rounded-lg bg-red-950/80 border border-red-800/80 text-red-400">
+              <ShieldAlert className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <h2 className="text-sm font-bold text-white tracking-wider uppercase">Critical AOG Attention</h2>
+                <span className="px-2 py-0.5 rounded-full bg-red-950 text-red-400 border border-red-800/80 text-[10px] font-mono font-bold">
+                  {awaitingHumanCases.length > 0 ? `${awaitingHumanCases.length} Action Required` : 'Active Command Deck'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-400">Cases requiring tech ops controller review, validator triage, or dispatch authorization</p>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2 text-xs">
+            <span className="text-[11px] text-slate-400 font-mono hidden md:inline">Core principle:</span>
+            <span className="px-2 py-1 rounded-md bg-cyan-950/60 border border-cyan-800/60 text-cyan-300 font-semibold text-[11px] flex items-center space-x-1">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>AI Suggests. Human Decides.</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Priority Action Deck Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3.5">
+          {priorityAttentionCases.map((caseItem, idx) => {
+            const isHero = caseItem.tail_number === 'N42Q' || idx === 0;
+            const recommendedCand = caseItem.candidates?.find(c => c.is_recommended) || caseItem.candidates?.[0];
+            const isHumanApproval = caseItem.status === 'Awaiting Approval' || caseItem.current_stage === 'Human Approval' || isHero;
+            const isApproved = caseItem.status === 'Approved';
+
+            return (
+              <div
+                key={caseItem.id}
+                onClick={() => onSelectCase(caseItem)}
+                className={`group rounded-2xl border p-4 transition-all duration-200 cursor-pointer flex flex-col justify-between relative overflow-hidden ${
+                  isHero
+                    ? 'bg-gradient-to-b from-[#181d26] to-[#121418] border-cyan-500/60 shadow-xl shadow-cyan-950/30 ring-1 ring-cyan-500/40 hover:border-cyan-400'
+                    : isHumanApproval
+                    ? 'bg-[#14161a] border-amber-800/60 hover:border-amber-600/80'
+                    : 'bg-[#14161a] border-[#20232b] hover:border-slate-700'
+                }`}
+              >
+                {/* Hero Glow Accent */}
+                {isHero && (
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-cyan-500/10 blur-2xl rounded-full pointer-events-none" />
+                )}
+
+                {/* Top Badge Strip */}
+                <div>
+                  <div className="flex items-center justify-between mb-2.5">
+                    <div className="flex items-center space-x-2">
+                      <span className="text-xs font-mono font-bold text-white bg-slate-900/90 px-2 py-0.5 rounded border border-slate-700">
+                        {caseItem.tail_number || 'N42Q'}
+                      </span>
+                      <span className="text-xs text-slate-400 font-mono">
+                        {caseItem.location || 'ORD'}
+                      </span>
+                    </div>
+
+                    {isHumanApproval ? (
+                      <span className="flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-700/80 animate-pulse">
+                        <UserCheck className="w-3 h-3" />
+                        <span>APPROVAL REQUIRED</span>
+                      </span>
+                    ) : isApproved ? (
+                      <span className="flex items-center space-x-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-950 text-emerald-300 border border-emerald-800">
+                        <CheckCircle2 className="w-3 h-3" />
+                        <span>RECOVERY AUTHORIZED</span>
+                      </span>
+                    ) : (
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+                        {caseItem.status}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Aircraft Type & Defect */}
+                  <div className="space-y-1">
+                    <div className="text-[11px] text-slate-400 font-medium">
+                      {caseItem.aircraft_type || 'Boeing 737-800'}
+                    </div>
+                    <div className="text-xs font-bold text-slate-100 line-clamp-2 leading-snug group-hover:text-cyan-300 transition">
+                      {caseItem.defect_description || 'System A Engine-Driven Hydraulic Pump Failure'}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Mid Metric & Recommendation Details */}
+                <div className="mt-3.5 pt-3 border-t border-slate-800/80 space-y-2 text-xs">
+                  <div className="grid grid-cols-2 gap-2 bg-[#0d0f12]/80 p-2 rounded-xl border border-slate-800/60 font-mono text-[11px]">
+                    <div>
+                      <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Recommended</span>
+                      <span className="font-semibold text-white truncate block">
+                        {recommendedCand?.vendor_name || 'AeroParts Inc.'}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] text-slate-500 uppercase tracking-wider block">Recovery ETA</span>
+                      <span className="font-bold text-cyan-300">
+                        {caseItem.estimated_recovery_hours || recommendedCand?.estimated_eta_hours || 4.0} hrs
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Stage & Risk pill */}
+                  <div className="flex items-center justify-between text-[11px]">
+                    <span className="text-slate-400 flex items-center space-x-1">
+                      <span>Stage:</span>
+                      <strong className="text-cyan-400 font-medium">{caseItem.current_stage || 'Human Approval'}</strong>
+                    </span>
+                    <span className={`font-mono font-bold text-[10px] px-1.5 py-0.2 rounded ${
+                      caseItem.risk_level === 'LOW' ? 'bg-emerald-950 text-emerald-400 border border-emerald-800/60' : 'bg-red-950 text-red-400 border border-red-800/60'
+                    }`}>
+                      {caseItem.risk_level || 'LOW'} RISK
+                    </span>
+                  </div>
+                </div>
+
+                {/* Bottom Action Trigger */}
+                <div className="mt-3 pt-2 flex items-center justify-between text-xs text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">
+                  <span className="text-[11px]">Open Case Decision</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ========================================================================= */}
+      {/* OPERATIONAL METRICS & SLA STATUS */}
+      {/* ========================================================================= */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         
         {/* Card 1 */}
@@ -117,15 +278,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               </div>
               <span>Active AOG Recoveries</span>
             </div>
-            <span className="flex items-center space-x-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/60">
-              <TrendingUp className="w-3 h-3" />
-              <span>4 live</span>
+            <span className="flex items-center space-x-1 text-[11px] font-semibold text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/60 font-mono">
+              <Sparkles className="w-3 h-3" />
+              <span>Simulated</span>
             </span>
           </div>
 
           <div className="mt-3 flex items-end justify-between">
-            <div className="text-3xl font-bold text-white font-mono">{activeRecovery}</div>
-            {/* Sparkline mini bars */}
+            <div className="text-3xl font-bold text-white font-mono">{activeRecovery || 4}</div>
             <div className="flex items-end space-x-0.5 h-6">
               <span className="w-1 h-2 bg-slate-700 rounded-sm"></span>
               <span className="w-1 h-3 bg-slate-700 rounded-sm"></span>
@@ -144,16 +304,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <div className="p-1.5 rounded-lg bg-emerald-500/10 text-emerald-400">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
-              <span>Airworthiness SLA</span>
+              <span>Cases Within Recovery SLA</span>
             </div>
             <span className="flex items-center space-x-1 text-[11px] font-semibold text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-800/60">
               <TrendingUp className="w-3 h-3" />
-              <span>100%</span>
+              <span>Target &lt; 6h</span>
             </span>
           </div>
 
           <div className="mt-3 flex items-end justify-between">
-            <div className="text-3xl font-bold text-white font-mono">100%</div>
+            <div className="text-3xl font-bold text-white font-mono">93.4%</div>
             <div className="flex items-end space-x-0.5 h-6">
               <span className="w-1 h-4 bg-slate-700 rounded-sm"></span>
               <span className="w-1 h-5 bg-slate-700 rounded-sm"></span>
@@ -172,7 +332,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
                 <Plane className="w-4 h-4" />
               </div>
-              <span>Total Fleet Grounded</span>
+              <span>Network Grounded Cases</span>
             </div>
             <span className="flex items-center space-x-1 text-[11px] font-semibold text-slate-400 bg-slate-800/80 px-2 py-0.5 rounded-full border border-slate-700/60">
               <span>{totalAog} total</span>
@@ -203,7 +363,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             </div>
             <span className="flex items-center space-x-1 text-[11px] font-semibold text-cyan-400 bg-cyan-950/60 px-2 py-0.5 rounded-full border border-cyan-800/60">
               <TrendingDown className="w-3 h-3" />
-              <span>-42%</span>
+              <span>Simulated</span>
             </span>
           </div>
 
@@ -235,7 +395,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <Plane className="w-4 h-4 -rotate-45" />
               </div>
               <div>
-                <h3 className="text-xs font-bold text-white">Live Global AOG & Parts Courier Traffic</h3>
+                <h3 className="text-xs font-bold text-white">Simulated Global AOG & Parts Courier Network</h3>
                 <div className="text-[10px] text-slate-400">9 active aircraft & expedited supply routes in flight</div>
               </div>
             </div>
@@ -248,7 +408,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               className="flex items-center space-x-1.5 text-xs text-cyan-400 hover:text-cyan-300 font-semibold bg-cyan-950/50 border border-cyan-800/60 px-2.5 py-1 rounded-lg transition"
             >
               <span>Inspect Hero N42Q</span>
-              <ExternalLink className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5" />
             </button>
           </div>
 

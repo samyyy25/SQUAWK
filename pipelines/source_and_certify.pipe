@@ -1,0 +1,103 @@
+{
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat"
+      },
+      "ui": {
+        "position": { "x": 100, "y": 300 }
+      }
+    },
+    {
+      "id": "agent_sourcing_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "Aviation Inventory & Vendor Sourcing Specialist",
+        "goal": "Identify active rotable inventory, IPC matching part numbers, interchangeability alternates, and vendor stock levels without inventing data.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 120 }
+      }
+    },
+    {
+      "id": "agent_documentation_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "Airworthiness Evidence & Regulatory Specialist",
+        "goal": "Audit airworthiness certification pedigree including FAA Form 8130-3, EASA Form 1, dual release tags, and 121 operator OEM trace. Flag any missing or non-incident tags.",
+        "compliance_disclaimer": "Evidence validation only. Final airworthiness release reserved for certified A&P / Part 66 engineers.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 300 }
+      }
+    },
+    {
+      "id": "agent_logistics_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "AOG Expedited Logistics Specialist",
+        "goal": "Calculate landed freight options, airport-to-airport Next Flight Out cargo schedules, dedicated local AOG hot-shot vans, and reliable ETA hours.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 480 }
+      }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "config": {
+        "laneName": "answers"
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "agent_sourcing_1"
+        },
+        {
+          "lane": "answers",
+          "from": "agent_documentation_1"
+        },
+        {
+          "lane": "answers",
+          "from": "agent_logistics_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 800, "y": 300 }
+      }
+    }
+  ],
+  "project_id": "b2c3d4e5-f6a7-4b2c-9d3e-4f5a6b7c8d9e",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
+}

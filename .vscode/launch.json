@@ -1,0 +1,16 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Squawkai",
+      "type": "msedge",
+      "request": "launch",
+      "url": "https://api.rocketride.ai:443/?appid=local.squawkai&rrdev=1",
+      "webRoot": "${workspaceFolder}/apps/squawkai-ui",
+      "sourceMapPathOverrides": {
+        "webpack:///./*": "${workspaceFolder}/apps/squawkai-ui/*",
+        "webpack:///*": "*"
+      }
+    }
+  ]
+}

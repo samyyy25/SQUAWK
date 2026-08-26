@@ -35,6 +35,9 @@ class SquawkCase(Base):
     estimated_recovery_hours = Column(Float, nullable=True)
     is_malformed = Column(Boolean, default=False)
     malformed_reason = Column(Text, nullable=True)
+    is_demo = Column(Boolean, default=False)
+    demo_key = Column(String, nullable=True) # hero, fast_recovery, missing_info, vendor_memory, agent_conflict
+    demo_badge = Column(String, nullable=True) # HERO, FAST RECOVERY, MISSING DATA, MEMORY, AGENT CONFLICT
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 

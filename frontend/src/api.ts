@@ -4,10 +4,11 @@ import { SquawkCase, Vendor, VendorMemoryStat, ActivityLog, BatchProcessResult }
 const API_BASE = '/api';
 
 export const api = {
-  async getCases(status?: string, priority?: string): Promise<SquawkCase[]> {
+  async getCases(status?: string, priority?: string, stage?: string): Promise<SquawkCase[]> {
     const params: any = {};
     if (status) params.status = status;
     if (priority) params.priority = priority;
+    if (stage) params.stage = stage;
     const res = await axios.get(`${API_BASE}/cases`, { params });
     return res.data;
   },
@@ -19,6 +20,18 @@ export const api = {
 
   async createCase(payload: any): Promise<SquawkCase> {
     const res = await axios.post(`${API_BASE}/cases`, payload);
+    return res.data;
+  },
+
+  async webhookIngest(payload: any): Promise<SquawkCase> {
+    const res = await axios.post(`${API_BASE}/webhook/ingest`, payload);
+    return res.data;
+  },
+
+  async uploadDoc(formData: FormData): Promise<SquawkCase> {
+    const res = await axios.post(`${API_BASE}/cases/upload-doc`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    });
     return res.data;
   },
 
@@ -64,6 +77,11 @@ export const api = {
 
   async getActivity(): Promise<ActivityLog[]> {
     const res = await axios.get(`${API_BASE}/activity`);
+    return res.data;
+  },
+
+  async resetDemo(): Promise<any> {
+    const res = await axios.post(`${API_BASE}/demo/reset`);
     return res.data;
   }
 };

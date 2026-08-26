@@ -1,76 +1,103 @@
-pipeline source_recovery {
-    description: "Multi-agent parallel sourcing, document compliance verification, and landed logistics calculation validated by Validator Agent for human authorization."
-
-    step retrieve_case_memory {
-        action: "memory_lookup"
-        params: {
-            lookup: ["vendor_reliability", "historical_delays", "part_alternate_numbers"]
+{
+  "components": [
+    {
+      "id": "chat_1",
+      "provider": "chat",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "chat"
+      },
+      "ui": {
+        "position": { "x": 100, "y": 300 }
+      }
+    },
+    {
+      "id": "agent_sourcing_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "Aviation Inventory & Vendor Sourcing Specialist",
+        "goal": "Identify active rotable inventory, IPC matching part numbers, interchangeability alternates, and vendor stock levels without inventing data.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
         }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 120 }
+      }
+    },
+    {
+      "id": "agent_documentation_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "Airworthiness Evidence & Regulatory Specialist",
+        "goal": "Audit airworthiness certification pedigree including FAA Form 8130-3, EASA Form 1, dual release tags, and 121 operator OEM trace. Flag any missing or non-incident tags.",
+        "compliance_disclaimer": "Evidence validation only. Final airworthiness release reserved for certified A&P / Part 66 engineers.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 300 }
+      }
+    },
+    {
+      "id": "agent_logistics_1",
+      "provider": "agent_rocketride",
+      "config": {
+        "role": "AOG Expedited Logistics Specialist",
+        "goal": "Calculate landed freight options, airport-to-airport Next Flight Out cargo schedules, dedicated local AOG hot-shot vans, and reliable ETA hours.",
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "chat_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 450, "y": 480 }
+      }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "config": {
+        "laneName": "answers"
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "agent_sourcing_1"
+        },
+        {
+          "lane": "answers",
+          "from": "agent_documentation_1"
+        },
+        {
+          "lane": "answers",
+          "from": "agent_logistics_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 800, "y": 300 }
+      }
     }
-
-    parallel {
-        step sourcing_specialist {
-            action: "ai_agent_sourcing"
-            after: [retrieve_case_memory]
-            params: {
-                role: "Aviation Inventory & Vendor Sourcing Specialist"
-                tasks: ["exact_match", "interchangeable_parts", "stock_verification", "condition_grading"]
-            }
-        }
-
-        step documentation_specialist {
-            action: "ai_agent_documentation"
-            after: [retrieve_case_memory]
-            params: {
-                role: "Airworthiness Evidence & Regulatory Specialist"
-                tasks: ["verify_8130_3", "verify_easa_form_1", "check_oem_trace", "flag_untraceable_parts"]
-                compliance_disclaimer: "Evidence validation only. Final airworthiness release reserved for certified A&P/Part 66 engineers."
-            }
-        }
-
-        step logistics_specialist {
-            action: "ai_agent_logistics"
-            after: [retrieve_case_memory]
-            params: {
-                role: "AOG Expedited Logistics Specialist"
-                tasks: ["calculate_hot_shot_eta", "next_flight_out_cargo", "freight_costing", "customs_buffers"]
-            }
-        }
-    }
-
-    step validator_agent {
-        action: "ai_agent_validator"
-        after: [sourcing_specialist, documentation_specialist, logistics_specialist]
-        params: {
-            role: "Chief Technical Operations Validator (AI Checking AI)"
-            tasks: [
-                "detect_cross_agent_contradictions",
-                "flag_cheaper_non_compliant_candidates",
-                "calculate_overall_risk_score",
-                "enforce_human_review_gate"
-            ]
-        }
-    }
-
-    step recommendation_engine {
-        action: "rank_candidates"
-        after: [validator_agent]
-        params: {
-            criteria_weights: {
-                documentation_validity: 0.35,
-                recovery_eta_hours: 0.30,
-                vendor_historical_reliability: 0.20,
-                total_landed_cost: 0.15
-            }
-        }
-    }
-
-    step human_review_gate {
-        action: "await_human_decision"
-        after: [recommendation_engine]
-        params: {
-            required_role: "Authorized AOG Controller / Duty Tech Ops Director"
-            allowed_actions: ["APPROVE", "REJECT", "REQUEST_INFO", "CHOOSE_ALTERNATIVE"]
-        }
-    }
+  ],
+  "project_id": "c3d4e5f6-a7b8-4c3d-ae4f-5a6b7c8d9e0f",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
 }

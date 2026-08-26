@@ -1,28 +1,25 @@
 from typing import List, Optional, Any, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict
 import datetime
 
 class AircraftBase(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     tail_number: str
     aircraft_type: str
     operator: str
     home_base: str
     current_location: str
 
-    class Config:
-        from_attributes = True
-
 class PartDocumentSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     doc_type: str
     doc_number: Optional[str] = None
     issuer: Optional[str] = None
     is_valid: bool = True
 
-    class Config:
-        from_attributes = True
-
 class PartSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     part_number: str
     description: str
@@ -40,10 +37,8 @@ class PartSchema(BaseModel):
     serial_number: Optional[str] = None
     tags_notes: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 class VendorSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     name: str
     location_hub: str
@@ -57,10 +52,8 @@ class VendorSchema(BaseModel):
     contact_email: Optional[str] = None
     contact_aog_desk: Optional[str] = None
 
-    class Config:
-        from_attributes = True
-
 class RecoveryCandidateSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     case_id: str
     vendor_id: str
@@ -82,10 +75,8 @@ class RecoveryCandidateSchema(BaseModel):
     flag_reason: Optional[str] = None
     confidence: float
 
-    class Config:
-        from_attributes = True
-
 class AgentResultSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     case_id: str
     specialist_name: str
@@ -95,10 +86,8 @@ class AgentResultSchema(BaseModel):
     execution_time_ms: int
     created_at: datetime.datetime
 
-    class Config:
-        from_attributes = True
-
 class ValidationResultSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     case_id: str
     status: str
@@ -110,10 +99,8 @@ class ValidationResultSchema(BaseModel):
     requires_human_review: bool
     reasoning_summary: str
 
-    class Config:
-        from_attributes = True
-
 class RecoveryActionSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     case_id: str
     action_type: str
@@ -123,10 +110,8 @@ class RecoveryActionSchema(BaseModel):
     is_demo_action: bool
     created_at: datetime.datetime
 
-    class Config:
-        from_attributes = True
-
 class SquawkCaseSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     tail_number: Optional[str] = None
     aircraft_type: Optional[str] = None
@@ -144,15 +129,15 @@ class SquawkCaseSchema(BaseModel):
     estimated_recovery_hours: Optional[float] = None
     is_malformed: bool = False
     malformed_reason: Optional[str] = None
+    is_demo: bool = False
+    demo_key: Optional[str] = None
+    demo_badge: Optional[str] = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
     candidates: List[RecoveryCandidateSchema] = []
     agent_results: List[AgentResultSchema] = []
     validation_result: Optional[ValidationResultSchema] = None
     recovery_actions: List[RecoveryActionSchema] = []
-
-    class Config:
-        from_attributes = True
 
 class CaseCreateRequest(BaseModel):
     tail_number: Optional[str] = None
@@ -163,6 +148,9 @@ class CaseCreateRequest(BaseModel):
     part_name: Optional[str] = None
     priority: str = "AOG"
     location: str = "ORD"
+    is_demo: bool = False
+    demo_key: Optional[str] = None
+    demo_badge: Optional[str] = None
     raw_intake_payload: Optional[Dict[str, Any]] = None
 
 class ApprovalRequest(BaseModel):
@@ -184,6 +172,7 @@ class OutcomeSubmitRequest(BaseModel):
     operator_notes: Optional[str] = None
 
 class ActivityLogSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
     id: str
     case_id: Optional[str] = None
     timestamp: datetime.datetime
@@ -192,5 +181,24 @@ class ActivityLogSchema(BaseModel):
     details: Optional[str] = None
     meta_info: Optional[Dict[str, Any]] = None
 
-    class Config:
-        from_attributes = True
+class BatchProcessResultSchema(BaseModel):
+    batch_id: str
+    total_cases_received: int
+    successfully_processed: int
+    ready_for_approval: int
+    auto_cleared: int
+    escalated_to_humans: int
+    validator_rejections_cheapest: int
+    documentation_conflicts: int
+    vendor_search_timeouts: int
+    malformed_inputs: int
+    total_runtime_seconds: float
+    total_ai_agent_calls: int
+    total_prompt_tokens: int
+    total_completion_tokens: int
+    total_tokens: int
+    total_cost_usd: float
+    approximate_cost_usd: float
+    average_cost_per_case_usd: float
+    success_rate_percent: float
+

@@ -1,46 +1,112 @@
-pipeline ingest_squawk {
-    description: "Ingest and normalize raw AOG defect reports, perform structural validation, and enforce manual tagging on missing mandatory fields."
-
-    step intake_webhook {
-        action: "receive_payload"
-        params: {
-            channels: ["pilot_acars", "techlog_pdf", "maintenance_radio_audio", "web_portal"]
+{
+  "components": [
+    {
+      "id": "webhook_1",
+      "provider": "webhook",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": { "x": 100, "y": 200 }
+      }
+    },
+    {
+      "id": "parse_1",
+      "provider": "parse",
+      "config": {},
+      "input": [
+        {
+          "lane": "tags",
+          "from": "webhook_1"
         }
-    }
-
-    step parse_and_normalize {
-        action: "ai_extractor"
-        after: [intake_webhook]
-        params: {
-            model: "gemini-2.5-flash"
-            extract_fields: [
-                "tail_number",
-                "aircraft_type",
-                "defect_description",
-                "ata_chapter",
-                "part_number",
-                "part_name",
-                "priority",
-                "location"
-            ]
+      ],
+      "ui": {
+        "position": { "x": 300, "y": 200 }
+      }
+    },
+    {
+      "id": "preprocessor_1",
+      "provider": "preprocessor",
+      "config": {
+        "profile": "default",
+        "default": {
+          "mode": "strlen",
+          "splitter": "RecursiveCharacterTextSplitter",
+          "strlen": 512
         }
-    }
-
-    step validate_mandatory_fields {
-        action: "field_validator"
-        after: [parse_and_normalize]
-        rules: {
-            require: ["tail_number", "defect_description", "location"]
-            on_failure: "ROUTE_TO_MANUAL_TAGGING_QUEUE"
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "parse_1"
         }
-    }
-
-    step store_normalized_case {
-        action: "db_upsert"
-        after: [validate_mandatory_fields]
-        params: {
-            table: "squawk_cases"
-            initial_stage: "PARSED_READY_FOR_SPECIALISTS"
+      ],
+      "ui": {
+        "position": { "x": 500, "y": 200 }
+      }
+    },
+    {
+      "id": "question_1",
+      "provider": "question",
+      "config": {
+        "question": "Extract aviation AOG defect details, aircraft tail number, ATA chapter, part number, priority, and location from the intake report."
+      },
+      "input": [
+        {
+          "lane": "documents",
+          "from": "preprocessor_1"
         }
+      ],
+      "ui": {
+        "position": { "x": 700, "y": 200 }
+      }
+    },
+    {
+      "id": "llm_openai_1",
+      "provider": "llm_openai",
+      "config": {
+        "profile": "openai-5-2",
+        "openai-5-2": {
+          "apikey": "${ROCKETRIDE_OPENAI_KEY}",
+          "model": "gpt-4-turbo"
+        },
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "question_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 900, "y": 200 }
+      }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "config": {
+        "laneName": "answers"
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "llm_openai_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 1100, "y": 200 }
+      }
     }
+  ],
+  "project_id": "a1b2c3d4-e5f6-4a1b-8c2d-3e4f5a6b7c8d",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
 }

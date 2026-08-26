@@ -4,6 +4,7 @@ import { Topbar } from './components/Topbar';
 import { DashboardOverview } from './components/DashboardOverview';
 import { CaseDetail } from './components/CaseDetail';
 import { IntakeModal } from './components/IntakeModal';
+import { CaseQueue } from './components/CaseQueue';
 import { BatchProcessing } from './components/BatchProcessing';
 import { MemoryLearning } from './components/MemoryLearning';
 import { ActivityTimeline } from './components/ActivityTimeline';
@@ -103,7 +104,7 @@ export function App() {
               )}
 
               {currentTab === 'cases' && (
-                <DashboardOverview 
+                <CaseQueue 
                   cases={cases}
                   onSelectCase={handleSelectCase}
                   onOpenIntake={() => setIsIntakeOpen(true)}

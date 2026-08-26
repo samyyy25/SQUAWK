@@ -15,6 +15,8 @@ def test_health_check():
     data = response.json()
     assert data["status"] == "healthy"
     assert data["rocketride_connected"] is True
+    assert "ingest_squawk.pipe" in data["rocketride_pipelines"]
+    assert "source_and_certify.pipe" in data["rocketride_pipelines"]
 
 def test_list_cases_and_hero_case():
     response = client.get("/api/cases")
@@ -88,3 +90,57 @@ def test_batch_processing():
     assert batch["escalated_to_humans"] >= 3
     assert batch["total_ai_agent_calls"] >= 40
     assert batch["approximate_cost_usd"] > 0
+    assert batch["total_tokens"] > 0
+    assert batch["total_runtime_seconds"] > 0
+
+def test_deliberate_error_handling_and_manual_tagging():
+    # Missing tail number
+    payload = {
+        "tail_number": "",
+        "defect_description": "Hydraulic leak at gate.",
+        "part_number": "HYD-PUMP-2901",
+        "location": "ORD"
+    }
+    response = client.post("/api/cases", json=payload)
+    assert response.status_code == 200
+    case = response.json()
+    assert case["is_malformed"] is True
+    assert case["current_stage"] == "MANUAL_TAGGING"
+    assert case["status"] == "Needs Review"
+    assert case["confidence_score"] <= 0.30
+    assert "Missing required aircraft registration" in case["malformed_reason"]
+
+def test_webhook_and_file_upload_intake():
+    # Test webhook endpoint
+    wh_payload = {
+        "tail_number": "N18AX",
+        "aircraft_type": "Airbus A320",
+        "defect_description": "Brake pressure sensor calibration error",
+        "ata_chapter": "32 - Landing Gear",
+        "part_number": "BRK-ASSY-3208",
+        "location": "DFW"
+    }
+    wh_resp = client.post("/api/webhook/ingest", json=wh_payload)
+    assert wh_resp.status_code == 200
+    wh_data = wh_resp.json()
+    assert wh_data["tail_number"] == "N18AX"
+    assert len(wh_data["candidates"]) > 0
+
+    # Test file upload endpoint
+    files = {"file": ("techlog_scan.pdf", b"%PDF-1.4 simulated pdf techlog content", "application/pdf")}
+    data = {"tail_number": "N72LK", "location": "LAX", "priority": "AOG"}
+    up_resp = client.post("/api/cases/upload-doc", files=files, data=data)
+    assert up_resp.status_code == 200
+    up_data = up_resp.json()
+    assert up_data["tail_number"] == "N72LK"
+
+def test_demo_reset():
+    response = client.post("/api/demo/reset")
+    assert response.status_code == 200
+    assert response.json()["status"] == "SUCCESS"
+
+    # Verify hero case is present after reset
+    cases = client.get("/api/cases").json()
+    assert len(cases) >= 15
+    hero = next((c for c in cases if c["tail_number"] == "N42Q"), None)
+    assert hero is not None

@@ -18,24 +18,24 @@ recommendation_engine = RecommendationEngine()
 def execute_squawk_orchestration(db: Session, case_id: str):
     """
     Executes the full RocketRide SQUAWK orchestration workflow:
-    1. Parse/Validate
+    1. Parse / Structural Field Validation
     2. Parallel Specialists (Sourcing, Documentation, Logistics)
-    3. Validator (AI Checking AI)
-    4. Recommendation Engine
-    5. Gate for Human Decision
+    3. Validator (AI Checking AI with deterministic compliance gates)
+    4. Recommendation Engine Ranking
+    5. Confidence Gate (Auto-Cleared vs Human Review)
     """
     case = db.query(SquawkCase).filter(SquawkCase.id == case_id).first()
     if not case:
         return None
 
-    # Step 1: Input Validation
+    # Step 1: Input Validation & Error Handling
     if not case.tail_number or not case.part_number or case.is_malformed:
         case.current_stage = "MANUAL_TAGGING"
         case.status = "Needs Review"
-        case.confidence_score = 0.25
+        case.confidence_score = 0.20
         case.risk_level = "CRITICAL"
         if not case.malformed_reason:
-            case.malformed_reason = "Mandatory aircraft tail number or verified part number missing."
+            case.malformed_reason = "Mandatory aircraft tail number or verified part number missing from defect log."
         db.commit()
 
         # Log activity
@@ -43,19 +43,24 @@ def execute_squawk_orchestration(db: Session, case_id: str):
             id=str(uuid.uuid4()),
             case_id=case.id,
             category="PIPELINE",
-            title="Escalated to Operations Queue",
-            details=f"Case {case.id} lacks required fields. {case.malformed_reason}"
+            title="Escalated to Operations Manual Tagging Queue",
+            details=f"Case {case.id} lacks mandatory fields. {case.malformed_reason}"
         ))
         db.commit()
         return case
 
-    # Update Stage to Processing
+    # Update Stage to Specialist Routing
     case.current_stage = "SPECIALIST_ROUTING"
     case.status = "Processing"
     db.commit()
 
     # Step 2: Trigger RocketRide Pipeline Run
-    rr_res = pipeline_runner.run_pipeline("source_recovery", {"case_id": case.id, "part_number": case.part_number})
+    rr_res = pipeline_runner.run_pipeline("source_and_certify", {
+        "case_id": case.id,
+        "part_number": case.part_number,
+        "tail_number": case.tail_number,
+        "location": case.location
+    })
 
     # Step 3: Run Specialists in Parallel
     sourcing_output = sourcing_specialist.process(db, case)
@@ -139,41 +144,66 @@ def execute_squawk_orchestration(db: Session, case_id: str):
             confidence=cand_data["confidence"]
         ))
 
-    # Update case final status
+    # Step 6: Confidence Gate Routing
     case.confidence_score = val_output["confidence"]
     case.risk_level = val_output["risk_level"]
-    case.current_stage = "HUMAN_REVIEW"
-    case.status = "Awaiting Approval"
-    
-    # Set estimated recovery hours from top candidate
+
     top_cand = next((c for c in ranked_candidates if c["is_recommended"]), None)
     if top_cand:
         case.estimated_recovery_hours = top_cand["estimated_eta_hours"]
     elif ranked_candidates:
         case.estimated_recovery_hours = ranked_candidates[0]["estimated_eta_hours"]
 
-    # Log activities
+    if val_output.get("auto_cleared", False):
+        case.current_stage = "APPROVED"
+        case.status = "Approved"
+        # Auto-create dispatch action
+        po_number = f"SQ-AUTO-{uuid.uuid4().hex[:4].upper()}"
+        db.add(RecoveryAction(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            action_type="PO_CREATED",
+            reference_number=po_number,
+            title=f"Auto-Cleared Purchase Request #{po_number}",
+            details={"po_number": po_number, "status": "ISSUED", "gate": "AUTO_CLEARED_LOW_RISK"},
+            is_demo_action=True
+        ))
+        db.add(ActivityLog(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            category="APPROVAL",
+            title="Auto-Cleared & Dispatched",
+            details=f"Case {case.id} passed high-confidence compliance gate. PO #{po_number} generated."
+        ))
+    else:
+        case.current_stage = "HUMAN_REVIEW"
+        case.status = "Awaiting Approval"
+        db.add(ActivityLog(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            category="APPROVAL",
+            title="Awaiting Tech Ops Approval",
+            details=f"Case {case.id} routed to human controller for final authorization."
+        ))
+
+    # Specialist completion log
     db.add(ActivityLog(
         id=str(uuid.uuid4()),
         case_id=case.id,
         category="SPECIALIST",
         title="Parallel Specialists Completed",
-        details=f"Sourcing ({len(sourcing_output['candidates'])} found), Docs checked, Logistics computed."
+        details=f"Sourcing ({len(sourcing_output['candidates'])} found), Docs audited ({doc_output['confidence']*100:.0f}% conf), Logistics calculated ({logistics_output.get('fastest_eta_hours', 4.0)}h fastest ETA)."
     ))
-    db.add(ActivityLog(
-        id=str(uuid.uuid4()),
-        case_id=case.id,
-        category="VALIDATOR",
-        title="Validator Reconciled Candidates",
-        details=val_output["reasoning_summary"]
-    ))
-    db.add(ActivityLog(
-        id=str(uuid.uuid4()),
-        case_id=case.id,
-        category="APPROVAL",
-        title="Awaiting Tech Ops Approval",
-        details=f"Case {case.id} routed to human controller for authorization."
-    ))
+
+    # Validator audit log
+    if val_output.get("cheapest_candidate_rejected", False):
+        db.add(ActivityLog(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            category="VALIDATOR",
+            title="Validator Rejected Uncertified Low-Cost Candidate",
+            details="Cheapest vendor option was rejected due to missing FAA 8130-3/EASA airworthiness tag. Compliant rotable recommended."
+        ))
 
     db.commit()
     db.refresh(case)
@@ -208,41 +238,45 @@ def process_human_approval(db: Session, case_id: str, approval_data) -> SquawkCa
 
         # Generate simulated real-world actions
         po_number = f"SQ-{uuid.uuid4().hex[:4].upper()}"
+        dispatch_ref = f"DSP-{uuid.uuid4().hex[:4].upper()}"
+        notif_ref = f"NOTIF-{case.tail_number or 'ORD'}"
+        wo_ref = f"WO-{case.tail_number or 'ORD'}-2026"
+
         actions = [
             RecoveryAction(
                 id=str(uuid.uuid4()),
                 case_id=case.id,
                 action_type="PO_CREATED",
                 reference_number=po_number,
-                title=f"Purchase Request #{po_number} Created",
-                details={"po_number": po_number, "status": "ISSUED", "authorized_by": approval_data.approver_name},
+                title=f"Purchase Order #{po_number} Issued",
+                details={"po_number": po_number, "status": "ISSUED", "authorized_by": approval_data.approver_name, "license": approval_data.approver_license},
                 is_demo_action=True
             ),
             RecoveryAction(
                 id=str(uuid.uuid4()),
                 case_id=case.id,
                 action_type="VENDOR_DISPATCHED",
-                reference_number=f"DSP-{uuid.uuid4().hex[:4].upper()}",
-                title="Vendor Priority AOG Request Sent",
-                details={"channel": "EDI/AOG Desk Dispatch", "priority": "CRITICAL"},
+                reference_number=dispatch_ref,
+                title="Vendor Priority Hot-Shot Dispatched",
+                details={"channel": "AOG Logistics Hot-Shot / EDI 850", "priority": "AOG_CRITICAL", "ref": dispatch_ref},
                 is_demo_action=True
             ),
             RecoveryAction(
                 id=str(uuid.uuid4()),
                 case_id=case.id,
                 action_type="OPS_NOTIFIED",
-                reference_number=f"NOTIF-{case.tail_number}",
-                title="Line Maintenance Operations Team Notified",
-                details={"station": case.location, "aircraft": case.tail_number, "gate_hold": True},
+                reference_number=notif_ref,
+                title="Station Line Maintenance Notified",
+                details={"station": case.location, "aircraft": case.tail_number, "gate_hold": True, "eta": f"{case.estimated_recovery_hours or 4.0}h"},
                 is_demo_action=True
             ),
             RecoveryAction(
                 id=str(uuid.uuid4()),
                 case_id=case.id,
                 action_type="WORK_ORDER_UPDATED",
-                reference_number=f"WO-{case.tail_number}-2026",
-                title=f"Work Order WO-{case.tail_number} Updated with Tracking ID",
-                details={"status": "AWAITING_PARTS_COURIER"},
+                reference_number=wo_ref,
+                title=f"Work Order #{wo_ref} Updated with Tracking ID",
+                details={"status": "AWAITING_PARTS_COURIER", "stage": "Logistics Hot-Shot"},
                 is_demo_action=True
             )
         ]
@@ -254,7 +288,7 @@ def process_human_approval(db: Session, case_id: str, approval_data) -> SquawkCa
             case_id=case.id,
             category="ACTION",
             title=f"Recovery Approved — PO #{po_number} Generated",
-            details=f"Authorized by {approval_data.approver_name} ({approval_data.approver_license}). Simulated dispatch actions created."
+            details=f"Authorized by {approval_data.approver_name} ({approval_data.approver_license}). Logistics Hot-Shot initiated."
         ))
 
     elif decision == "REJECTED":
@@ -275,8 +309,8 @@ def process_human_approval(db: Session, case_id: str, approval_data) -> SquawkCa
             id=str(uuid.uuid4()),
             case_id=case.id,
             category="APPROVAL",
-            title="Operator Requested Additional Info",
-            details=f"Re-routing to engineering investigation. Notes: {approval_data.notes or 'None'}"
+            title="Operator Requested Additional Engineering Info",
+            details=f"Re-routing to technical investigation. Notes: {approval_data.notes or 'None'}"
         ))
 
     db.commit()
@@ -286,7 +320,7 @@ def process_human_approval(db: Session, case_id: str, approval_data) -> SquawkCa
 
 def process_verified_outcome(db: Session, case_id: str, outcome_data) -> Outcome:
     """
-    Closes the loop by updating Vendor Memory with verified physical results.
+    Closes the operational feedback loop by updating Vendor Memory with verified physical results.
     """
     case = db.query(SquawkCase).filter(SquawkCase.id == case_id).first()
     if not case:
@@ -296,7 +330,9 @@ def process_verified_outcome(db: Session, case_id: str, outcome_data) -> Outcome
     pipeline_runner.run_pipeline("outcome_tracker", {
         "case_id": case_id,
         "vendor_id": outcome_data.vendor_id,
-        "actual_eta": outcome_data.actual_delivery_hours
+        "predicted_eta": outcome_data.predicted_eta_hours,
+        "actual_eta": outcome_data.actual_delivery_hours,
+        "documentation_accepted": outcome_data.documentation_accepted
     })
 
     # Step 2: Record Outcome
@@ -315,11 +351,12 @@ def process_verified_outcome(db: Session, case_id: str, outcome_data) -> Outcome
     )
     db.add(outcome_obj)
 
-    # Step 3: Update Vendor & VendorMemory models
+    # Step 3: Compounding Vendor Memory Update
     vendor = db.query(Vendor).filter(Vendor.id == outcome_data.vendor_id).first()
     memory = db.query(VendorMemory).filter(VendorMemory.vendor_id == outcome_data.vendor_id).first()
 
     if vendor:
+        old_score = int(vendor.calculated_reliability * 100)
         vendor.verified_orders_count += 1
         is_on_time = outcome_data.actual_delivery_hours <= (outcome_data.predicted_eta_hours + 0.5)
         if is_on_time:
@@ -332,8 +369,10 @@ def process_verified_outcome(db: Session, case_id: str, outcome_data) -> Outcome
             vendor.doc_issues_count += 1
         
         # Calculate new reliability percentage
-        reliability = (vendor.on_time_deliveries / vendor.verified_orders_count) * (0.85 if vendor.doc_issues_count > 0 else 1.0)
-        vendor.calculated_reliability = round(min(1.0, max(0.20, reliability)), 2)
+        on_time_ratio = vendor.on_time_deliveries / vendor.verified_orders_count
+        doc_penalty = max(0.40, 1.0 - (vendor.doc_issues_count * 0.12))
+        vendor.calculated_reliability = round(min(1.0, max(0.20, on_time_ratio * doc_penalty)), 2)
+        new_score = int(vendor.calculated_reliability * 100)
 
         if memory:
             memory.total_orders = vendor.verified_orders_count
@@ -342,19 +381,30 @@ def process_verified_outcome(db: Session, case_id: str, outcome_data) -> Outcome
             memory.documentation_defects = vendor.doc_issues_count
             memory.reliability_score = vendor.calculated_reliability
             memory.last_updated = datetime.datetime.utcnow()
+        else:
+            memory = VendorMemory(
+                id=str(uuid.uuid4()),
+                vendor_id=vendor.id,
+                total_orders=vendor.verified_orders_count,
+                on_time_deliveries=vendor.on_time_deliveries,
+                avg_delay_minutes=vendor.avg_delay_minutes,
+                documentation_defects=vendor.doc_issues_count,
+                reliability_score=vendor.calculated_reliability
+            )
+            db.add(memory)
 
-    # Step 4: Mark case as closed
-    case.status = "Closed"
-    case.current_stage = "COMPLETED"
+        # Step 4: Mark case as closed
+        case.status = "Closed"
+        case.current_stage = "COMPLETED"
 
-    # Step 5: Add log
-    db.add(ActivityLog(
-        id=str(uuid.uuid4()),
-        case_id=case.id,
-        category="OUTCOME",
-        title="Verified Operational Outcome Logged",
-        details=f"Vendor memory updated for {vendor.name if vendor else outcome_data.vendor_id}. New reliability score: {int(vendor.calculated_reliability * 100 if vendor else 90)}%."
-    ))
+        # Step 5: Add log
+        db.add(ActivityLog(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            category="OUTCOME",
+            title="Verified Operational Outcome Compounded",
+            details=f"Vendor memory updated for {vendor.name}. Reliability shifted from {old_score}% -> {new_score}% (Orders: {vendor.verified_orders_count}, On-Time: {vendor.on_time_deliveries})."
+        ))
 
     db.commit()
     return outcome_obj

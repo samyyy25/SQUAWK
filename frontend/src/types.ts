@@ -98,6 +98,7 @@ export interface Vendor {
 }
 
 export interface VendorMemoryStat {
+  vendor_id?: string;
   vendor_name: string;
   hub: string;
   orders: number;
@@ -122,13 +123,20 @@ export interface BatchProcessResult {
   total_cases_received: number;
   successfully_processed: number;
   ready_for_approval: number;
-  need_more_info: number;
+  auto_cleared?: number;
+  need_more_info?: number;
+  escalated_to_humans: number;
+  validator_rejections_cheapest?: number;
   documentation_conflicts: number;
   vendor_search_timeouts: number;
   malformed_inputs: number;
   total_runtime_seconds: number;
   total_ai_agent_calls: number;
+  total_prompt_tokens?: number;
+  total_completion_tokens?: number;
+  total_tokens?: number;
+  total_cost_usd?: number;
   approximate_cost_usd: number;
-  escalated_to_humans: number;
+  average_cost_per_case_usd?: number;
   success_rate_percent: number;
 }

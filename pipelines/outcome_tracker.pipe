@@ -1,37 +1,112 @@
-pipeline outcome_tracker {
-    description: "Close the operational feedback loop by ingesting verified physical outcomes and updating vendor reliability memory models."
-
-    step receive_verified_outcome {
-        action: "intake_outcome_record"
-        params: {
-            require: ["case_id", "vendor_id", "actual_delivery_hours", "actual_cost", "documentation_accepted"]
+{
+  "components": [
+    {
+      "id": "webhook_1",
+      "provider": "webhook",
+      "config": {
+        "hideForm": true,
+        "mode": "Source",
+        "parameters": {},
+        "type": "webhook"
+      },
+      "ui": {
+        "position": { "x": 100, "y": 200 }
+      }
+    },
+    {
+      "id": "parse_1",
+      "provider": "parse",
+      "config": {},
+      "input": [
+        {
+          "lane": "tags",
+          "from": "webhook_1"
         }
-    }
-
-    step compute_delta_metrics {
-        action: "calculate_performance"
-        after: [receive_verified_outcome]
-        params: {
-            metrics: ["eta_variance_minutes", "cost_variance_percent", "document_defect_flag"]
+      ],
+      "ui": {
+        "position": { "x": 300, "y": 200 }
+      }
+    },
+    {
+      "id": "preprocessor_1",
+      "provider": "preprocessor",
+      "config": {
+        "profile": "default",
+        "default": {
+          "mode": "strlen",
+          "splitter": "RecursiveCharacterTextSplitter",
+          "strlen": 512
         }
-    }
-
-    step update_vendor_memory {
-        action: "memory_update"
-        after: [compute_delta_metrics]
-        params: {
-            table: "vendor_memories"
-            learning_rate: 0.15
-            policy: "VERIFIED_PHYSICAL_OUTCOMES_ONLY"
+      },
+      "input": [
+        {
+          "lane": "text",
+          "from": "parse_1"
         }
-    }
-
-    step append_audit_activity {
-        action: "log_activity"
-        after: [update_vendor_memory]
-        params: {
-            category: "OUTCOME_LEARNED"
-            event: "Vendor memory weights updated with verified recovery outcome"
+      ],
+      "ui": {
+        "position": { "x": 500, "y": 200 }
+      }
+    },
+    {
+      "id": "question_1",
+      "provider": "question",
+      "config": {
+        "question": "Compute physical delivery variance, documentation defect flags, and updated reliability scores for vendor memory update."
+      },
+      "input": [
+        {
+          "lane": "documents",
+          "from": "preprocessor_1"
         }
+      ],
+      "ui": {
+        "position": { "x": 700, "y": 200 }
+      }
+    },
+    {
+      "id": "llm_openai_1",
+      "provider": "llm_openai",
+      "config": {
+        "profile": "openai-5-2",
+        "openai-5-2": {
+          "apikey": "${ROCKETRIDE_OPENAI_KEY}",
+          "model": "gpt-4-turbo"
+        },
+        "parameters": {}
+      },
+      "input": [
+        {
+          "lane": "questions",
+          "from": "question_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 900, "y": 200 }
+      }
+    },
+    {
+      "id": "response_answers_1",
+      "provider": "response_answers",
+      "config": {
+        "laneName": "answers"
+      },
+      "input": [
+        {
+          "lane": "answers",
+          "from": "llm_openai_1"
+        }
+      ],
+      "ui": {
+        "position": { "x": 1100, "y": 200 }
+      }
     }
+  ],
+  "project_id": "d4e5f6a7-b8c9-4d4e-bf5a-6b7c8d9e0f1a",
+  "viewport": {
+    "x": 0,
+    "y": 0,
+    "zoom": 1
+  },
+  "version": 1
 }
