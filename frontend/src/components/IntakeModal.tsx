@@ -95,6 +95,18 @@ export const IntakeModal: React.FC<IntakeModalProps> = ({
     }
   };
 
+  const loadVtSqkPreset = () => {
+    setTailNumber('VT-SQK');
+    setAircraftType('Boeing 737-800');
+    setDefectDescription('System A Engine-Driven Hydraulic Pump low pressure warning. EDP rotable replacement required before passenger flight dispatch.');
+    setAtaChapter('29 - Hydraulic Power');
+    setPartNumber('HP-2048');
+    setPartName('Engine-Driven Hydraulic Pump EDP');
+    setPriority('AOG');
+    setLocation('DEL');
+    setPdfAttached(true);
+  };
+
   const loadHeroPreset = () => {
     setTailNumber('N42Q');
     setAircraftType('Boeing 737-800');
@@ -153,10 +165,17 @@ export const IntakeModal: React.FC<IntakeModalProps> = ({
           <div className="flex items-center space-x-2">
             <button 
               type="button" 
-              onClick={loadHeroPreset}
+              onClick={loadVtSqkPreset}
               className="px-2.5 py-1 rounded bg-cyan-950 hover:bg-cyan-900 text-cyan-300 border border-cyan-800 transition font-medium text-[11px]"
             >
-              ⭐ Hero Case (N42Q Boeing 737)
+              ⭐ VT-SQK (Delhi AOG)
+            </button>
+            <button 
+              type="button" 
+              onClick={loadHeroPreset}
+              className="px-2.5 py-1 rounded bg-blue-950 hover:bg-blue-900 text-blue-300 border border-blue-800 transition font-medium text-[11px]"
+            >
+              ✈️ N42Q (ORD AOG)
             </button>
             <button 
               type="button" 

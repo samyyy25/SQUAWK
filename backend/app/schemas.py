@@ -110,6 +110,29 @@ class RecoveryActionSchema(BaseModel):
     is_demo_action: bool
     created_at: datetime.datetime
 
+class ShipmentSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    case_id: str
+    supplier_id: str
+    carrier: str
+    origin: str
+    destination: str
+    tracking_awb: str
+    status: str
+    eta_hours: float
+    carbon_kg: float
+    created_at: datetime.datetime
+
+class DisruptionSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    case_id: str
+    disruption_type: str
+    target_entity_id: str
+    description: str
+    applied_at: datetime.datetime
+
 class SquawkCaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str
@@ -127,17 +150,28 @@ class SquawkCaseSchema(BaseModel):
     risk_level: str
     status: str
     estimated_recovery_hours: Optional[float] = None
+    deadline_hours: Optional[float] = 18.0
+    max_acceptable_cost: Optional[float] = 25000.0
+    carbon_kg: Optional[float] = 0.0
+    replan_count: Optional[int] = 0
     is_malformed: bool = False
     malformed_reason: Optional[str] = None
     is_demo: bool = False
     demo_key: Optional[str] = None
     demo_badge: Optional[str] = None
+    tool_call_history: List[Dict[str, Any]] = []
+    decision_trace: List[Dict[str, Any]] = []
+    disruptions_log: List[Dict[str, Any]] = []
+    verification_report: Optional[Dict[str, Any]] = None
+    active_plan: Optional[Dict[str, Any]] = None
+    scoring_weights: Optional[Dict[str, float]] = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
     candidates: List[RecoveryCandidateSchema] = []
     agent_results: List[AgentResultSchema] = []
     validation_result: Optional[ValidationResultSchema] = None
     recovery_actions: List[RecoveryActionSchema] = []
+    shipments: List[ShipmentSchema] = []
 
 class CaseCreateRequest(BaseModel):
     tail_number: Optional[str] = None
@@ -147,7 +181,9 @@ class CaseCreateRequest(BaseModel):
     part_number: Optional[str] = None
     part_name: Optional[str] = None
     priority: str = "AOG"
-    location: str = "ORD"
+    location: str = "DEL"
+    deadline_hours: Optional[float] = 18.0
+    max_acceptable_cost: Optional[float] = 25000.0
     is_demo: bool = False
     demo_key: Optional[str] = None
     demo_badge: Optional[str] = None
@@ -156,9 +192,49 @@ class CaseCreateRequest(BaseModel):
 class ApprovalRequest(BaseModel):
     selected_candidate_id: Optional[str] = None
     decision: str = "APPROVED" # APPROVED, REJECTED, REQUEST_MORE_INFO, ALTERNATIVE_CHOSEN
-    approver_name: str = "Capt. Marcus Vance"
-    approver_license: str = "FAA A&P / AOG Controller #482910"
+    approver_name: str = "Demo Lead Engineer"
+    approver_license: str = "SIM-AOG-TECH #482910"
     notes: Optional[str] = None
+
+class DisruptionRequest(BaseModel):
+    case_id: str
+    disruption_type: str = "SUPPLIER_STOCKOUT"
+
+class ReplanRequest(BaseModel):
+    case_id: str
+
+class VerifyRecoveryRequest(BaseModel):
+    case_id: str
+
+class PartVerifyRequest(BaseModel):
+    part_number: str
+    aircraft_model: str = "Boeing 737-800"
+    supplier_id: Optional[str] = None
+
+class RouteRequest(BaseModel):
+    origin: str
+    destination: str = "DEL"
+    mode: str = "NFO_EXPEDITED_AIR"
+
+class OptimizeRequest(BaseModel):
+    options: List[Dict[str, Any]]
+    constraints: Dict[str, Any]
+    weights: Optional[Dict[str, float]] = None
+
+class ReservePartRequest(BaseModel):
+    supplier_id: str
+    part_number: str
+    quantity: int = 1
+    case_id: Optional[str] = None
+
+class CreateShipmentRequest(BaseModel):
+    case_id: str
+    supplier_id: str
+    carrier: str
+    origin: str
+    destination: str = "DEL"
+    eta_hours: float
+    carbon_kg: float = 0.0
 
 class OutcomeSubmitRequest(BaseModel):
     vendor_id: str
@@ -201,4 +277,3 @@ class BatchProcessResultSchema(BaseModel):
     approximate_cost_usd: float
     average_cost_per_case_usd: float
     success_rate_percent: float
-

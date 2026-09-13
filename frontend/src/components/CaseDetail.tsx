@@ -20,6 +20,11 @@ import { AgentStatusCards } from './AgentStatusCards';
 import { ValidatorComparison } from './ValidatorComparison';
 import { RecommendationCard } from './RecommendationCard';
 import { HumanApprovalPanel } from './HumanApprovalPanel';
+import { LiveAgentTimeline } from './LiveAgentTimeline';
+import { DecisionTrace } from './DecisionTrace';
+import { DisruptionSimulator } from './DisruptionSimulator';
+import { VerificationPanel } from './VerificationPanel';
+import { FlightRecoveryMap } from './FlightRecoveryMap';
 
 interface CaseDetailProps {
   caseData: SquawkCase;
@@ -223,6 +228,34 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
       {/* PARALLEL SPECIALIST AGENT STATUS CARDS */}
       <AgentStatusCards caseData={caseData} />
 
+      {/* TACTICAL FLIGHT & RECOVERY MAP */}
+      <FlightRecoveryMap 
+        caseData={caseData}
+        isDisrupted={caseData.status.includes('Disrupted') || caseData.current_stage === 'DISRUPTED'}
+        isVerified={caseData.status.includes('Verified') || caseData.current_stage === 'VERIFIED'}
+        replanCount={caseData.replan_count || 0}
+      />
+
+      {/* Controlled Disruption Simulator */}
+      <DisruptionSimulator 
+        caseId={caseData.id}
+        isDisrupted={caseData.status.includes('Disrupted') || caseData.current_stage === 'DISRUPTED'}
+        replanCount={caseData.replan_count || 0}
+        onDisruptionTriggered={onRefreshCase}
+        onReplanTriggered={onRefreshCase}
+      />
+
+      {/* Final Verification Certificate */}
+      {caseData.verification_report && (
+        <VerificationPanel 
+          report={caseData.verification_report}
+          onVerifyNow={async () => {
+            await api.verifyRecovery(caseData.id);
+            onRefreshCase();
+          }}
+        />
+      )}
+
       {/* TASK 4: STRONG VALIDATOR COMPARISON TABLE & EXPLAINABILITY */}
       <ValidatorComparison 
         candidates={caseData.candidates}
@@ -235,6 +268,16 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
       {recommendedCandidate && (
         <RecommendationCard candidate={recommendedCandidate} />
       )}
+
+      {/* Live Agent Timeline & Auditable Decision Trace */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {caseData.tool_call_history && caseData.tool_call_history.length > 0 && (
+          <LiveAgentTimeline toolCalls={caseData.tool_call_history} />
+        )}
+        {caseData.decision_trace && caseData.decision_trace.length > 0 && (
+          <DecisionTrace trace={caseData.decision_trace} />
+        )}
+      </div>
 
       {/* TASK 5: CERTIFIED HUMAN APPROVAL GATE */}
       <HumanApprovalPanel 

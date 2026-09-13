@@ -1,80 +1,61 @@
 import React from 'react';
 import { 
-  Plus, 
-  SlidersHorizontal, 
-  PanelLeft,
-  LayoutGrid,
-  Radio,
-  Sparkles,
+  Bell, 
+  ChevronDown,
   ShieldCheck,
   Cpu
 } from 'lucide-react';
 
 interface TopbarProps {
   currentTab: string;
-  openIntakeModal: () => void;
+  openIntakeModal?: () => void;
 }
 
-export const Topbar: React.FC<TopbarProps> = ({
-  currentTab,
-  openIntakeModal
-}) => {
-  const getTitle = () => {
-    switch (currentTab) {
-      case 'overview': return 'AOG Command Center';
-      case 'cases': return 'AOG Case Queue & Dispatch';
-      case 'batch': return 'Batch Processing Center';
-      case 'vendors': return 'Aviation Supplier Network';
-      case 'memory': return 'Vendor Memory & Learning';
-      case 'activity': return 'Operations Audit Stream';
-      default: return 'Flight Operations';
-    }
-  };
-
+export const Topbar: React.FC<TopbarProps> = () => {
   return (
-    <header className="h-14 bg-[#121316] border-b border-[#1e2025] px-6 flex items-center justify-between shrink-0 select-none text-slate-200">
+    <header className="h-14 bg-[#070B11] border-b border-[#151D2A] px-6 flex items-center justify-between shrink-0 select-none text-slate-200 font-sans z-20">
       
-      {/* Left Title & Icons */}
-      <div className="flex items-center space-x-3">
-        <div className="p-1 rounded-lg bg-slate-800/80 text-cyan-400 border border-slate-700/60">
-          <Cpu className="w-4 h-4" />
+      {/* Left Title */}
+      <div className="flex items-center space-x-2.5">
+        <div className="w-6 h-6 rounded-md bg-[#0e2238] border border-cyan-500/40 flex items-center justify-center text-cyan-400">
+          <Cpu className="w-3.5 h-3.5" />
         </div>
-
-        <div className="h-4 w-px bg-slate-800"></div>
-
-        <div className="flex items-center space-x-2">
-          <h1 className="text-sm font-bold text-white tracking-wide">{getTitle()}</h1>
-        </div>
+        <h1 className="text-sm font-bold text-white tracking-wide">AOG Command Center</h1>
       </div>
 
-      {/* Center/Right Status & Controls */}
+      {/* Right Controls */}
       <div className="flex items-center space-x-3">
         
-        {/* Global Demo Environment Indicator */}
-        <div className="hidden sm:flex items-center space-x-2 px-2.5 py-1 rounded-lg bg-amber-950/40 border border-amber-800/50 text-[11px] font-mono text-amber-300">
-          <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse"></span>
-          <span className="font-semibold tracking-wider uppercase">DEMO ENVIRONMENT</span>
-          <span className="text-amber-500/80">• Simulated Data</span>
+        {/* Operations Environment Badge */}
+        <div className="flex items-center space-x-2 px-3 py-1 rounded-full bg-[#061e2f]/80 border border-[#0284c7]/70 text-[11px] font-mono text-cyan-300 shadow-sm">
+          <span className="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+          <span className="font-semibold uppercase tracking-wider">OPERATIONS ENVIRONMENT</span>
         </div>
 
-        {/* AI Suggests - Human Decides Badge */}
-        <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-cyan-950/40 border border-cyan-800/50 text-[11px] font-mono text-cyan-300">
+        {/* AI Suggests · Human Decides Badge */}
+        <div className="hidden md:flex items-center space-x-1.5 px-3 py-1 rounded-full bg-[#041a24]/90 border border-[#0e7490]/70 text-[11px] font-mono text-cyan-300 shadow-sm">
           <ShieldCheck className="w-3.5 h-3.5 text-cyan-400" />
-          <span className="font-semibold">AI Suggests. Human Decides.</span>
+          <span className="font-semibold uppercase tracking-wide">AI SUGGESTS · HUMAN DECIDES</span>
         </div>
 
-        {/* New Flight / Case Button */}
-        <button
-          onClick={openIntakeModal}
-          className="flex items-center space-x-1.5 bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-black font-bold px-3 py-1.5 rounded-xl text-xs transition shadow-lg shadow-cyan-950/50 active:scale-95"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[3]" />
-          <span>New AOG Intake</span>
+        {/* Notifications Bell */}
+        <button className="w-8 h-8 rounded-full bg-[#0F1724] border border-[#1E293B] flex items-center justify-center text-slate-400 hover:text-white hover:border-slate-600 transition cursor-pointer">
+          <Bell className="w-4 h-4" />
         </button>
+
+        {/* User Operator Dropdown */}
+        <div className="flex items-center space-x-2 pl-1 cursor-pointer">
+          <div className="w-7 h-7 rounded-full bg-[#0284c7] text-white font-bold text-xs flex items-center justify-center shadow-md">
+            OC
+          </div>
+          <span className="text-xs font-semibold text-slate-300 hover:text-white transition">
+            Operations Controller
+          </span>
+          <ChevronDown className="w-3.5 h-3.5 text-slate-500" />
+        </div>
 
       </div>
 
     </header>
   );
 };
-

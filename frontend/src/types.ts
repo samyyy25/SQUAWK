@@ -19,6 +19,75 @@ export interface RecoveryCandidate {
   is_flagged: boolean;
   flag_reason?: string;
   confidence: number;
+  carbon_kg?: number;
+  recovery_score?: number;
+  score_breakdown?: {
+    delivery: number;
+    reliability: number;
+    cost: number;
+    compliance: number;
+    carbon: number;
+  };
+}
+
+export interface ToolCallRecord {
+  id: string;
+  agent: string;
+  tool: string;
+  args: any;
+  result: any;
+  duration_ms: number;
+  status: string;
+  timestamp: string;
+}
+
+export interface DecisionTraceStep {
+  step: string;
+  goal: string;
+  observation: string;
+  reasoning: string;
+  action: string;
+  outcome: string;
+  timestamp: string;
+}
+
+export interface DisruptionRecord {
+  id: string;
+  type: string;
+  target: string;
+  description: string;
+  timestamp: string;
+}
+
+export interface VerificationReport {
+  verification_status: 'PASS' | 'FAIL';
+  objective: string;
+  constraints_passed: string;
+  constraint_details?: Record<string, boolean>;
+  expected_recovery_time: string;
+  deadline: string;
+  safety_margin: string;
+  margin_hours: number;
+  supplier_name: string;
+  carrier: string;
+  total_landed_cost: number;
+  carbon_kg: number;
+  verified_at: string;
+  digital_certificate_id: string;
+}
+
+export interface ShipmentRecord {
+  id: string;
+  case_id: string;
+  supplier_id: string;
+  carrier: string;
+  origin: string;
+  destination: string;
+  tracking_awb: string;
+  status: string;
+  eta_hours: number;
+  carbon_kg: number;
+  created_at: string;
 }
 
 export interface AgentResult {
@@ -72,14 +141,28 @@ export interface SquawkCase {
   risk_level: string;
   status: string;
   estimated_recovery_hours?: number;
+  deadline_hours?: number;
+  max_acceptable_cost?: number;
+  carbon_kg?: number;
+  replan_count?: number;
   is_malformed: boolean;
   malformed_reason?: string;
+  is_demo?: boolean;
+  demo_key?: string;
+  demo_badge?: string;
+  tool_call_history?: ToolCallRecord[];
+  decision_trace?: DecisionTraceStep[];
+  disruptions_log?: DisruptionRecord[];
+  verification_report?: VerificationReport;
+  active_plan?: any;
+  scoring_weights?: Record<string, number>;
   created_at: string;
   updated_at: string;
   candidates: RecoveryCandidate[];
   agent_results: AgentResult[];
   validation_result?: ValidationResult;
   recovery_actions: RecoveryAction[];
+  shipments?: ShipmentRecord[];
 }
 
 export interface Vendor {

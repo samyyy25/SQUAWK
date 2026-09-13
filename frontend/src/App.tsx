@@ -58,7 +58,7 @@ export function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#0b0c0e] text-slate-200 font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F14] text-slate-200 font-sans selection:bg-cyan-500 selection:text-black">
       
       {/* Sleek Left Sidebar */}
       <Sidebar 
@@ -83,7 +83,7 @@ export function App() {
         />
 
         {/* Scrollable Main Operations Dashboard */}
-        <main className="flex-1 overflow-y-auto bg-[#0b0c0e]">
+        <main className="flex-1 overflow-y-auto bg-[#0B0F14]">
           {selectedCase ? (
             <CaseDetail 
               caseData={selectedCase}

@@ -33,11 +33,21 @@ class SquawkCase(Base):
     risk_level = Column(String, default="MEDIUM") # LOW, MEDIUM, HIGH, CRITICAL
     status = Column(String, default="Processing") # Processing, Needs Review, Awaiting Approval, Approved, Rejected, Action Created, Closed
     estimated_recovery_hours = Column(Float, nullable=True)
+    deadline_hours = Column(Float, default=18.0)
+    max_acceptable_cost = Column(Float, default=25000.0)
+    carbon_kg = Column(Float, default=0.0)
+    replan_count = Column(Integer, default=0)
     is_malformed = Column(Boolean, default=False)
     malformed_reason = Column(Text, nullable=True)
     is_demo = Column(Boolean, default=False)
     demo_key = Column(String, nullable=True) # hero, fast_recovery, missing_info, vendor_memory, agent_conflict
     demo_badge = Column(String, nullable=True) # HERO, FAST RECOVERY, MISSING DATA, MEMORY, AGENT CONFLICT
+    tool_call_history = Column(JSON, default=list) # List of {agent, tool, args, result, timestamp, duration_ms}
+    decision_trace = Column(JSON, default=list) # List of {step, goal, observation, reasoning, action, outcome}
+    disruptions_log = Column(JSON, default=list) # List of disruption events
+    verification_report = Column(JSON, nullable=True) # 7/7 constraint check, margin, certificate
+    active_plan = Column(JSON, nullable=True) # Current active plan details
+    scoring_weights = Column(JSON, default=lambda: {"delivery": 0.40, "reliability": 0.25, "cost": 0.15, "compliance": 0.10, "carbon": 0.10})
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
@@ -48,6 +58,8 @@ class SquawkCase(Base):
     approvals = relationship("Approval", back_populates="case", cascade="all, delete-orphan")
     recovery_actions = relationship("RecoveryAction", back_populates="case", cascade="all, delete-orphan")
     outcomes = relationship("Outcome", back_populates="case", cascade="all, delete-orphan")
+    shipments = relationship("Shipment", back_populates="case", cascade="all, delete-orphan")
+    disruptions = relationship("Disruption", back_populates="case", cascade="all, delete-orphan")
 
 
 class Vendor(Base):
@@ -239,7 +251,38 @@ class ActivityLog(Base):
     id = Column(String, primary_key=True, index=True)
     case_id = Column(String, nullable=True)
     timestamp = Column(DateTime, default=datetime.datetime.utcnow)
-    category = Column(String, default="PIPELINE") # PIPELINE, SPECIALIST, VALIDATOR, APPROVAL, ACTION, OUTCOME
+    category = Column(String, default="PIPELINE") # PIPELINE, SPECIALIST, VALIDATOR, APPROVAL, ACTION, OUTCOME, DISRUPTION, REPLAN
     title = Column(String, nullable=False)
     details = Column(Text, nullable=True)
     meta_info = Column(JSON, nullable=True)
+
+
+class Shipment(Base):
+    __tablename__ = "shipments"
+
+    id = Column(String, primary_key=True, index=True)
+    case_id = Column(String, ForeignKey("squawk_cases.id"), nullable=False)
+    supplier_id = Column(String, ForeignKey("vendors.id"), nullable=False)
+    carrier = Column(String, nullable=False) # e.g. Singapore Cargo Express, DHL Aviation AOG, Emirates SkyCargo
+    origin = Column(String, nullable=False) # e.g. SIN, BOM, DXB
+    destination = Column(String, nullable=False) # DEL
+    tracking_awb = Column(String, nullable=False) # e.g. AWB-SIN-DEL-8821
+    status = Column(String, default="DISPATCHED") # RESERVED, DISPATCHED, IN_TRANSIT, DELIVERED, CANCELLED
+    eta_hours = Column(Float, nullable=False)
+    carbon_kg = Column(Float, default=0.0)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    case = relationship("SquawkCase", back_populates="shipments")
+
+
+class Disruption(Base):
+    __tablename__ = "disruptions"
+
+    id = Column(String, primary_key=True, index=True)
+    case_id = Column(String, ForeignKey("squawk_cases.id"), nullable=False)
+    disruption_type = Column(String, nullable=False) # SUPPLIER_STOCKOUT, FLIGHT_CANCELLED, CUSTOMS_HOLD, TRANSIT_DELAY
+    target_entity_id = Column(String, nullable=False) # Supplier ID or Flight ID
+    description = Column(Text, nullable=False)
+    applied_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    case = relationship("SquawkCase", back_populates="disruptions")

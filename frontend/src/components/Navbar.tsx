@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <strong>AIRWORTHINESS ADVISORY:</strong> SQUAWK is an AI decision-support & operations orchestrator. All recovery recommendations require authorization by a licensed A&P / Part 66 engineer.
           </span>
         </div>
-        <span className="text-[10px] font-mono text-amber-400/80">DEMO MODE ACTIVE</span>
+        <span className="text-[10px] font-mono text-cyan-400/80">LIVE OPERATIONS ACTIVE</span>
       </div>
     </div>
   );

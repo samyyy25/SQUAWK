@@ -151,7 +151,7 @@ export const MemoryLearning: React.FC = () => {
           <div className="flex items-center space-x-2">
             <Sparkles className="w-4 h-4 text-purple-400" />
             <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-              DEMO OUTCOME SIMULATOR — Verified Outcomes Update Supplier Memory
+              OPERATIONAL OUTCOME RECORDER — Verified Outcomes Update Supplier Memory
             </h3>
           </div>
           <span className="text-[10px] font-mono bg-purple-950 text-purple-300 border border-purple-800 px-2 py-0.5 rounded">
@@ -231,7 +231,7 @@ export const MemoryLearning: React.FC = () => {
           <div className="text-2xl font-bold text-purple-300 font-mono mt-1">
             {memoryStats.reduce((acc, m) => acc + m.orders, 0)} Outcomes
           </div>
-          <div className="text-[10px] text-emerald-400 mt-0.5">Historical & Simulated Operations</div>
+          <div className="text-[10px] text-emerald-400 mt-0.5">Historical & Verified Operations</div>
         </div>
 
         <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">

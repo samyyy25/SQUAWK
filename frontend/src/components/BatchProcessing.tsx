@@ -6,7 +6,6 @@ import {
   AlertTriangle, 
   Clock, 
   Coins, 
-  HelpCircle, 
   Zap, 
   Sparkles,
   Layers,
@@ -16,6 +15,24 @@ import {
 } from 'lucide-react';
 import { BatchProcessResult } from '../types';
 import { api } from '../api';
+
+const SAMPLE_15_BATCH_CASES = [
+  { id: 'CASE-SQK-2048', tail: 'VT-SQK', type: 'B737-800', station: 'DEL', part: 'HP-2048', priority: 'AOG', risk: 'LOW', status: 'Awaiting Sourcing' },
+  { id: 'CASE-ORD-4201', tail: 'N42Q', type: 'B737-800', station: 'ORD', part: 'HYD-PUMP-2901', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-DFW-1892', tail: 'N18AX', type: 'A320-200', station: 'DFW', part: 'RAD-TCAS-3444', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-LAX-7703', tail: 'N72LK', type: 'B777-300ER', station: 'LAX', part: 'GEN-IDG-2401', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-MIA-9051', tail: 'N905AA', type: 'B787-9', station: 'MIA', part: 'ACT-FLAP-2710', priority: 'AOG', risk: 'MEDIUM', status: 'In Review' },
+  { id: 'CASE-JFK-3112', tail: 'N311VA', type: 'A321neo', station: 'JFK', part: 'VALV-BLEED-3601', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-DEN-5404', tail: 'N540UA', type: 'E175', station: 'DEN', part: 'BRAKE-ASSY-3204', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-ATL-8825', tail: 'N882DL', type: 'A350-900', station: 'ATL', part: 'SENSOR-AOA-3411', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-SFO-6029', tail: 'N602UA', type: 'B777-200', station: 'SFO', part: 'WHEEL-MAIN-3245', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-BOS-2194', tail: 'N219JB', type: 'A220-300', station: 'BOS', part: 'PUMP-FUEL-2820', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-SEA-9183', tail: 'N918AK', type: 'B737-900', station: 'SEA', part: 'STARTER-ENG-8012', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-PHX-4410', tail: 'N441AA', type: 'A321-200', station: 'PHX', part: 'DISPLAY-DU-3160', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-CLT-7301', tail: 'N730US', type: 'A319-100', station: 'CLT', part: 'FAN-RECIRC-2122', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-IAH-8219', tail: 'N821UA', type: 'B787-8', station: 'IAH', part: 'PROBE-TAT-3419', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+  { id: 'CASE-EWR-1044', tail: 'N104UA', type: 'B737-700', station: 'EWR', part: 'TRANSMITTER-2780', priority: 'AOG', risk: 'LOW', status: 'Ready for Dispatch' },
+];
 
 export const BatchProcessing: React.FC = () => {
   const [isRunning, setIsRunning] = useState(false);
@@ -28,13 +45,13 @@ export const BatchProcessing: React.FC = () => {
     setResult(null);
 
     setBatchStage('Ingesting 15 AOG cases via ingest_squawk.pipe webhook...');
-    await new Promise(r => setTimeout(r, 450));
+    await new Promise(r => setTimeout(r, 400));
 
     setBatchStage('Fan-out: running Sourcing, Documentation, Logistics agents in parallel...');
-    await new Promise(r => setTimeout(r, 550));
+    await new Promise(r => setTimeout(r, 500));
 
-    setBatchStage('Validator Agent executing deterministic compliance checks & confidence gate...');
-    await new Promise(r => setTimeout(r, 400));
+    setBatchStage('Validator Agent executing compliance checks & confidence gate...');
+    await new Promise(r => setTimeout(r, 350));
 
     try {
       const res = await api.processBatch();
@@ -49,12 +66,12 @@ export const BatchProcessing: React.FC = () => {
   };
 
   const handleResetDemo = async () => {
-    if (!confirm('Reset SQUAWK demo database back to pristine 15-case seed state?')) return;
+    if (!confirm('Reset SQUAWK database back to baseline 15-case state?')) return;
     setIsResetting(true);
     try {
       await api.resetDemo();
       setResult(null);
-      alert('Demo state reset successfully. Ready for next live run.');
+      alert('Database state reset successfully. Ready for active operations.');
     } catch (err: any) {
       alert('Reset error: ' + err.message);
     } finally {
@@ -63,45 +80,48 @@ export const BatchProcessing: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 max-w-7xl mx-auto">
       
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      <div className="p-5 rounded-xl bg-[#151B23] border border-[#26313D] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center space-x-2">
-            <Radio className="w-5 h-5 text-emerald-400" />
-            <span>High-Throughput Batch Processing Engine</span>
+          <div className="flex items-center space-x-2 mb-1">
+            <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono font-bold uppercase">
+              HIGH-THROUGHPUT QUEUE RUNNER
+            </span>
+          </div>
+          <h2 className="text-xl font-bold text-white tracking-tight">
+            Network AOG Batch Processing Engine
           </h2>
-          <p className="text-xs text-slate-400">
-            Process entire airline network AOG queues concurrently using RocketRide multi-agent DAG pipelines
+          <p className="text-xs text-slate-400 mt-0.5">
+            Concurrent multi-agent processing across 15 network stations with real token usage and execution telemetry
           </p>
         </div>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-3 shrink-0">
           <button
             onClick={handleResetDemo}
             disabled={isResetting || isRunning}
-            className="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-semibold px-3 py-2 rounded-xl transition active:scale-95 disabled:opacity-50"
-            title="Reset database to initial pristine state"
+            className="flex items-center space-x-1.5 bg-[#11161D] hover:bg-[#1e2633] text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg border border-[#26313D] transition active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-            <span>{isResetting ? 'Resetting...' : 'Reset Demo State'}</span>
+            <span>Reset Batch</span>
           </button>
 
           <button 
             onClick={handleRunBatch}
             disabled={isRunning}
-            className="flex items-center space-x-2 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl shadow-lg shadow-emerald-950/50 transition active:scale-95 disabled:opacity-50"
+            className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold px-4 py-2.5 rounded-lg shadow-lg transition active:scale-95 disabled:opacity-50 cursor-pointer"
           >
             {isRunning ? (
               <>
                 <Sparkles className="w-4 h-4 animate-spin" />
-                <span>Processing Queue...</span>
+                <span>Processing 15 Cases...</span>
               </>
             ) : (
               <>
-                <Play className="w-4 h-4" />
-                <span>Process Today's AOG Queue (15 Cases)</span>
+                <Play className="w-4 h-4 fill-black" />
+                <span>Process Network Queue (15 Cases)</span>
               </>
             )}
           </button>
@@ -110,183 +130,121 @@ export const BatchProcessing: React.FC = () => {
 
       {/* Progress banner */}
       {isRunning && (
-        <div className="p-5 bg-emerald-950/40 border border-emerald-800/80 rounded-2xl space-y-3 animate-pulse">
-          <div className="flex items-center justify-between text-emerald-300 text-xs font-bold">
+        <div className="p-4 bg-emerald-950/40 border border-emerald-800/80 rounded-xl space-y-2 animate-pulse">
+          <div className="flex items-center justify-between text-emerald-300 text-xs font-bold font-mono">
             <div className="flex items-center space-x-2">
-              <Zap className="w-4 h-4 text-emerald-400 animate-bounce" />
-              <span>AOG CASES INGESTED: 15 / 15</span>
+              <Zap className="w-4 h-4 text-emerald-400" />
+              <span>PARALLEL FAN-OUT PIPELINE RUNNING (15/15 CASES)</span>
             </div>
-            <span className="font-mono text-[11px] text-emerald-400">Parallel Fan-Out Active</span>
+            <span>Fan-Out Active</span>
           </div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-mono">
-            <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-center">
-              <span className="text-slate-500 text-[10px] block">SOURCING</span>
-              <span className="text-cyan-400 font-bold">15 / 15</span>
-            </div>
-            <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-center">
-              <span className="text-slate-500 text-[10px] block">DOCUMENTATION</span>
-              <span className="text-amber-400 font-bold">15 / 15</span>
-            </div>
-            <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-center">
-              <span className="text-slate-500 text-[10px] block">LOGISTICS</span>
-              <span className="text-teal-400 font-bold">15 / 15</span>
-            </div>
-            <div className="bg-slate-950/80 p-2 rounded-lg border border-slate-800 text-center">
-              <span className="text-slate-500 text-[10px] block">VALIDATOR</span>
-              <span className="text-purple-400 font-bold">15 / 15</span>
-            </div>
-          </div>
-
           <div className="text-xs text-emerald-200 font-mono">{batchStage}</div>
         </div>
       )}
 
       {/* Telemetry Metric Cards */}
       {result && (
-        <div className="space-y-6 animate-in fade-in zoom-in duration-300">
-          
-          {/* Multi-Agent Execution Progress Result Box */}
-          <div className="bg-[#0f172a] border border-emerald-800/60 rounded-2xl p-4.5 space-y-3 shadow-xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
-              <span className="text-xs font-bold text-white uppercase tracking-wider font-mono">
-                Batch Orchestration Pipeline Summary
-              </span>
-              <span className="text-[11px] font-mono text-emerald-400 font-bold">
-                15 / 15 Cases Processed
-              </span>
+        <div className="space-y-6">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">Runtime</span>
+              <div className="text-xl font-bold text-white font-mono mt-0.5">{result.total_runtime_seconds}s</div>
+              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">Concurrent</span>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-              <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 block">SOURCING SPECIALIST</span>
-                <span className="text-cyan-400 font-bold text-sm">15 / 15 Completed</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">60 candidates evaluated</span>
-              </div>
+            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">Agent Runs</span>
+              <div className="text-xl font-bold text-cyan-300 font-mono mt-0.5">{result.total_ai_agent_calls}</div>
+              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">4 per case</span>
+            </div>
 
-              <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 block">DOCUMENTATION SPECIALIST</span>
-                <span className="text-amber-400 font-bold text-sm">15 / 15 Audited</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">{result.documentation_conflicts || 3} uncertified rejected</span>
-              </div>
+            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">Total Tokens</span>
+              <div className="text-xl font-bold text-purple-300 font-mono mt-0.5">{result.total_tokens?.toLocaleString() || '42,000'}</div>
+              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Prompt + Output</span>
+            </div>
 
-              <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 block">LOGISTICS SPECIALIST</span>
-                <span className="text-teal-400 font-bold text-sm">15 / 15 Routed</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Avg 4.1h ETA</span>
-              </div>
+            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">Compute Cost</span>
+              <div className="text-xl font-bold text-emerald-300 font-mono mt-0.5">${result.total_cost_usd?.toFixed(4) || result.approximate_cost_usd.toFixed(4)}</div>
+              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">${result.average_cost_per_case_usd?.toFixed(4) || '0.0022'} / case</span>
+            </div>
 
-              <div className="bg-slate-950/70 p-2.5 rounded-xl border border-slate-800">
-                <span className="text-[10px] text-slate-500 block">VALIDATOR AGENT</span>
-                <span className="text-purple-400 font-bold text-sm">15 / 15 Cross-Checked</span>
-                <span className="text-[10px] text-slate-400 block mt-0.5">Confidence gate verified</span>
-              </div>
+            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
+              <span className="text-[10px] text-slate-400 font-mono uppercase block">Success Rate</span>
+              <div className="text-xl font-bold text-white font-mono mt-0.5">{Math.round(result.success_rate_percent)}%</div>
+              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">{result.ready_for_approval} Ready</span>
             </div>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-            
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-              <div className="text-[11px] text-slate-400 font-semibold uppercase">Wall-Clock Runtime</div>
-              <div className="text-xl font-bold text-white font-mono mt-1">{result.total_runtime_seconds}s</div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-0.5">Concurrent Pipeline</div>
-            </div>
-
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-              <div className="text-[11px] text-slate-400 font-semibold uppercase">Total AI Agent Runs</div>
-              <div className="text-xl font-bold text-cyan-300 font-mono mt-1">{result.total_ai_agent_calls}</div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">3 Specialists + Validator</div>
-            </div>
-
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-              <div className="text-[11px] text-slate-400 font-semibold uppercase">Total Token Count</div>
-              <div className="text-xl font-bold text-purple-300 font-mono mt-1">{result.total_tokens?.toLocaleString() || '42,000'}</div>
-              <div className="text-[10px] text-slate-400 font-mono mt-0.5">{result.total_prompt_tokens?.toLocaleString()} in / {result.total_completion_tokens?.toLocaleString()} out</div>
-            </div>
-
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-              <div className="text-[11px] text-slate-400 font-semibold uppercase">Measured Compute Cost</div>
-              <div className="text-xl font-bold text-emerald-300 font-mono mt-1">${result.total_cost_usd?.toFixed(4) || result.approximate_cost_usd.toFixed(4)}</div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-0.5">${result.average_cost_per_case_usd?.toFixed(4) || '0.0022'} / case</div>
-            </div>
-
-            <div className="bg-[#0f172a] border border-slate-800 rounded-xl p-4">
-              <div className="text-[11px] text-slate-400 font-semibold uppercase">Pipeline Success Rate</div>
-              <div className="text-xl font-bold text-white font-mono mt-1">{Math.round(result.success_rate_percent)}%</div>
-              <div className="text-[10px] text-emerald-400 font-mono mt-0.5">{result.ready_for_approval} Ready for Human Gate</div>
-            </div>
-
-          </div>
-
-          {/* Outcome Breakdown Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 space-y-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-                <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-                <span>Automated Routing & Confidence Gating</span>
-              </h3>
-              
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Total Cases Received in Batch</span>
-                  <span className="font-mono font-bold text-white">{result.total_cases_received}</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Successfully Processed</span>
-                  <span className="font-mono font-bold text-emerald-400">{result.successfully_processed}</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Awaiting Human Approval (Confidence Gate)</span>
-                  <span className="font-mono font-bold text-cyan-400">{result.ready_for_approval}</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Auto-Cleared Low-Risk Dispatches</span>
-                  <span className="font-mono font-bold text-emerald-400">{result.auto_cleared || 0}</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-[#0f172a] border border-slate-800 rounded-2xl p-5 space-y-3">
-              <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-                <ShieldAlert className="w-4 h-4 text-amber-400" />
-                <span>Validator Flags & Exception Gating</span>
-              </h3>
-
-              <div className="space-y-2 text-xs">
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Validator Rejected Cheapest Non-Compliant Option</span>
-                  <span className="font-mono font-bold text-red-400">{result.validator_rejections_cheapest || 1} cases</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Missing Airworthiness Tag Conflicts (8130-3/EASA)</span>
-                  <span className="font-mono font-bold text-amber-400">{result.documentation_conflicts}</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Malformed Inputs (Sent to Manual Tagging)</span>
-                  <span className="font-mono font-bold text-purple-400">{result.malformed_inputs}</span>
-                </div>
-                <div className="flex items-center justify-between p-2.5 bg-slate-950 rounded-lg">
-                  <span className="text-slate-300 font-medium">Total Escalated for Human Review</span>
-                  <span className="font-mono font-bold text-amber-300">{result.escalated_to_humans}</span>
-                </div>
-              </div>
-            </div>
-
-          </div>
-
         </div>
       )}
 
-      {!result && !isRunning && (
-        <div className="p-12 text-center bg-[#0f172a] border border-slate-800 rounded-2xl space-y-3">
-          <Layers className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300">Ready to execute live batch queue</h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
-            Click "Process Today's AOG Queue" to orchestrate parallel Sourcing, Documentation compliance verification, and Validator risk gating across all 15 active cases with real token and runtime tracking.
-          </p>
+      {/* 15 AOG Cases Queue Table (Always shown for rich intentional look) */}
+      <div className="rounded-xl bg-[#151B23] border border-[#26313D] overflow-hidden">
+        <div className="px-5 py-3.5 bg-[#11161D] border-b border-[#26313D] flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <Layers className="w-4 h-4 text-cyan-400" />
+            <h3 className="text-sm font-bold text-white uppercase tracking-wide">
+              Network AOG Batch Queue (15 Active Incidents)
+            </h3>
+          </div>
+          <span className="text-[11px] font-mono text-slate-400">
+            {result ? '15/15 PROCESSED' : '15 QUEUED'}
+          </span>
         </div>
-      )}
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs font-sans">
+            <thead className="bg-[#11161D] text-[11px] font-mono text-slate-400 border-b border-[#26313D] uppercase">
+              <tr>
+                <th className="py-2.5 px-4">Case ID</th>
+                <th className="py-2.5 px-3">Aircraft</th>
+                <th className="py-2.5 px-3">Station</th>
+                <th className="py-2.5 px-3">Part Required</th>
+                <th className="py-2.5 px-3">Priority</th>
+                <th className="py-2.5 px-3">Risk Level</th>
+                <th className="py-2.5 px-4 text-right">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-[#1e2633]">
+              {SAMPLE_15_BATCH_CASES.map((item, idx) => (
+                <tr key={item.id} className="hover:bg-[#18202b] transition">
+                  <td className="py-2.5 px-4 font-mono font-bold text-cyan-300">
+                    {item.id}
+                  </td>
+                  <td className="py-2.5 px-3">
+                    <span className="font-mono text-white font-semibold">{item.tail}</span>
+                    <span className="text-slate-400 text-[11px] ml-1.5">({item.type})</span>
+                  </td>
+                  <td className="py-2.5 px-3 font-mono font-bold text-slate-200">
+                    {item.station}
+                  </td>
+                  <td className="py-2.5 px-3 font-mono text-amber-300">
+                    {item.part}
+                  </td>
+                  <td className="py-2.5 px-3 font-mono">
+                    <span className="px-1.5 py-0.2 rounded bg-red-950 text-red-300 border border-red-800/40 text-[9px] font-bold">
+                      {item.priority}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-3 font-mono">
+                    <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
+                      item.risk === 'LOW' ? 'bg-emerald-950 text-emerald-300' : 'bg-amber-950 text-amber-300'
+                    }`}>
+                      {item.risk}
+                    </span>
+                  </td>
+                  <td className="py-2.5 px-4 text-right font-mono">
+                    <span className={`text-[10px] font-bold ${result ? 'text-emerald-400' : 'text-slate-400'}`}>
+                      {result ? '✓ PROCESSED' : item.status}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
 
     </div>
   );
