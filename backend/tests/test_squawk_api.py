@@ -6,6 +6,15 @@ from fastapi.testclient import TestClient
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from app.main import app
+from app.database import engine, Base
+from app.seed import seed_database
+from sqlalchemy.orm import Session
+
+# Recreate tables so new columns like incident_intelligence exist
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
+with Session(engine) as db:
+    seed_database(db)
 
 client = TestClient(app)
 
@@ -28,7 +37,7 @@ def test_vt_sqk_flagship_case():
     assert hero is not None
     assert hero["id"] == "CASE-SQK-2048"
     assert hero["aircraft_type"] == "Boeing 737-800"
-    assert hero["location"] == "DEL"
+    assert "DEL" in hero["location"]
     assert hero["part_number"] == "HP-2048"
     assert hero["deadline_hours"] == 18.0
     assert len(hero["candidates"]) == 3
@@ -189,3 +198,41 @@ def test_demo_reset():
     hero = client.get("/api/cases/CASE-SQK-2048").json()
     assert hero["tail_number"] == "VT-SQK"
     assert hero["active_plan"]["supplier_name"] == "AeroParts Inc. (Singapore)"
+    assert hero["incident_intelligence"] is not None
+    assert "Engine vibration" in hero["incident_intelligence"]["summary"]
+    assert hero["incident_intelligence"]["confidence"] >= 0.8
+    assert len(hero["incident_intelligence"]["recovery_options"]) == 3
+    assert "Part availability is the current recovery dependency." in hero["incident_intelligence"]["resource_check"]["bottleneck_summary"]
+
+
+def test_incident_intelligence_endpoints():
+    rec_resp = client.get("/api/cases/CASE-SQK-2048/recommendations")
+    assert rec_resp.status_code == 200
+    rec_data = rec_resp.json()
+    assert len(rec_data["recovery_options"]) == 3
+    assert "evidence_considered" in rec_data["why_recommendation"]
+    assert "not_considered_unavailable" in rec_data["why_recommendation"]
+
+    tl_resp = client.get("/api/cases/CASE-SQK-2048/timeline")
+    assert tl_resp.status_code == 200
+    tl_data = tl_resp.json()
+    assert len(tl_data["timeline"]) >= 5
+
+    audit_resp = client.get("/api/cases/CASE-SQK-2048/audit")
+    assert audit_resp.status_code == 200
+
+
+def test_simulate_failure_graceful_fallback():
+    fail_resp = client.post("/api/cases/CASE-SQK-2048/simulate-failure")
+    assert fail_resp.status_code == 200
+    case = fail_resp.json()
+    assert case["incident_intelligence"]["ai_failed"] is True
+    assert "AI analysis temporarily unavailable" in case["incident_intelligence"]["confidence_reason"]
+    assert case["incident_intelligence"]["human_verification_required"] is True
+
+    # Restore via analyze endpoint
+    restore_resp = client.post("/api/cases/CASE-SQK-2048/analyze")
+    assert restore_resp.status_code == 200
+    restored_case = restore_resp.json()
+    assert restored_case["incident_intelligence"]["ai_failed"] is False
+

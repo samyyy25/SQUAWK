@@ -1,62 +1,96 @@
 @import "tailwindcss";
 
+@theme {
+  --color-squawk-black: #000000;
+  --color-squawk-surface: #080808;
+  --color-squawk-panel: #0D0D0D;
+  --color-squawk-maroon: #830000;
+  --color-squawk-red: #BC0202;
+  --color-squawk-critical: #FF0000;
+  --color-squawk-border: #1E1E1E;
+  --color-squawk-border-maroon: rgba(131, 0, 0, 0.4);
+}
+
 @layer base {
   :root {
-    --bg-primary: #0B0F14;
-    --bg-secondary: #11161D;
-    --bg-panel: #151B23;
-    --border-main: #26313D;
-    --text-primary: #f1f5f9;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --bg-primary: #000000;
+    --bg-secondary: #080808;
+    --bg-panel: #0D0D0D;
+    --border-main: #1E1E1E;
+    --border-maroon: #830000;
+    --color-maroon: #830000;
+    --color-alert-red: #BC0202;
+    --color-critical-red: #FF0000;
+    --text-primary: #FFFFFF;
+    --text-secondary: #CBD5E1;
+    --text-muted: #64748B;
   }
 
   body {
-    background-color: #0B0F14;
-    color: #f1f5f9;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #000000;
+    color: #FFFFFF;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    overflow-x: hidden;
   }
 }
 
-/* Custom Cockpit Scrollbar */
+/* Operational Cockpit Scrollbar */
 ::-webkit-scrollbar {
   width: 5px;
   height: 5px;
 }
 ::-webkit-scrollbar-track {
-  background: #0B0F14;
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #26313D;
-  border-radius: 3px;
+  background: #2A1010;
+  border-radius: 2px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #3b4b5d;
+  background: #830000;
 }
 
-/* Leaflet Dark Aviation Map Styling */
+/* Leaflet Dark Aviation Map Styling with Red/Maroon theme */
 .dark-aviation-tiles img.leaflet-tile {
-  filter: brightness(0.6) invert(1) contrast(3) hue-rotate(200deg) saturate(0.3);
+  filter: brightness(0.45) invert(1) contrast(3.5) hue-rotate(340deg) saturate(0.5);
 }
 
 .leaflet-container {
-  background-color: #05080E !important;
+  background-color: #000000 !important;
   font-family: inherit;
 }
 
 .leaflet-control-attribution {
-  background: rgba(8, 12, 20, 0.75) !important;
-  color: #64748b !important;
+  background: rgba(0, 0, 0, 0.85) !important;
+  color: #64748B !important;
   font-size: 9px !important;
   font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
   padding: 1px 6px !important;
   border-top-left-radius: 4px;
+  border: 1px solid #1E1E1E;
 }
 
 .leaflet-control-attribution a {
-  color: #38bdf8 !important;
+  color: #BC0202 !important;
   text-decoration: none;
 }
 .leaflet-control-attribution a:hover {
   text-decoration: underline;
 }
+
+/* Utility classes for the SQUAWK Color Hunt system */
+.bg-squawk-black { background-color: #000000; }
+.bg-squawk-surface { background-color: #080808; }
+.bg-squawk-panel { background-color: #0D0D0D; }
+.bg-squawk-maroon { background-color: #830000; }
+.bg-squawk-red { background-color: #BC0202; }
+.bg-squawk-critical { background-color: #FF0000; }
+
+.border-squawk-maroon { border-color: #830000; }
+.border-squawk-red { border-color: #BC0202; }
+.border-squawk-critical { border-color: #FF0000; }
+.border-squawk-dark { border-color: #1E1E1E; }
+
+.text-squawk-maroon { color: #830000; }
+.text-squawk-red { color: #BC0202; }
+.text-squawk-critical { color: #FF0000; }

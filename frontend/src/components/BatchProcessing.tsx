@@ -1,17 +1,10 @@
 import React, { useState } from 'react';
 import { 
-  Radio, 
   Play, 
-  CheckCircle2, 
-  AlertTriangle, 
-  Clock, 
-  Coins, 
-  Zap, 
   Sparkles,
   Layers,
   RotateCcw,
-  ShieldAlert,
-  Cpu
+  Zap
 } from 'lucide-react';
 import { BatchProcessResult } from '../types';
 import { api } from '../api';
@@ -44,7 +37,7 @@ export const BatchProcessing: React.FC = () => {
     setIsRunning(true);
     setResult(null);
 
-    setBatchStage('Ingesting 15 AOG cases via ingest_squawk.pipe webhook...');
+    setBatchStage('Ingesting 15 AOG cases via webhook...');
     await new Promise(r => setTimeout(r, 400));
 
     setBatchStage('Fan-out: running Sourcing, Documentation, Logistics agents in parallel...');
@@ -71,7 +64,7 @@ export const BatchProcessing: React.FC = () => {
     try {
       await api.resetDemo();
       setResult(null);
-      alert('Database state reset successfully. Ready for active operations.');
+      alert('Database state reset successfully.');
     } catch (err: any) {
       alert('Reset error: ' + err.message);
     } finally {
@@ -80,48 +73,48 @@ export const BatchProcessing: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 space-y-4 max-w-7xl mx-auto bg-[#000000] font-mono text-neutral-200">
       
       {/* Header */}
-      <div className="p-5 rounded-xl bg-[#151B23] border border-[#26313D] flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="p-4 rounded-xl bg-[#000000] border border-[#830000] flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center space-x-2 mb-1">
-            <span className="px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-800 text-[10px] font-mono font-bold uppercase">
+            <span className="px-2 py-0.5 rounded bg-[#0D0D0D] text-[#BC0202] border border-[#830000] text-[10px] font-bold uppercase">
               HIGH-THROUGHPUT QUEUE RUNNER
             </span>
           </div>
-          <h2 className="text-xl font-bold text-white tracking-tight">
-            Network AOG Batch Processing Engine
+          <h2 className="text-lg font-bold text-white tracking-wide uppercase">
+            NETWORK AOG BATCH PROCESSING ENGINE
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Concurrent multi-agent processing across 15 network stations with real token usage and execution telemetry
+          <p className="text-xs text-neutral-400 font-sans mt-0.5">
+            Concurrent multi-agent processing across 15 network stations with real token usage telemetry
           </p>
         </div>
 
-        <div className="flex items-center space-x-3 shrink-0">
+        <div className="flex items-center space-x-2.5 shrink-0">
           <button
             onClick={handleResetDemo}
             disabled={isResetting || isRunning}
-            className="flex items-center space-x-1.5 bg-[#11161D] hover:bg-[#1e2633] text-slate-300 text-xs font-semibold px-3 py-2 rounded-lg border border-[#26313D] transition active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex items-center space-x-1.5 bg-[#080808] hover:bg-[#0D0D0D] text-neutral-300 hover:text-white text-xs font-semibold px-3 py-2 rounded border border-[#1E1E1E] transition active:scale-95 disabled:opacity-50 cursor-pointer"
           >
-            <RotateCcw className={`w-3.5 h-3.5 ${isResetting ? 'animate-spin' : ''}`} />
-            <span>Reset Batch</span>
+            <RotateCcw className={`w-3.5 h-3.5 text-[#BC0202] ${isResetting ? 'animate-spin' : ''}`} />
+            <span>RESET BATCH</span>
           </button>
 
           <button 
             onClick={handleRunBatch}
             disabled={isRunning}
-            className="flex items-center space-x-2 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-extrabold px-4 py-2.5 rounded-lg shadow-lg transition active:scale-95 disabled:opacity-50 cursor-pointer"
+            className="flex items-center space-x-2 bg-[#830000] hover:bg-[#BC0202] text-white text-xs font-bold px-4 py-2 rounded border border-[#BC0202] transition active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
           >
             {isRunning ? (
               <>
                 <Sparkles className="w-4 h-4 animate-spin" />
-                <span>Processing 15 Cases...</span>
+                <span>PROCESSING 15 CASES...</span>
               </>
             ) : (
               <>
-                <Play className="w-4 h-4 fill-black" />
-                <span>Process Network Queue (15 Cases)</span>
+                <Play className="w-3.5 h-3.5 fill-current" />
+                <span>PROCESS NETWORK QUEUE (15 CASES)</span>
               </>
             )}
           </button>
@@ -130,112 +123,110 @@ export const BatchProcessing: React.FC = () => {
 
       {/* Progress banner */}
       {isRunning && (
-        <div className="p-4 bg-emerald-950/40 border border-emerald-800/80 rounded-xl space-y-2 animate-pulse">
-          <div className="flex items-center justify-between text-emerald-300 text-xs font-bold font-mono">
+        <div className="p-3 bg-[#080808] border border-[#830000] rounded space-y-1">
+          <div className="flex items-center justify-between text-white text-xs font-bold">
             <div className="flex items-center space-x-2">
-              <Zap className="w-4 h-4 text-emerald-400" />
+              <Zap className="w-4 h-4 text-[#BC0202]" />
               <span>PARALLEL FAN-OUT PIPELINE RUNNING (15/15 CASES)</span>
             </div>
-            <span>Fan-Out Active</span>
+            <span className="text-[#BC0202]">FAN-OUT ACTIVE</span>
           </div>
-          <div className="text-xs text-emerald-200 font-mono">{batchStage}</div>
+          <div className="text-xs text-neutral-300">{batchStage}</div>
         </div>
       )}
 
       {/* Telemetry Metric Cards */}
       {result && (
-        <div className="space-y-6">
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Runtime</span>
-              <div className="text-xl font-bold text-white font-mono mt-0.5">{result.total_runtime_seconds}s</div>
-              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">Concurrent</span>
-            </div>
+        <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
+          <div className="bg-[#080808] border border-[#1E1E1E] rounded p-3">
+            <span className="text-[10px] text-neutral-500 uppercase block">RUNTIME</span>
+            <div className="text-xl font-bold text-white mt-0.5">{result.total_runtime_seconds}s</div>
+            <span className="text-[10px] text-neutral-400 block mt-0.5">Concurrent</span>
+          </div>
 
-            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Agent Runs</span>
-              <div className="text-xl font-bold text-cyan-300 font-mono mt-0.5">{result.total_ai_agent_calls}</div>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">4 per case</span>
-            </div>
+          <div className="bg-[#080808] border border-[#1E1E1E] rounded p-3">
+            <span className="text-[10px] text-neutral-500 uppercase block">AGENT CALLS</span>
+            <div className="text-xl font-bold text-white mt-0.5">{result.total_ai_agent_calls}</div>
+            <span className="text-[10px] text-neutral-400 block mt-0.5">4 per case</span>
+          </div>
 
-            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Total Tokens</span>
-              <div className="text-xl font-bold text-purple-300 font-mono mt-0.5">{result.total_tokens?.toLocaleString() || '42,000'}</div>
-              <span className="text-[10px] text-slate-400 font-mono block mt-0.5">Prompt + Output</span>
-            </div>
+          <div className="bg-[#080808] border border-[#1E1E1E] rounded p-3">
+            <span className="text-[10px] text-neutral-500 uppercase block">TOTAL TOKENS</span>
+            <div className="text-xl font-bold text-white mt-0.5">{result.total_tokens?.toLocaleString() || '42,000'}</div>
+            <span className="text-[10px] text-neutral-400 block mt-0.5">Prompt + Output</span>
+          </div>
 
-            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Compute Cost</span>
-              <div className="text-xl font-bold text-emerald-300 font-mono mt-0.5">${result.total_cost_usd?.toFixed(4) || result.approximate_cost_usd.toFixed(4)}</div>
-              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">${result.average_cost_per_case_usd?.toFixed(4) || '0.0022'} / case</span>
-            </div>
+          <div className="bg-[#080808] border border-[#1E1E1E] rounded p-3">
+            <span className="text-[10px] text-neutral-500 uppercase block">COMPUTE COST</span>
+            <div className="text-xl font-bold text-white mt-0.5">${result.total_cost_usd?.toFixed(4) || result.approximate_cost_usd.toFixed(4)}</div>
+            <span className="text-[10px] text-neutral-400 block mt-0.5">${result.average_cost_per_case_usd?.toFixed(4) || '0.0022'} / case</span>
+          </div>
 
-            <div className="bg-[#151B23] border border-[#26313D] rounded-xl p-3.5">
-              <span className="text-[10px] text-slate-400 font-mono uppercase block">Success Rate</span>
-              <div className="text-xl font-bold text-white font-mono mt-0.5">{Math.round(result.success_rate_percent)}%</div>
-              <span className="text-[10px] text-emerald-400 font-mono block mt-0.5">{result.ready_for_approval} Ready</span>
-            </div>
+          <div className="bg-[#080808] border border-[#1E1E1E] rounded p-3">
+            <span className="text-[10px] text-neutral-500 uppercase block">SUCCESS RATE</span>
+            <div className="text-xl font-bold text-white mt-0.5">{Math.round(result.success_rate_percent)}%</div>
+            <span className="text-[10px] text-neutral-400 block mt-0.5">{result.ready_for_approval} Ready</span>
           </div>
         </div>
       )}
 
-      {/* 15 AOG Cases Queue Table (Always shown for rich intentional look) */}
-      <div className="rounded-xl bg-[#151B23] border border-[#26313D] overflow-hidden">
-        <div className="px-5 py-3.5 bg-[#11161D] border-b border-[#26313D] flex items-center justify-between">
+      {/* 15 AOG Cases Queue Table */}
+      <div className="rounded-xl bg-[#000000] border border-[#830000] overflow-hidden">
+        <div className="px-4 py-3 bg-[#080808] border-b border-[#1E1E1E] flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Layers className="w-4 h-4 text-cyan-400" />
-            <h3 className="text-sm font-bold text-white uppercase tracking-wide">
-              Network AOG Batch Queue (15 Active Incidents)
+            <Layers className="w-4 h-4 text-[#BC0202]" />
+            <h3 className="text-xs font-bold text-white uppercase tracking-wide">
+              NETWORK AOG BATCH QUEUE (15 ACTIVE INCIDENTS)
             </h3>
           </div>
-          <span className="text-[11px] font-mono text-slate-400">
+          <span className="text-[10px] text-neutral-400">
             {result ? '15/15 PROCESSED' : '15 QUEUED'}
           </span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs font-sans">
-            <thead className="bg-[#11161D] text-[11px] font-mono text-slate-400 border-b border-[#26313D] uppercase">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-[#080808] text-[10px] text-neutral-400 border-b border-[#1E1E1E] uppercase">
               <tr>
-                <th className="py-2.5 px-4">Case ID</th>
-                <th className="py-2.5 px-3">Aircraft</th>
-                <th className="py-2.5 px-3">Station</th>
-                <th className="py-2.5 px-3">Part Required</th>
-                <th className="py-2.5 px-3">Priority</th>
-                <th className="py-2.5 px-3">Risk Level</th>
-                <th className="py-2.5 px-4 text-right">Status</th>
+                <th className="py-2.5 px-4">CASE ID</th>
+                <th className="py-2.5 px-3">AIRCRAFT</th>
+                <th className="py-2.5 px-3">STATION</th>
+                <th className="py-2.5 px-3">PART REQUIRED</th>
+                <th className="py-2.5 px-3">PRIORITY</th>
+                <th className="py-2.5 px-3">RISK</th>
+                <th className="py-2.5 px-4 text-right">STATUS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1e2633]">
-              {SAMPLE_15_BATCH_CASES.map((item, idx) => (
-                <tr key={item.id} className="hover:bg-[#18202b] transition">
-                  <td className="py-2.5 px-4 font-mono font-bold text-cyan-300">
+            <tbody className="divide-y divide-[#1E1E1E]">
+              {SAMPLE_15_BATCH_CASES.map((item) => (
+                <tr key={item.id} className="hover:bg-[#0D0D0D] transition">
+                  <td className="py-2.5 px-4 font-bold text-white">
                     {item.id}
                   </td>
                   <td className="py-2.5 px-3">
-                    <span className="font-mono text-white font-semibold">{item.tail}</span>
-                    <span className="text-slate-400 text-[11px] ml-1.5">({item.type})</span>
+                    <span className="text-white font-semibold">{item.tail}</span>
+                    <span className="text-neutral-400 text-[11px] ml-1.5 font-sans">({item.type})</span>
                   </td>
-                  <td className="py-2.5 px-3 font-mono font-bold text-slate-200">
+                  <td className="py-2.5 px-3 font-bold text-white">
                     {item.station}
                   </td>
-                  <td className="py-2.5 px-3 font-mono text-amber-300">
+                  <td className="py-2.5 px-3 text-neutral-300">
                     {item.part}
                   </td>
-                  <td className="py-2.5 px-3 font-mono">
-                    <span className="px-1.5 py-0.2 rounded bg-red-950 text-red-300 border border-red-800/40 text-[9px] font-bold">
+                  <td className="py-2.5 px-3">
+                    <span className="px-1.5 py-0.2 rounded bg-[#000000] text-[#FF0000] border border-[#FF0000] text-[9px] font-bold">
                       {item.priority}
                     </span>
                   </td>
-                  <td className="py-2.5 px-3 font-mono">
+                  <td className="py-2.5 px-3">
                     <span className={`px-1.5 py-0.2 rounded text-[9px] font-bold ${
-                      item.risk === 'LOW' ? 'bg-emerald-950 text-emerald-300' : 'bg-amber-950 text-amber-300'
+                      item.risk === 'LOW' ? 'bg-[#0D0D0D] text-white border border-[#1E1E1E]' : 'bg-[#000000] text-[#BC0202] border border-[#BC0202]'
                     }`}>
                       {item.risk}
                     </span>
                   </td>
-                  <td className="py-2.5 px-4 text-right font-mono">
-                    <span className={`text-[10px] font-bold ${result ? 'text-emerald-400' : 'text-slate-400'}`}>
+                  <td className="py-2.5 px-4 text-right">
+                    <span className={`text-[10px] font-bold ${result ? 'text-white' : 'text-neutral-400'}`}>
                       {result ? '✓ PROCESSED' : item.status}
                     </span>
                   </td>

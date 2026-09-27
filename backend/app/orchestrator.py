@@ -14,9 +14,9 @@ from app.agent_tools import (
     simulate_disruption, replan_recovery, verify_recovery,
     log_tool_execution, log_decision_step
 )
-from app.pipeline_runner import pipeline_runner
+from app.incident_intelligence import generate_incident_intelligence
 
-def execute_squawk_orchestration(db: Session, case_id: str) -> Optional[SquawkCase]:
+def execute_squawk_orchestration(db: Session, case_id: str, simulate_ai_failure: bool = False) -> Optional[SquawkCase]:
     """
     Executes the full SQUAWK agentic supply chain recovery loop:
     1. Observe aircraft state & IPC requirements
@@ -40,6 +40,14 @@ def execute_squawk_orchestration(db: Session, case_id: str) -> Optional[SquawkCa
         case.risk_level = "CRITICAL"
         if not case.malformed_reason:
             case.malformed_reason = "Mandatory aircraft tail number or verified part number missing from defect log."
+        case.incident_intelligence = generate_incident_intelligence(
+            defect_description=case.defect_description,
+            tail_number=case.tail_number,
+            aircraft_type=case.aircraft_type,
+            location=case.location,
+            part_number=case.part_number,
+            simulate_failure=True
+        )
         db.commit()
         return case
 
@@ -54,6 +62,16 @@ def execute_squawk_orchestration(db: Session, case_id: str) -> Optional[SquawkCa
     part_no = case.part_number or "HP-2048"
     aircraft_model = case.aircraft_type or "Boeing 737-800"
     max_deadline = case.deadline_hours or 18.0
+
+    # Generate rich AI incident intelligence (with safe fallback if simulate_ai_failure is requested)
+    case.incident_intelligence = generate_incident_intelligence(
+        defect_description=case.defect_description,
+        tail_number=case.tail_number,
+        aircraft_type=aircraft_model,
+        location=case.location or "DEL Terminal 3 MRO Hangar",
+        part_number=part_no,
+        simulate_failure=simulate_ai_failure
+    )
 
     ac_status = get_aircraft_status(db, case.tail_number)
     log_tool_execution(

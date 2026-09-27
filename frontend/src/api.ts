@@ -28,6 +28,31 @@ export const api = {
     return res.data;
   },
 
+  async analyzeCase(id: string): Promise<SquawkCase> {
+    const res = await axios.post(`${API_BASE}/cases/${id}/analyze`);
+    return res.data;
+  },
+
+  async simulateFailure(id: string): Promise<SquawkCase> {
+    const res = await axios.post(`${API_BASE}/cases/${id}/simulate-failure`);
+    return res.data;
+  },
+
+  async getRecommendations(id: string): Promise<any> {
+    const res = await axios.get(`${API_BASE}/cases/${id}/recommendations`);
+    return res.data;
+  },
+
+  async getTimeline(id: string): Promise<any> {
+    const res = await axios.get(`${API_BASE}/cases/${id}/timeline`);
+    return res.data;
+  },
+
+  async getAuditLog(id: string): Promise<ActivityLog[]> {
+    const res = await axios.get(`${API_BASE}/cases/${id}/audit`);
+    return res.data;
+  },
+
   async approveCase(id: string, payload: any): Promise<SquawkCase> {
     const res = await axios.post(`${API_BASE}/cases/${id}/approve`, payload);
     return res.data;

@@ -47,6 +47,7 @@ class SquawkCase(Base):
     disruptions_log = Column(JSON, default=list) # List of disruption events
     verification_report = Column(JSON, nullable=True) # 7/7 constraint check, margin, certificate
     active_plan = Column(JSON, nullable=True) # Current active plan details
+    incident_intelligence = Column(JSON, nullable=True) # Full AI extraction, analysis, resource checks, options A/B/C, explainability
     scoring_weights = Column(JSON, default=lambda: {"delivery": 0.40, "reliability": 0.25, "cost": 0.15, "compliance": 0.10, "carbon": 0.10})
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)

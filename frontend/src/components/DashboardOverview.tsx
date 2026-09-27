@@ -4,16 +4,17 @@ import {
   RotateCcw, 
   Clock, 
   DollarSign, 
-  Hourglass, 
   ShieldCheck, 
   CheckCircle2, 
   Cpu, 
-  Rocket, 
   Check, 
   AlertTriangle, 
   ArrowRight,
   Plane,
-  ChevronRight
+  AlertCircle,
+  FileCheck2,
+  Boxes,
+  Users
 } from 'lucide-react';
 import { SquawkCase } from '../types';
 import { FlightRecoveryMap } from './FlightRecoveryMap';
@@ -120,194 +121,185 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const isDisrupted = (activeCase?.disruptions_log && activeCase.disruptions_log.length > 0) || demoStep >= 4;
 
   return (
-    <div className="p-4 space-y-3 font-sans text-slate-200">
+    <div className="p-4 space-y-4 font-sans text-neutral-200 bg-[#000000] min-h-full">
       
-      {/* 1. AOG CASE HEADER CARD */}
-      <div className="w-full bg-[#080C14] border border-[#151D2A] rounded-xl p-3.5 shadow-xl flex flex-col xl:flex-row xl:items-center justify-between gap-4">
-        
-        {/* Left Flight & AOG Metadata */}
-        <div className="flex flex-wrap items-center gap-4">
+      {/* 1. SQUAWK AOG STATUS HERO CARD (Section 7 Spec) */}
+      <div className="w-full bg-[#000000] border-2 border-[#830000] rounded-xl p-4 shadow-2xl relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-0 right-0 w-96 h-32 bg-[#830000]/10 blur-3xl pointer-events-none"></div>
+
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 relative z-10">
           
-          {/* Aircraft Thumbnail Image Badge */}
-          <div className="w-16 h-12 rounded-lg bg-gradient-to-br from-blue-900/60 to-cyan-950/80 border border-cyan-500/40 p-1 flex items-center justify-center relative overflow-hidden shrink-0 shadow-md">
-            <Plane className="w-8 h-8 text-cyan-300 transform -rotate-12 drop-shadow-md" />
-            <div className="absolute inset-0 bg-blue-500/10 pointer-events-none"></div>
-          </div>
-
-          {/* Aircraft Reg & Type */}
-          <div className="pr-2 border-r border-[#172233]">
-            <div className="flex items-center space-x-2">
-              <span className="text-base font-black text-white tracking-wide">VT-SQK</span>
-              <span className="px-1.5 py-0.2 rounded bg-[#0284c7] text-white text-[10px] font-mono font-bold">
-                SQ-402
+          {/* Left AOG Metadata */}
+          <div className="flex flex-wrap items-center gap-4">
+            
+            {/* Critical AOG Indicator Badge */}
+            <div className="px-3 py-2 rounded bg-[#000000] border-2 border-[#FF0000] flex items-center space-x-2 shrink-0 shadow-lg shadow-[#FF0000]/10">
+              <span className="w-3 h-3 rounded-full bg-[#FF0000] animate-pulse"></span>
+              <span className="text-xs font-mono font-black text-[#FF0000] tracking-widest">
+                🔴 AOG ACTIVE
               </span>
             </div>
-            <div className="text-[11px] text-slate-400 font-medium">Boeing 737-800</div>
-          </div>
 
-          {/* AOG Case ID & Location */}
-          <div className="pr-2 border-r border-[#172233]">
-            <div className="flex items-center space-x-2">
-              <span className="text-xs font-bold text-cyan-400 font-mono">AOG CASE #SQK-2048</span>
-              <span className="px-1.5 py-0.2 rounded bg-[#ef4444] text-white text-[9px] font-mono font-extrabold uppercase">
-                AIRCRAFT GROUNDED
-              </span>
+            {/* Aircraft Reg & Type */}
+            <div className="pr-4 border-r border-[#1E1E1E]">
+              <div className="flex items-center space-x-2">
+                <span className="text-lg font-mono font-black text-white tracking-wider">VT-SQK</span>
+                <span className="px-1.5 py-0.5 rounded bg-[#830000] text-white text-[10px] font-mono font-bold">
+                  737-800
+                </span>
+              </div>
+              <div className="text-[11px] text-neutral-400 font-mono mt-0.5">
+                DEL Terminal 3 MRO Hangar
+              </div>
             </div>
-            <div className="text-[11px] text-slate-300 font-medium flex items-center gap-1 mt-0.5">
-              <span>DEL · Indira Gandhi International Airport</span>
-              <span className="text-slate-500 text-[10px]">Terminal 3</span>
+
+            {/* Defect Description */}
+            <div className="pr-4 border-r border-[#1E1E1E] max-w-xs">
+              <div className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+                REPORTED DEFECT
+              </div>
+              <div className="text-xs font-bold text-[#FFFFFF] mt-0.5 font-mono">
+                ENGINE VIBRATION REPORTED
+              </div>
+              <div className="text-[10px] text-[#BC0202] font-mono">
+                Abnormal climb indication · Grounded
+              </div>
             </div>
-          </div>
 
-          {/* DEFECT */}
-          <div className="pr-2 border-r border-[#172233]">
-            <div className="text-[10px] font-bold text-slate-500 uppercase font-mono tracking-wider">DEFECT</div>
-            <div className="text-xs font-semibold text-slate-200">Hydraulic System A</div>
-            <div className="text-[10px] text-slate-400">EDP Low Pressure</div>
-          </div>
-
-          {/* REQUIRED PART */}
-          <div className="pr-2 border-r border-[#172233]">
-            <div className="text-[10px] font-bold text-slate-500 uppercase font-mono tracking-wider">REQUIRED PART</div>
-            <div className="text-xs font-bold text-white font-mono">HP-2048</div>
-            <div className="text-[10px] text-slate-400 font-mono">Qty: 1</div>
-          </div>
-
-          {/* RECOVERY DEADLINE */}
-          <div>
-            <div className="text-[10px] font-bold text-slate-500 uppercase font-mono tracking-wider">RECOVERY DEADLINE</div>
-            <div className="text-xs font-bold text-white flex items-center gap-1">
-              <Clock className="w-3.5 h-3.5 text-cyan-400" />
-              <span>18 hours</span>
+            {/* Human Review State */}
+            <div className="pr-4 border-r border-[#1E1E1E]">
+              <div className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+                GOVERNANCE STATUS
+              </div>
+              <div className="mt-0.5">
+                <span className="inline-flex items-center px-2 py-0.5 rounded bg-[#000000] border border-[#BC0202] text-[#BC0202] text-[11px] font-mono font-bold tracking-wide">
+                  ⚠ HUMAN REVIEW REQUIRED
+                </span>
+              </div>
             </div>
-            <div className="text-[10px] text-slate-400 font-mono">(14 required)</div>
+
+            {/* Target Recovery Window */}
+            <div>
+              <div className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+                RECOVERY WINDOW
+              </div>
+              <div className="text-xs font-mono font-bold text-white flex items-center gap-1.5 mt-0.5">
+                <Clock className="w-3.5 h-3.5 text-[#BC0202]" />
+                <span>18h Target (11h 10m ETA)</span>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Right Action Controls */}
+          <div className="flex items-center space-x-2.5 shrink-0">
+            {/* View Full Incident Detail Button */}
+            {onSelectCase && activeCase && (
+              <button
+                onClick={() => onSelectCase(activeCase)}
+                className="px-3 py-2 rounded bg-[#0D0D0D] hover:bg-[#830000]/40 border border-[#830000] text-xs font-mono font-semibold text-white transition cursor-pointer"
+              >
+                VIEW CASE DETAILS →
+              </button>
+            )}
+
+            {/* Start AOG Recovery Button */}
+            <button
+              onClick={runAogRecoveryDemo}
+              disabled={demoRunning}
+              className={`flex items-center space-x-2 px-4 py-2 rounded text-xs font-mono font-bold transition cursor-pointer shadow-md ${
+                demoRunning 
+                  ? 'bg-[#830000]/60 text-neutral-300 cursor-not-allowed' 
+                  : 'bg-[#830000] hover:bg-[#BC0202] text-white border border-[#BC0202]'
+              }`}
+            >
+              <Play className="w-3.5 h-3.5 fill-current" />
+              <span>{demoRunning ? 'RECOVERING...' : 'START AOG RECOVERY'}</span>
+            </button>
+
+            {/* Reset Scenario Button */}
+            <button
+              onClick={resetScenario}
+              disabled={demoRunning}
+              className="flex items-center space-x-1.5 px-3 py-2 rounded bg-[#000000] hover:bg-[#0D0D0D] border border-[#1E1E1E] hover:border-[#830000] text-xs font-mono text-neutral-400 hover:text-white transition cursor-pointer"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-[#BC0202]" />
+              <span>RESET</span>
+            </button>
           </div>
 
         </div>
-
-        {/* Right Action Buttons */}
-        <div className="flex items-center space-x-2.5 shrink-0">
-          
-          {/* Start AOG Recovery Button */}
-          <button
-            onClick={runAogRecoveryDemo}
-            disabled={demoRunning}
-            className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-xs font-extrabold shadow-lg transition cursor-pointer active:scale-95 ${
-              demoRunning 
-                ? 'bg-cyan-700 text-slate-300 cursor-not-allowed' 
-                : 'bg-[#0284c7] hover:bg-[#0369a1] text-white shadow-cyan-900/40'
-            }`}
-          >
-            <Play className="w-3.5 h-3.5 fill-current" />
-            <span>{demoRunning ? 'Recovery In Progress...' : 'Start AOG Recovery'}</span>
-          </button>
-
-          {/* Reset Scenario Button */}
-          <button
-            onClick={resetScenario}
-            disabled={demoRunning}
-            className="flex items-center space-x-1.5 px-3 py-2 rounded-lg bg-[#111A28] hover:bg-[#1A283D] border border-[#233348] text-xs font-semibold text-slate-300 hover:text-white transition cursor-pointer active:scale-95"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Reset Scenario</span>
-          </button>
-
-        </div>
-
       </div>
 
-      {/* 2. KPI METRICS STRIP (7 Compact Cards in a Single Row) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-7 gap-2.5">
+      {/* 2. FOUR MAJOR OPERATIONAL METRIC CARDS (Section 8 Spec) */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         
-        {/* KPI 1: RECOVERY ETA */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <Plane className="w-4 h-4 -rotate-45" />
+        {/* Metric 1: ACTIVE AOG (#FF0000) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+              ACTIVE AOG
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#FF0000] shadow-sm shadow-[#FF0000]"></span>
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">RECOVERY ETA</div>
-            <div className="text-sm font-black text-white">11h 10m</div>
-            <div className="text-[10px] text-emerald-400 font-medium">● 6h 50m buffer</div>
+          <div className="text-2xl font-mono font-black text-white mt-1">
+            01 <span className="text-xs font-normal text-[#FF0000] font-mono">CRITICAL</span>
           </div>
-        </div>
-
-        {/* KPI 2: COST */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <DollarSign className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">COST</div>
-            <div className="text-sm font-black text-white">$14,700</div>
-            <div className="text-[10px] text-emerald-400 font-medium">vs $18,200 (saved)</div>
+          <div className="text-[11px] font-mono text-neutral-400 mt-1 flex items-center justify-between">
+            <span>VT-SQK (DEL Hub)</span>
+            <span className="text-[#FF0000] font-bold">AIRCRAFT GROUNDED</span>
           </div>
         </div>
 
-        {/* KPI 3: TIME BUFFER */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <Hourglass className="w-4 h-4" />
+        {/* Metric 2: PENDING REVIEW (#BC0202) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+              PENDING REVIEW
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#BC0202]"></span>
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">TIME BUFFER</div>
-            <div className="text-sm font-black text-white">6h 50m</div>
-            <div className="text-[10px] text-slate-400 font-medium">before deadline</div>
+          <div className="text-2xl font-mono font-black text-white mt-1">
+            01 <span className="text-xs font-normal text-[#BC0202] font-mono">ACTION REQ</span>
           </div>
-        </div>
-
-        {/* KPI 4: RELIABILITY */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <Clock className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">RELIABILITY</div>
-            <div className="text-sm font-black text-white">91%</div>
-            <div className="text-[10px] text-slate-400 font-medium">verified deliveries</div>
+          <div className="text-[11px] font-mono text-neutral-400 mt-1 flex items-center justify-between">
+            <span>Lead Engineer Sign-off</span>
+            <span className="text-[#BC0202] font-bold">Option A/B Ready</span>
           </div>
         </div>
 
-        {/* KPI 5: TOOL CALLS */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <Cpu className="w-4 h-4" />
+        {/* Metric 3: RECOVERY PLANS (#830000) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+              RECOVERY PLANS
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#830000]"></span>
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">TOOL CALLS</div>
-            <div className="text-sm font-black text-white">14</div>
-            <div className="text-[10px] text-slate-400 font-mono">/ 14 total</div>
+          <div className="text-2xl font-mono font-black text-white mt-1">
+            03 <span className="text-xs font-normal text-neutral-300 font-mono">CANDIDATES</span>
           </div>
-        </div>
-
-        {/* KPI 6: REPLANS */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#091C2C] border border-cyan-500/40 flex items-center justify-center text-cyan-400 shrink-0">
-            <Rocket className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">REPLANS</div>
-            <div className="text-sm font-black text-white">{isDisrupted ? '1' : '0'}</div>
-            <div className="text-[10px] text-slate-400 font-mono">/ 1 required</div>
+          <div className="text-[11px] font-mono text-neutral-400 mt-1 flex items-center justify-between">
+            <span>Multi-option synthesis</span>
+            <span className="text-white font-bold">11h 10m ETA</span>
           </div>
         </div>
 
-        {/* KPI 7: STATUS */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3 shadow-md flex items-center space-x-3">
-          <div className="w-9 h-9 rounded-full bg-[#07241A] border border-emerald-500/40 flex items-center justify-center text-emerald-400 shrink-0">
-            <CheckCircle2 className="w-4 h-4" />
+        {/* Metric 4: RESOURCE BOTTLENECKS (#BC0202 / Attention) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5 shadow-lg relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-mono font-bold text-neutral-400 uppercase tracking-widest">
+              RESOURCE BOTTLENECKS
+            </span>
+            <span className="w-2.5 h-2.5 rounded-full bg-[#BC0202]"></span>
           </div>
-          <div>
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">STATUS</div>
-            <div className="mt-1">
-              <span className={`px-2 py-0.5 rounded-full text-[9px] font-mono font-black flex items-center gap-1 border ${
-                isVerified 
-                  ? 'bg-emerald-950 text-emerald-300 border-emerald-500/80'
-                  : 'bg-cyan-950 text-cyan-300 border-cyan-500/80'
-              }`}>
-                <Check className="w-2.5 h-2.5 stroke-[3]" />
-                {isVerified ? 'RECOVERY VERIFIED' : 'AWAITING APPROVAL'}
-              </span>
-            </div>
+          <div className="text-2xl font-mono font-black text-white mt-1">
+            02 <span className="text-xs font-normal text-[#BC0202] font-mono">CONSTRAINTS</span>
+          </div>
+          <div className="text-[11px] font-mono text-neutral-400 mt-1 flex items-center justify-between">
+            <span>DEL Hub stockout</span>
+            <span className="text-[#BC0202] font-bold">External dispatch</span>
           </div>
         </div>
 
@@ -322,282 +314,201 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         isVerified={isVerified}
       />
 
-      {/* 4. BOTTOM 3-COLUMN SECTION */}
+      {/* 4. BOTTOM 3-COLUMN OPERATIONAL PANELS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         
-        {/* COLUMN 1: INITIAL EXECUTION TIMELINE & TOOL TIMELINE */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3.5 shadow-xl flex flex-col justify-between space-y-3">
-          
-          {/* Top Section: Initial Execution Timeline */}
+        {/* COLUMN 1: SIMULATED DEMO TIMELINE (Section 12 Spec) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3">
           <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#151D2A]">
-              <span className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider">
-                INITIAL EXECUTION TIMELINE
-              </span>
-              <span className="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer">
-                View All &gt;
-              </span>
-            </div>
-
-            {/* 3-Step Sequence Flow */}
-            <div className="pt-2.5 flex items-center justify-between gap-1.5 text-[10px]">
-              
-              {/* Step 1: Initial Plan */}
-              <div className="flex-1 p-2 rounded-lg bg-[#0D1420] border border-[#1E293B] space-y-0.5">
-                <div className="text-[9px] font-bold text-cyan-400 font-mono uppercase">INITIAL PLAN</div>
-                <div className="font-bold text-white text-[11px]">AeroParts</div>
-                <div className="text-slate-400 font-mono text-[9px]">SIN → DEL</div>
-                <div className="text-slate-400 font-mono text-[9px]">ETA: 8h 20m</div>
-                <div className="text-slate-400 font-mono text-[9px]">Cost: $18,200</div>
-                <div className="text-slate-400 font-mono text-[9px]">Reliability: 96%</div>
-                <div className="pt-1">
-                  <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-700 text-[8px] font-bold">
-                    ✓ Recommended
-                  </span>
-                </div>
-              </div>
-
-              {/* Arrow 1 */}
-              <ArrowRight className="w-3.5 h-3.5 text-amber-500 shrink-0" />
-
-              {/* Step 2: Disruption */}
-              <div className="w-24 p-2 rounded-lg bg-[#190D11] border border-red-500/50 space-y-1 text-center shrink-0">
-                <div className="text-[9px] font-bold text-red-400 font-mono uppercase">DISRUPTION</div>
-                <div className="text-[10px] font-bold text-red-200 leading-tight">Supplier A Stockout</div>
-                <div className="pt-0.5">
-                  <span className="px-1 py-0.2 rounded bg-red-950 text-red-400 border border-red-800 text-[8px] font-bold">
-                    ⚠ Plan Invalidated
-                  </span>
-                </div>
-              </div>
-
-              {/* Arrow 2 */}
-              <ArrowRight className="w-3.5 h-3.5 text-cyan-500 shrink-0" />
-
-              {/* Step 3: Replanned Plan */}
-              <div className="flex-1 p-2 rounded-lg bg-[#061814] border border-emerald-500/60 space-y-0.5">
-                <div className="text-[9px] font-bold text-emerald-400 font-mono uppercase">REPLANNED PLAN</div>
-                <div className="font-bold text-white text-[11px]">SkySupply Global</div>
-                <div className="text-slate-400 font-mono text-[9px]">BOM → DEL</div>
-                <div className="text-slate-400 font-mono text-[9px]">ETA: 11h 10m</div>
-                <div className="text-slate-400 font-mono text-[9px]">Cost: $14,700</div>
-                <div className="text-slate-400 font-mono text-[9px]">Carbon: 510 kg CO₂e</div>
-                <div className="pt-1">
-                  <span className="px-1.5 py-0.2 rounded bg-emerald-950 text-emerald-300 border border-emerald-500 text-[8px] font-bold">
-                    ✓ PASS
-                  </span>
-                </div>
-              </div>
-
-            </div>
-          </div>
-
-          {/* Bottom Section: Tool Execution Timeline */}
-          <div className="pt-2 border-t border-[#151D2A]">
-            <div className="text-[10px] font-bold text-slate-400 font-mono uppercase tracking-wider mb-2">
-              TOOL EXECUTION TIMELINE
-            </div>
-            <div className="grid grid-cols-4 gap-1.5 text-[9px] font-mono">
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">08:10</div>
-                <div className="text-slate-200 font-bold truncate">get-aircraft()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">08:15</div>
-                <div className="text-slate-200 font-bold truncate">get-inventory()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">08:22</div>
-                <div className="text-slate-200 font-bold truncate">search-suppliers()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">08:41</div>
-                <div className="text-slate-200 font-bold truncate">verify-part()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">09:05</div>
-                <div className="text-slate-200 font-bold truncate">calculate-route()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">09:32</div>
-                <div className="text-slate-200 font-bold truncate">optimize-recovery()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">11:05</div>
-                <div className="text-slate-200 font-bold truncate">reserve-part()</div>
-                <div className="text-emerald-400 text-[8px] font-bold">SUCCESS</div>
-              </div>
-              <div className="p-1.5 rounded bg-[#0A101A] border border-[#1A2536] text-center">
-                <div className="text-slate-500 text-[8px]">11:20</div>
-                <div className="text-slate-200 font-bold truncate">create-timeline()</div>
-                <div className="text-cyan-400 text-[8px] font-bold">RUNNING</div>
-              </div>
-            </div>
-          </div>
-
-        </div>
-
-        {/* COLUMN 2: DECISION TRACE */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3.5 shadow-xl flex flex-col justify-between">
-          <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#151D2A]">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1E1E1E]">
               <div className="flex items-center space-x-2">
-                <div className="w-5 h-5 rounded bg-cyan-950 border border-cyan-500/40 flex items-center justify-center text-cyan-400">
-                  <Cpu className="w-3 h-3" />
-                </div>
-                <span className="text-[10px] font-bold text-white font-mono uppercase tracking-wider">
-                  DECISION TRACE
+                <Clock className="w-3.5 h-3.5 text-[#BC0202]" />
+                <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                  SIMULATED DEMO TIMELINE
                 </span>
               </div>
-              <span className="text-[10px] text-cyan-400 hover:text-cyan-300 font-mono cursor-pointer">
-                View All &gt;
+              <span className="text-[9px] font-mono text-[#BC0202] font-bold border border-[#830000] px-1.5 py-0.5 rounded">
+                ORCHESTRATION TRACE
               </span>
             </div>
 
-            {/* Vertical Audit Trace */}
-            <div className="pt-2.5 space-y-2 text-[11px]">
-              
-              {/* GOAL */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-cyan-950 border border-cyan-500/60 flex items-center justify-center text-cyan-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  G
-                </div>
+            {/* Timeline Events List */}
+            <div className="pt-3 space-y-2 text-[11px] font-mono">
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#080808] border border-[#1E1E1E]">
+                <span className="text-neutral-400 font-bold w-12 shrink-0">14:02</span>
                 <div>
-                  <span className="font-mono font-bold text-cyan-400 text-[10px] mr-1.5">GOAL</span>
-                  <span className="text-slate-300">Recover aircraft within 18h deadline</span>
+                  <div className="text-white font-bold">SQUAWK RECEIVED</div>
+                  <div className="text-[10px] text-neutral-400">VT-SQK reported engine vibration at DEL</div>
                 </div>
               </div>
 
-              {/* OBSERVATION */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center text-slate-300 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  O
-                </div>
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#080808] border border-[#1E1E1E]">
+                <span className="text-neutral-400 font-bold w-12 shrink-0">14:03</span>
                 <div>
-                  <span className="font-mono font-bold text-slate-400 text-[10px] mr-1.5">OBSERVATION</span>
-                  <span className="text-slate-300">Local inventory unavailable</span>
+                  <div className="text-white font-bold">AI ANALYSIS COMPLETED</div>
+                  <div className="text-[10px] text-neutral-400">82% confidence · Human review mandated</div>
                 </div>
               </div>
 
-              {/* ACTION */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-blue-950 border border-blue-600 flex items-center justify-center text-blue-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  A
-                </div>
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#080808] border border-[#1E1E1E]">
+                <span className="text-neutral-400 font-bold w-12 shrink-0">14:04</span>
                 <div>
-                  <span className="font-mono font-bold text-blue-400 text-[10px] mr-1.5">ACTION</span>
-                  <span className="text-slate-300">Search external suppliers</span>
+                  <div className="text-white font-bold">RESOURCE CHECK</div>
+                  <div className="text-[10px] text-[#BC0202]">Local stockout · Tech available at DEL T3</div>
                 </div>
               </div>
 
-              {/* OUTCOME */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-600 flex items-center justify-center text-emerald-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  O
-                </div>
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#080808] border border-[#1E1E1E]">
+                <span className="text-neutral-400 font-bold w-12 shrink-0">14:05</span>
                 <div>
-                  <span className="font-mono font-bold text-emerald-400 text-[10px] mr-1.5">OUTCOME</span>
-                  <span className="text-slate-300">3 suppliers found → AeroParts selected</span>
+                  <div className="text-white font-bold">RECOVERY OPTIONS GENERATED</div>
+                  <div className="text-[10px] text-neutral-400">Option A (AeroParts SIN) / Option B (SkySupply BOM)</div>
                 </div>
               </div>
 
-              {/* DISRUPTION */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-red-950 border border-red-600 flex items-center justify-center text-red-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  D
-                </div>
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#0D0D0D] border border-[#830000]">
+                <span className="text-[#BC0202] font-bold w-12 shrink-0">14:07</span>
                 <div>
-                  <span className="font-mono font-bold text-red-400 text-[10px] mr-1.5">DISRUPTION</span>
-                  <span className="text-red-300">AeroParts stockout detected</span>
+                  <div className="text-white font-bold flex items-center gap-1">
+                    <span>HUMAN REVIEW</span>
+                    <span className="text-[9px] text-[#BC0202]">● ACTIVE</span>
+                  </div>
+                  <div className="text-[10px] text-neutral-400">Awaiting A&P Licensed Engineer Authorization</div>
                 </div>
               </div>
 
-              {/* ACTION */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-blue-950 border border-blue-600 flex items-center justify-center text-blue-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  A
-                </div>
+              <div className="flex items-start space-x-3 p-1.5 rounded bg-[#080808] border border-[#1E1E1E]">
+                <span className="text-neutral-400 font-bold w-12 shrink-0">14:09</span>
                 <div>
-                  <span className="font-mono font-bold text-blue-400 text-[10px] mr-1.5">ACTION</span>
-                  <span className="text-slate-300">Replan and search again</span>
+                  <div className="text-white font-bold">PLAN APPROVED</div>
+                  <div className="text-[10px] text-neutral-400">A&P-884920 digital certificate verified</div>
                 </div>
               </div>
-
-              {/* OUTCOME */}
-              <div className="flex items-start space-x-2.5">
-                <div className="w-5 h-5 rounded-full bg-emerald-950 border border-emerald-600 flex items-center justify-center text-emerald-400 font-mono font-bold text-[9px] shrink-0 mt-0.5">
-                  O
-                </div>
-                <div>
-                  <span className="font-mono font-bold text-emerald-400 text-[10px] mr-1.5">OUTCOME</span>
-                  <span className="text-slate-300">SkySupply selected → New route active</span>
-                </div>
-              </div>
-
             </div>
           </div>
         </div>
 
-        {/* COLUMN 3: VERIFICATION */}
-        <div className="bg-[#080C14] border border-[#151D2A] rounded-xl p-3.5 shadow-xl flex flex-col justify-between">
+        {/* COLUMN 2: RESOURCE ORCHESTRATION (Section 13 Spec) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3">
           <div>
-            <div className="flex items-center justify-between pb-2 border-b border-[#151D2A]">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1E1E1E]">
               <div className="flex items-center space-x-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span className="text-[10px] font-bold text-white font-mono uppercase tracking-wider">
-                  VERIFICATION
+                <Boxes className="w-3.5 h-3.5 text-[#830000]" />
+                <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                  RESOURCE ORCHESTRATION
                 </span>
               </div>
-              <span className="text-[10px] text-emerald-400 font-mono font-bold">
-                7 / 7 constraints
+              <span className="text-[10px] font-mono text-neutral-400">
+                DEL MRO HANGAR
               </span>
             </div>
 
-            {/* Status Pill Badge */}
-            <div className="pt-2 pb-2">
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-950/80 border border-emerald-500/80 text-emerald-300 text-[10px] font-mono font-bold">
-                <CheckCircle2 className="w-3 h-3 text-emerald-400" />
-                {isVerified ? 'RECOVERY VERIFIED' : 'PENDING'}
+            {/* Resource Cards */}
+            <div className="pt-3 space-y-2.5">
+              
+              {/* TECHNICIAN */}
+              <div className="p-2.5 rounded bg-[#080808] border border-[#1E1E1E] flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded bg-[#0D0D0D] border border-[#1E1E1E] flex items-center justify-center text-white">
+                    <Users className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono font-bold text-neutral-400">TECHNICIAN</div>
+                    <div className="text-xs font-bold text-white font-mono">Lead A&P (MCC Delhi)</div>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-[#0D0D0D] border border-[#1E1E1E] text-white text-[10px] font-mono font-bold">
+                  AVAILABLE
+                </span>
+              </div>
+
+              {/* FACILITY */}
+              <div className="p-2.5 rounded bg-[#080808] border border-[#1E1E1E] flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded bg-[#0D0D0D] border border-[#1E1E1E] flex items-center justify-center text-white">
+                    <Plane className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono font-bold text-neutral-400">FACILITY</div>
+                    <div className="text-xs font-bold text-white font-mono">DEL Terminal 3 Bay 42</div>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-[#0D0D0D] border border-[#1E1E1E] text-white text-[10px] font-mono font-bold">
+                  AVAILABLE
+                </span>
+              </div>
+
+              {/* PART */}
+              <div className="p-2.5 rounded bg-[#0D0D0D] border border-[#BC0202] flex items-center justify-between">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-7 h-7 rounded bg-[#830000]/30 border border-[#BC0202] flex items-center justify-center text-[#BC0202]">
+                    <Boxes className="w-3.5 h-3.5" />
+                  </div>
+                  <div>
+                    <div className="text-[10px] font-mono font-bold text-neutral-400">PART: HP-2048 / VIB-SNS</div>
+                    <div className="text-xs font-bold text-white font-mono">Hydraulic EDP / Vibration Sensor</div>
+                  </div>
+                </div>
+                <span className="px-2 py-0.5 rounded bg-[#000000] border border-[#BC0202] text-[#BC0202] text-[10px] font-mono font-bold">
+                  VERIFICATION REQ
+                </span>
+              </div>
+
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-[#1E1E1E] text-[10px] font-mono text-neutral-400 flex items-center justify-between">
+            <span>Logistics Channel: Express Air Freight</span>
+            <span className="text-[#BC0202] font-bold">DEL Hub Synchronized</span>
+          </div>
+        </div>
+
+        {/* COLUMN 3: HUMAN-IN-THE-LOOP SAFETY VERIFICATION (Section 11 Spec) */}
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3">
+          <div>
+            <div className="flex items-center justify-between pb-2 border-b border-[#1E1E1E]">
+              <div className="flex items-center space-x-2">
+                <ShieldCheck className="w-3.5 h-3.5 text-[#BC0202]" />
+                <span className="text-[10px] font-mono font-bold text-white uppercase tracking-wider">
+                  HUMAN-IN-THE-LOOP CONTROL
+                </span>
+              </div>
+              <span className="text-[10px] font-mono text-white font-bold">
+                7/7 CONSTRAINTS
               </span>
             </div>
 
-            {/* Verification Checklist */}
-            <div className="space-y-1.5 text-xs">
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Part verified</span>
+            {/* Step Sequence: AI -> HUMAN -> APPROVE */}
+            <div className="pt-2.5 pb-2 text-[11px] font-mono space-y-2">
+              <div className="p-2 rounded bg-[#080808] border border-[#1E1E1E] flex items-center justify-between">
+                <span className="text-neutral-400">1. AI RECOMMENDATION</span>
+                <span className="text-white font-bold">Option A Generated</span>
               </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Supplier verified</span>
+
+              <div className="p-2 rounded bg-[#0D0D0D] border border-[#BC0202] flex items-center justify-between">
+                <span className="text-[#BC0202] font-bold">2. HUMAN REVIEW</span>
+                <span className="px-2 py-0.5 rounded bg-[#830000] text-white text-[10px] font-bold">REQUIRED</span>
               </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Compliance verified</span>
-              </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Route verified</span>
-              </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Deadline satisfied</span>
-              </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Shipment created</span>
-              </div>
-              <div className="flex items-center space-x-2 text-slate-200">
-                <Check className="w-3.5 h-3.5 text-emerald-400 stroke-[3]" />
-                <span>Recovery validated</span>
+
+              <div className="p-2 rounded bg-[#080808] border border-[#1E1E1E] flex items-center justify-between">
+                <span className="text-neutral-400">3. RECOVERY DECISION</span>
+                <span className="text-neutral-300">APPROVE · MODIFY · REJECT</span>
               </div>
             </div>
+
+            {/* Quick Action Button for Engineer */}
+            <div className="pt-1">
+              <button
+                onClick={() => setIsApprovalOpen(true)}
+                className="w-full py-2 px-3 rounded bg-[#830000] hover:bg-[#BC0202] text-white text-xs font-mono font-bold transition border border-[#BC0202] cursor-pointer shadow-sm text-center"
+              >
+                [ REVIEW & AUTHORIZE PLAN ]
+              </button>
+            </div>
+          </div>
+
+          <div className="pt-2 border-t border-[#1E1E1E] text-[10px] font-mono text-neutral-400 text-center">
+            Autonomous execution disabled · Licensed engineer required
           </div>
         </div>
 

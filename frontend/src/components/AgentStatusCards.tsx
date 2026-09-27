@@ -3,12 +3,7 @@ import {
   Cpu, 
   Search, 
   FileText, 
-  Truck, 
-  CheckCircle2, 
-  AlertTriangle,
-  Clock,
-  Layers,
-  Coins
+  Truck
 } from 'lucide-react';
 import { SquawkCase } from '../types';
 
@@ -22,133 +17,121 @@ export const AgentStatusCards: React.FC<AgentStatusCardsProps> = ({ caseData }) 
   const logisticsAgent = caseData.agent_results.find(a => a.specialist_name.includes('Logistics'));
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-3 font-mono">
       
       {/* Section Title */}
       <div className="flex items-center justify-between">
-        <div className="flex items-center space-x-2 text-xs font-bold text-slate-300 uppercase tracking-wider">
-          <Cpu className="w-4 h-4 text-cyan-400" />
-          <span>Parallel AI Specialists Execution (RocketRide Pipeline)</span>
+        <div className="flex items-center space-x-2 text-xs font-bold text-white uppercase tracking-wider">
+          <Cpu className="w-4 h-4 text-[#BC0202]" />
+          <span>PARALLEL AI SPECIALIST EXECUTION PIPELINE</span>
         </div>
-        <span className="text-[11px] font-mono text-slate-500">
-          Independent parallel specialist reasoning
+        <span className="text-[10px] text-neutral-500">
+          INDEPENDENT REASONING AGENTS
         </span>
       </div>
 
       {/* 3 Specialist Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         
         {/* Sourcing Specialist */}
-        <div className="bg-[#0f172a] border border-blue-900/50 rounded-2xl p-4.5 space-y-3 shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 space-y-2.5 shadow-lg">
+          <div className="flex items-center justify-between border-b border-[#1E1E1E] pb-2">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 rounded-lg bg-blue-500/10 text-blue-400">
+              <div className="p-1.5 rounded bg-[#0D0D0D] text-[#BC0202]">
                 <Search className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Sourcing Specialist</span>
-                <span className="text-[10px] text-slate-400 font-mono">Specialist #1</span>
+                <span className="text-xs font-bold text-white block">SOURCING AGENT</span>
+                <span className="text-[10px] text-neutral-500">Specialist #1</span>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-blue-950 text-blue-300 border border-blue-800">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0D0D0D] text-white border border-[#1E1E1E]">
               {caseData.candidates.length} candidates
             </span>
           </div>
 
-          <div className="text-xs text-slate-300 space-y-2">
+          <div className="text-xs text-neutral-300 space-y-2 font-sans">
             <p className="leading-relaxed">
-              Scanned certified aviation inventory across network hubs for part <strong className="text-cyan-300 font-mono">{caseData.part_number}</strong>.
+              Scanned certified inventory across network hubs for part <strong className="text-white font-mono">{caseData.part_number || 'HP-2048'}</strong>.
             </p>
             
-            <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 text-[11px] font-mono space-y-1 text-slate-400">
+            <div className="bg-[#080808] p-2.5 rounded border border-[#1E1E1E] text-[11px] font-mono space-y-1 text-neutral-400">
               <div className="flex justify-between">
                 <span>Execution Time:</span>
                 <span className="text-white font-bold">{sourcingAgent?.execution_time_ms || 48}ms</span>
               </div>
               <div className="flex justify-between">
-                <span>Tokens (in/out):</span>
-                <span className="text-blue-300">{sourcingAgent?.raw_output?.prompt_tokens || 545} / {sourcingAgent?.raw_output?.completion_tokens || 265}</span>
-              </div>
-              <div className="flex justify-between text-[10px] text-slate-500">
-                <span>Approx Cost:</span>
-                <span>${sourcingAgent?.raw_output?.cost_usd?.toFixed(6) || '0.000241'}</span>
+                <span>Tokens:</span>
+                <span className="text-neutral-300">{sourcingAgent?.raw_output?.prompt_tokens || 545} in / {sourcingAgent?.raw_output?.completion_tokens || 265} out</span>
               </div>
             </div>
           </div>
         </div>
 
         {/* Documentation Specialist */}
-        <div className="bg-[#0f172a] border border-amber-900/50 rounded-2xl p-4.5 space-y-3 shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 space-y-2.5 shadow-lg">
+          <div className="flex items-center justify-between border-b border-[#1E1E1E] pb-2">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+              <div className="p-1.5 rounded bg-[#0D0D0D] text-[#BC0202]">
                 <FileText className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Documentation Specialist</span>
-                <span className="text-[10px] text-slate-400 font-mono">Specialist #2</span>
+                <span className="text-xs font-bold text-white block">DOCS AUDITOR</span>
+                <span className="text-[10px] text-neutral-500">Specialist #2</span>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-amber-950 text-amber-300 border border-amber-800">
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#0D0D0D] text-white border border-[#1E1E1E]">
               Audit Complete
             </span>
           </div>
 
-          <div className="text-xs text-slate-300 space-y-2">
+          <div className="text-xs text-neutral-300 space-y-2 font-sans">
             <p className="leading-relaxed">
-              Audited airworthiness certifications (FAA Form 8130-3, EASA Form 1, and dual release traceability).
+              Audited airworthiness certifications (FAA Form 8130-3, EASA Form 1 dual release traceability).
             </p>
             
-            <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 text-[11px] font-mono space-y-1 text-slate-400">
-              <div className="text-amber-300 font-semibold">
+            <div className="bg-[#080808] p-2.5 rounded border border-[#1E1E1E] text-[11px] font-mono space-y-1 text-neutral-400">
+              <div className="text-white font-semibold">
                 {caseData.candidates.some(c => c.is_flagged) ? '⚠️ Flagged candidate with missing 8130-3' : '✓ All candidate documents verified'}
               </div>
               <div className="flex justify-between">
                 <span>Execution Time:</span>
                 <span className="text-white font-bold">{docAgent?.execution_time_ms || 52}ms</span>
               </div>
-              <div className="flex justify-between">
-                <span>Tokens (in/out):</span>
-                <span className="text-amber-300">{docAgent?.raw_output?.prompt_tokens || 600} / {docAgent?.raw_output?.completion_tokens || 320}</span>
-              </div>
             </div>
           </div>
         </div>
 
         {/* Logistics Specialist */}
-        <div className="bg-[#0f172a] border border-teal-900/50 rounded-2xl p-4.5 space-y-3 shadow-lg">
-          <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+        <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 space-y-2.5 shadow-lg">
+          <div className="flex items-center justify-between border-b border-[#1E1E1E] pb-2">
             <div className="flex items-center space-x-2">
-              <div className="p-1.5 rounded-lg bg-teal-500/10 text-teal-400">
+              <div className="p-1.5 rounded bg-[#0D0D0D] text-[#BC0202]">
                 <Truck className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-white block">Logistics Specialist</span>
-                <span className="text-[10px] text-slate-400 font-mono">Specialist #3</span>
+                <span className="text-xs font-bold text-white block">LOGISTICS ROUTER</span>
+                <span className="text-[10px] text-neutral-500">Specialist #3</span>
               </div>
             </div>
-            <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-teal-950 text-teal-300 border border-teal-800">
-              Fastest: {caseData.estimated_recovery_hours || 4.0}h
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-[#830000] text-white border border-[#BC0202]">
+              Fastest: {caseData.estimated_recovery_hours || 4.5}h
             </span>
           </div>
 
-          <div className="text-xs text-slate-300 space-y-2">
+          <div className="text-xs text-neutral-300 space-y-2 font-sans">
             <p className="leading-relaxed">
-              Modeled hot-shot dedicated courier vs commercial cargo next-flight-out to destination hub <strong className="text-white">{caseData.location}</strong>.
+              Modeled hot-shot dedicated flight courier to destination hub <strong className="text-white font-mono">{caseData.location || 'DEL'}</strong>.
             </p>
             
-            <div className="bg-slate-950/80 p-2.5 rounded-xl border border-slate-800 text-[11px] font-mono space-y-1 text-slate-400">
+            <div className="bg-[#080808] p-2.5 rounded border border-[#1E1E1E] text-[11px] font-mono space-y-1 text-neutral-400">
               <div className="flex justify-between">
                 <span>Fastest Viable Route:</span>
-                <span className="text-teal-300 font-bold">{caseData.estimated_recovery_hours || 4.0} hrs</span>
+                <span className="text-white font-bold">{caseData.estimated_recovery_hours || 4.5} hrs</span>
               </div>
               <div className="flex justify-between">
                 <span>Execution Time:</span>
                 <span className="text-white font-bold">{logisticsAgent?.execution_time_ms || 46}ms</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Tokens (in/out):</span>
-                <span className="text-teal-300">{logisticsAgent?.raw_output?.prompt_tokens || 530} / {logisticsAgent?.raw_output?.completion_tokens || 260}</span>
               </div>
             </div>
           </div>

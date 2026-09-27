@@ -4,7 +4,6 @@ import {
   RefreshCw, 
   PlaneTakeoff, 
   PackageX, 
-  Clock,
   ShieldAlert
 } from 'lucide-react';
 import { api } from '../api';
@@ -51,24 +50,24 @@ export const DisruptionSimulator: React.FC<DisruptionSimulatorProps> = ({
   };
 
   return (
-    <div className="p-4 rounded-xl bg-[#151B23] border border-[#26313D]">
+    <div className="p-4 rounded-xl bg-[#000000] border border-[#830000] font-mono text-neutral-200">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
         <div className="flex items-center space-x-2">
-          <div className="p-1.5 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/30">
+          <div className="p-1.5 rounded bg-[#0D0D0D] text-[#BC0202]">
             <Zap className="w-4 h-4" />
           </div>
           <div>
             <h3 className="text-xs font-bold text-white uppercase tracking-wide">
               OPERATIONAL CONTINGENCY & DISRUPTION CONTROLLER
             </h3>
-            <p className="text-[11px] text-slate-400 font-sans">
-              Inject real-time operational contingencies to trigger autonomous agent replanning.
+            <p className="text-[11px] text-neutral-400 font-sans">
+              Inject real-time operational contingencies to trigger autonomous agent replanning
             </p>
           </div>
         </div>
 
         {isDisrupted && (
-          <span className="px-2.5 py-0.5 rounded-full bg-red-950/80 border border-red-800/60 text-red-300 text-[10px] font-mono font-bold self-start sm:self-auto">
+          <span className="px-2.5 py-0.5 rounded bg-[#000000] border border-[#FF0000] text-[#FF0000] text-[10px] font-bold self-start sm:self-auto">
             ● DISRUPTION ACTIVE — REPLAN REQUIRED
           </span>
         )}
@@ -80,13 +79,13 @@ export const DisruptionSimulator: React.FC<DisruptionSimulatorProps> = ({
         <button
           onClick={() => handleSimulate('SUPPLIER_STOCKOUT')}
           disabled={loadingType !== null}
-          className="p-3 rounded-lg bg-[#11161D] border border-[#26313D] hover:border-amber-500/60 text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
+          className="p-3 rounded bg-[#080808] border border-[#1E1E1E] hover:border-[#830000] text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
         >
-          <div className="flex items-center space-x-2 text-amber-300 font-bold text-xs mb-1">
-            <PackageX className="w-4 h-4 text-amber-400" />
+          <div className="flex items-center space-x-2 text-[#BC0202] font-bold text-xs mb-1">
+            <PackageX className="w-4 h-4" />
             <span>Supplier Stockout</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-tight">
+          <p className="text-[10px] text-neutral-400 leading-tight font-sans">
             Zeros AeroParts (SIN) inventory in live database.
           </p>
         </button>
@@ -95,13 +94,13 @@ export const DisruptionSimulator: React.FC<DisruptionSimulatorProps> = ({
         <button
           onClick={() => handleSimulate('FLIGHT_CANCELLED')}
           disabled={loadingType !== null}
-          className="p-3 rounded-lg bg-[#11161D] border border-[#26313D] hover:border-amber-500/60 text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
+          className="p-3 rounded bg-[#080808] border border-[#1E1E1E] hover:border-[#830000] text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
         >
-          <div className="flex items-center space-x-2 text-amber-300 font-bold text-xs mb-1">
-            <PlaneTakeoff className="w-4 h-4 text-amber-400" />
+          <div className="flex items-center space-x-2 text-[#BC0202] font-bold text-xs mb-1">
+            <PlaneTakeoff className="w-4 h-4" />
             <span>Flight Cancelled</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-tight">
+          <p className="text-[10px] text-neutral-400 leading-tight font-sans">
             Cancels Flight SQ-402 (SIN → DEL cargo).
           </p>
         </button>
@@ -110,13 +109,13 @@ export const DisruptionSimulator: React.FC<DisruptionSimulatorProps> = ({
         <button
           onClick={() => handleSimulate('CUSTOMS_HOLD')}
           disabled={loadingType !== null}
-          className="p-3 rounded-lg bg-[#11161D] border border-[#26313D] hover:border-amber-500/60 text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
+          className="p-3 rounded bg-[#080808] border border-[#1E1E1E] hover:border-[#830000] text-left transition active:scale-95 disabled:opacity-50 cursor-pointer"
         >
-          <div className="flex items-center space-x-2 text-amber-300 font-bold text-xs mb-1">
-            <ShieldAlert className="w-4 h-4 text-amber-400" />
+          <div className="flex items-center space-x-2 text-[#BC0202] font-bold text-xs mb-1">
+            <ShieldAlert className="w-4 h-4" />
             <span>Customs Delay</span>
           </div>
-          <p className="text-[11px] text-slate-400 leading-tight">
+          <p className="text-[10px] text-neutral-400 leading-tight font-sans">
             Injects 6h import clearance hold at DEL.
           </p>
         </button>
@@ -125,13 +124,13 @@ export const DisruptionSimulator: React.FC<DisruptionSimulatorProps> = ({
         <button
           onClick={handleReplan}
           disabled={loadingType !== null}
-          className="p-3 rounded-lg bg-gradient-to-r from-amber-600 to-amber-700 hover:from-amber-500 hover:to-amber-600 text-black font-bold text-left transition active:scale-95 shadow-md shadow-amber-950/40 disabled:opacity-50 cursor-pointer"
+          className="p-3 rounded bg-[#830000] hover:bg-[#BC0202] text-white font-bold text-left transition active:scale-95 border border-[#BC0202] shadow-md disabled:opacity-50 cursor-pointer"
         >
-          <div className="flex items-center space-x-2 text-black font-extrabold text-xs mb-1">
+          <div className="flex items-center space-x-2 text-white font-bold text-xs mb-1">
             <RefreshCw className={`w-4 h-4 ${loadingType === 'REPLAN' ? 'animate-spin' : ''}`} />
             <span>Autonomous Replan</span>
           </div>
-          <p className="text-[11px] text-black/90 font-medium leading-tight">
+          <p className="text-[10px] text-neutral-200 leading-tight font-sans">
             Re-queries suppliers & selects SkySupply (BOM).
           </p>
         </button>

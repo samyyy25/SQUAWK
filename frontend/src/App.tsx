@@ -9,6 +9,7 @@ import { BatchProcessing } from './components/BatchProcessing';
 import { MemoryLearning } from './components/MemoryLearning';
 import { ActivityTimeline } from './components/ActivityTimeline';
 import { VendorsList } from './components/VendorsList';
+import { JudgesSafetyModal } from './components/JudgesSafetyModal';
 import { SquawkCase } from './types';
 import { api } from './api';
 
@@ -17,6 +18,7 @@ export function App() {
   const [cases, setCases] = useState<SquawkCase[]>([]);
   const [selectedCase, setSelectedCase] = useState<SquawkCase | null>(null);
   const [isIntakeOpen, setIsIntakeOpen] = useState(false);
+  const [isJudgesModalOpen, setIsJudgesModalOpen] = useState(false);
   const [activeFilterRegion, setActiveFilterRegion] = useState<string>('ALL');
 
   useEffect(() => {
@@ -44,11 +46,22 @@ export function App() {
   const handleRefreshCase = async () => {
     if (!selectedCase) return;
     try {
-      const updated = await api.processCase(selectedCase.id);
+      const updated = await api.analyzeCase(selectedCase.id);
       setSelectedCase(updated);
       loadCases();
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const handleResetDemo = async () => {
+    try {
+      await api.resetDemo();
+      await loadCases();
+      setSelectedCase(null);
+      alert('SQUAWK demo database reset to pristine VT-SQK Delhi baseline.');
+    } catch (err: any) {
+      alert('Error resetting demo: ' + err.message);
     }
   };
 
@@ -58,7 +71,7 @@ export function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#0B0F14] text-slate-200 font-sans selection:bg-cyan-500 selection:text-black">
+    <div className="flex h-screen w-screen overflow-hidden bg-[#000000] text-neutral-200 font-sans selection:bg-[#830000] selection:text-white">
       
       {/* Sleek Left Sidebar */}
       <Sidebar 
@@ -71,6 +84,8 @@ export function App() {
         totalAogCount={cases.length}
         activeFilterRegion={activeFilterRegion}
         setActiveFilterRegion={setActiveFilterRegion}
+        onOpenJudgesModal={() => setIsJudgesModalOpen(true)}
+        onResetDemo={handleResetDemo}
       />
 
       {/* Main Screen Layout with Topbar + Scrollable View */}
@@ -80,10 +95,12 @@ export function App() {
         <Topbar 
           currentTab={currentTab}
           openIntakeModal={() => setIsIntakeOpen(true)}
+          onOpenJudgesModal={() => setIsJudgesModalOpen(true)}
+          onResetDemo={handleResetDemo}
         />
 
         {/* Scrollable Main Operations Dashboard */}
-        <main className="flex-1 overflow-y-auto bg-[#0B0F14]">
+        <main className="flex-1 overflow-y-auto bg-[#000000]">
           {selectedCase ? (
             <CaseDetail 
               caseData={selectedCase}
@@ -128,6 +145,12 @@ export function App() {
         isOpen={isIntakeOpen}
         onClose={() => setIsIntakeOpen(false)}
         onCaseCreated={handleCaseCreated}
+      />
+
+      {/* Judges & Safety Guide Modal */}
+      <JudgesSafetyModal 
+        isOpen={isJudgesModalOpen}
+        onClose={() => setIsJudgesModalOpen(false)}
       />
 
     </div>

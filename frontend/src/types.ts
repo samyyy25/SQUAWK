@@ -125,6 +125,69 @@ export interface RecoveryAction {
   created_at: string;
 }
 
+export interface ResourceItemStatus {
+  status: string;
+  details: string;
+  ready: boolean;
+}
+
+export interface ResourceCheck {
+  technicians: ResourceItemStatus;
+  facility: ResourceItemStatus;
+  parts: ResourceItemStatus;
+  bottleneck_summary: string;
+  readiness_score: number;
+}
+
+export interface RecoveryOptionItem {
+  option_id: string;
+  title: string;
+  strategy: string;
+  expected_operational_impact: string;
+  dependencies: string[];
+  estimated_recovery_window: string;
+  estimated_recovery_hours: number;
+  confidence: number;
+  confidence_reason?: string;
+  risks: string[];
+  total_cost: number;
+  is_recommended: boolean;
+  human_approval_required: boolean;
+}
+
+export interface WhyRecommendation {
+  evidence_considered: string[];
+  not_considered_unavailable: string[];
+}
+
+export interface TimelineEvent {
+  time: string;
+  title: string;
+  desc: string;
+  actor: string;
+  status: string;
+}
+
+export interface IncidentIntelligence {
+  summary: string;
+  category: string;
+  severity: string;
+  operational_impact: string;
+  confidence: number;
+  confidence_reason: string;
+  evidence: string[];
+  missing_information: string[];
+  contributing_factors: string[];
+  dependencies: string[];
+  resource_check: ResourceCheck;
+  recovery_options: RecoveryOptionItem[];
+  why_recommendation: WhyRecommendation;
+  timeline: TimelineEvent[];
+  human_verification_required: boolean;
+  ai_failed?: boolean;
+  ai_failure_reason?: string | null;
+}
+
 export interface SquawkCase {
   id: string;
   tail_number?: string;
@@ -155,6 +218,7 @@ export interface SquawkCase {
   disruptions_log?: DisruptionRecord[];
   verification_report?: VerificationReport;
   active_plan?: any;
+  incident_intelligence?: IncidentIntelligence;
   scoring_weights?: Record<string, number>;
   created_at: string;
   updated_at: string;

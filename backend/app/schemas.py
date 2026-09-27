@@ -164,6 +164,7 @@ class SquawkCaseSchema(BaseModel):
     disruptions_log: List[Dict[str, Any]] = []
     verification_report: Optional[Dict[str, Any]] = None
     active_plan: Optional[Dict[str, Any]] = None
+    incident_intelligence: Optional[Dict[str, Any]] = None
     scoring_weights: Optional[Dict[str, float]] = None
     created_at: datetime.datetime
     updated_at: datetime.datetime

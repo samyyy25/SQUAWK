@@ -168,12 +168,55 @@ def create_case(payload: CaseCreateRequest, db: Session = Depends(get_db)):
     return case
 
 
+@app.post("/api/cases/{case_id}/analyze", response_model=SquawkCaseSchema)
 @app.post("/api/cases/{case_id}/process", response_model=SquawkCaseSchema)
 def trigger_case_processing(case_id: str, db: Session = Depends(get_db)):
     case = execute_squawk_orchestration(db, case_id)
     if not case:
         raise HTTPException(status_code=404, detail="AOG Case not found")
     return case
+
+
+@app.post("/api/cases/{case_id}/simulate-failure", response_model=SquawkCaseSchema)
+def trigger_case_failure_simulation(case_id: str, db: Session = Depends(get_db)):
+    """Simulates AI failure or malformed API response to prove safe fallback functionality."""
+    case = execute_squawk_orchestration(db, case_id, simulate_ai_failure=True)
+    if not case:
+        raise HTTPException(status_code=404, detail="AOG Case not found")
+    return case
+
+
+@app.get("/api/cases/{case_id}/recommendations")
+def get_case_recommendations(case_id: str, db: Session = Depends(get_db)):
+    case = db.query(SquawkCase).filter(SquawkCase.id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="AOG Case not found")
+    intel = case.incident_intelligence or {}
+    return {
+        "case_id": case.id,
+        "recovery_options": intel.get("recovery_options", []),
+        "why_recommendation": intel.get("why_recommendation", {}),
+        "resource_check": intel.get("resource_check", {}),
+        "human_verification_required": True
+    }
+
+
+@app.get("/api/cases/{case_id}/timeline")
+def get_case_timeline(case_id: str, db: Session = Depends(get_db)):
+    case = db.query(SquawkCase).filter(SquawkCase.id == case_id).first()
+    if not case:
+        raise HTTPException(status_code=404, detail="AOG Case not found")
+    intel = case.incident_intelligence or {}
+    return {
+        "case_id": case.id,
+        "timeline_type": "SIMULATED OPERATIONAL TIMELINE (DEMO DATA)",
+        "timeline": intel.get("timeline", [])
+    }
+
+
+@app.get("/api/cases/{case_id}/audit", response_model=List[ActivityLogSchema])
+def get_case_audit_log(case_id: str, db: Session = Depends(get_db)):
+    return db.query(ActivityLog).filter(ActivityLog.case_id == case_id).order_by(ActivityLog.timestamp.desc()).all()
 
 
 @app.post("/api/cases/{case_id}/approve", response_model=SquawkCaseSchema)

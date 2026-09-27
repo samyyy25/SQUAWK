@@ -1,17 +1,8 @@
 import React, { useState } from 'react';
 import { 
   ArrowLeft, 
-  Plane, 
-  Clock, 
   RotateCw,
-  Building,
-  ShieldCheck,
-  AlertTriangle,
-  FileCheck2,
-  Cpu,
-  Layers,
-  Sparkles,
-  UserCheck
+  Sparkles
 } from 'lucide-react';
 import { SquawkCase, RecoveryCandidate } from '../types';
 import { api } from '../api';
@@ -25,6 +16,7 @@ import { DecisionTrace } from './DecisionTrace';
 import { DisruptionSimulator } from './DisruptionSimulator';
 import { VerificationPanel } from './VerificationPanel';
 import { FlightRecoveryMap } from './FlightRecoveryMap';
+import { IncidentIntelligencePanel } from './IncidentIntelligencePanel';
 
 interface CaseDetailProps {
   caseData: SquawkCase;
@@ -41,18 +33,18 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
     caseData.candidates.find(c => c.is_recommended) || caseData.candidates[0] || null
   );
 
-  const [approverName, setApproverName] = useState('Capt. Marcus Vance');
-  const [approverLicense, setApproverLicense] = useState('FAA A&P / AOG Controller #482910');
-  const [approvalNotes, setApprovalNotes] = useState('Approved recommended rotable procurement route via AeroParts Inc.');
+  const [approverName, setApproverName] = useState('Lead Engineer (MCC Delhi)');
+  const [approverLicense, setApproverLicense] = useState('A&P-884920');
+  const [approvalNotes, setApprovalNotes] = useState('Authorized recommended rotable procurement route.');
   const [isProcessingAction, setIsProcessingAction] = useState(false);
 
   // Outcome submission modal for completed cases
   const [showOutcomeModal, setShowOutcomeModal] = useState(false);
-  const [actualDeliveryHours, setActualDeliveryHours] = useState(3.9);
-  const [actualCost, setActualCost] = useState(8750);
+  const [actualDeliveryHours, setActualDeliveryHours] = useState(4.5);
+  const [actualCost, setActualCost] = useState(14700);
   const [docAccepted, setDocAccepted] = useState(true);
   const [vendorRating, setVendorRating] = useState(5);
-  const [outcomeNotes, setOutcomeNotes] = useState('Flawless delivery, 8130-3 tag verified on arrival.');
+  const [outcomeNotes, setOutcomeNotes] = useState('Flawless delivery, 8130-3 tag verified on arrival at DEL.');
 
   const handleApprove = async () => {
     setIsProcessingAction(true);
@@ -135,92 +127,94 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
   const recommendedCandidate = selectedCandidate || caseData.candidates.find(c => c.is_recommended) || caseData.candidates[0];
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto">
+    <div className="p-4 space-y-4 max-w-7xl mx-auto bg-[#000000] text-neutral-200">
       
       {/* Top Header & Breadcrumb */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1E1E1E] pb-3">
         <div className="flex items-center space-x-3">
           <button 
             onClick={onBack}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition flex items-center space-x-1 text-xs font-semibold"
+            className="px-3 py-1.5 rounded bg-[#0D0D0D] hover:bg-[#830000]/30 text-neutral-300 hover:text-white border border-[#1E1E1E] hover:border-[#830000] transition flex items-center space-x-1.5 text-xs font-mono font-semibold cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
-            <span className="hidden sm:inline">Back to Queue</span>
+            <ArrowLeft className="w-3.5 h-3.5 text-[#BC0202]" />
+            <span>BACK TO OVERVIEW</span>
           </button>
 
           <div>
-            <div className="flex items-center space-x-3">
-              <h1 className="text-xl font-bold text-white font-mono">{caseData.tail_number || 'N42Q'}</h1>
-              <span className="text-xs font-bold font-mono px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-700">
+            <div className="flex items-center space-x-2.5">
+              <h1 className="text-lg font-bold text-white font-mono">{caseData.tail_number || 'VT-SQK'}</h1>
+              <span className="text-xs font-mono px-2 py-0.5 rounded bg-[#0D0D0D] text-neutral-400 border border-[#1E1E1E]">
                 {caseData.id}
               </span>
-              <span className={`px-2 py-0.5 rounded text-xs font-bold uppercase tracking-wider border ${
-                caseData.priority === 'AOG' 
-                  ? 'bg-red-950 text-red-400 border-red-800' 
-                  : 'bg-amber-950 text-amber-400 border-amber-800'
-              }`}>
-                {caseData.priority}
+              <span className="px-2 py-0.5 rounded text-xs font-mono font-bold uppercase tracking-wider bg-[#000000] text-[#FF0000] border border-[#FF0000]">
+                🔴 {caseData.priority || 'AOG'}
               </span>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded border ${
-                caseData.status === 'Approved' ? 'bg-emerald-950 text-emerald-300 border-emerald-800' : 'bg-slate-800 text-slate-300 border-slate-700'
+              <span className={`text-xs font-mono font-bold px-2 py-0.5 rounded border ${
+                caseData.status === 'Approved' ? 'bg-[#000000] text-white border-[#830000]' : 'bg-[#0D0D0D] text-[#BC0202] border-[#BC0202]'
               }`}>
                 {caseData.status}
               </span>
             </div>
-            <p className="text-xs text-slate-400 mt-1 font-medium">{caseData.defect_description}</p>
+            <p className="text-xs text-neutral-400 mt-1 font-mono">{caseData.defect_description}</p>
           </div>
         </div>
 
         {/* Action button if already approved */}
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2.5">
           {caseData.status === 'Approved' && (
             <button 
               onClick={() => setShowOutcomeModal(true)}
-              className="bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl shadow-lg shadow-purple-950/50 transition flex items-center space-x-1.5"
+              className="bg-[#830000] hover:bg-[#BC0202] text-white text-xs font-mono font-bold px-3 py-1.5 rounded border border-[#BC0202] transition flex items-center space-x-1.5 cursor-pointer shadow-sm"
             >
               <Sparkles className="w-3.5 h-3.5" />
-              <span>Record Physical Delivery Outcome</span>
+              <span>RECORD GATE OUTCOME</span>
             </button>
           )}
           <button 
             onClick={onRefreshCase}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 transition"
+            className="p-2 rounded bg-[#0D0D0D] hover:bg-[#830000]/30 border border-[#1E1E1E] text-neutral-300 hover:text-white transition cursor-pointer"
             title="Re-run Multi-Agent Pipeline"
           >
-            <RotateCw className="w-4 h-4" />
+            <RotateCw className="w-4 h-4 text-[#BC0202]" />
           </button>
         </div>
       </div>
 
       {/* Case Overview Metadata Bar */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-[#0f172a] border border-slate-800 rounded-2xl p-4 text-xs shadow-lg">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 bg-[#000000] border border-[#830000] rounded-xl p-3.5 text-xs font-mono shadow-md">
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Aircraft Type</span>
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">AIRCRAFT TYPE</span>
           <div className="text-white font-medium mt-0.5">{caseData.aircraft_type || 'Boeing 737-800'}</div>
         </div>
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Station Airport</span>
-          <div className="text-cyan-400 font-mono font-bold mt-0.5">{caseData.location || 'ORD'}</div>
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">STATION AIRPORT</span>
+          <div className="text-white font-bold mt-0.5">{caseData.location || 'DEL (Terminal 3)'}</div>
         </div>
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Required Part</span>
-          <div className="text-cyan-300 font-mono font-bold mt-0.5">{caseData.part_number || 'HYD-PUMP-2901'}</div>
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">REQUIRED PART</span>
+          <div className="text-white font-bold mt-0.5">{caseData.part_number || 'HP-2048'}</div>
         </div>
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">ATA Chapter</span>
-          <div className="text-slate-300 font-medium mt-0.5">{caseData.ata_chapter || '29 - Hydraulic Power'}</div>
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">ATA CHAPTER</span>
+          <div className="text-neutral-300 font-medium mt-0.5">{caseData.ata_chapter || '29 - Hydraulic Power'}</div>
         </div>
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Recovery ETA</span>
-          <div className="text-cyan-300 font-mono font-bold mt-0.5">{caseData.estimated_recovery_hours || 4.0} hrs</div>
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">RECOVERY ETA</span>
+          <div className="text-white font-bold mt-0.5">{caseData.estimated_recovery_hours || 4.5} hrs</div>
         </div>
         <div>
-          <span className="text-[10px] text-slate-500 font-bold uppercase font-mono tracking-wider">Safety Risk Level</span>
-          <div className={`font-mono font-bold mt-0.5 ${caseData.risk_level === 'LOW' ? 'text-emerald-400' : 'text-red-400'}`}>
-            {caseData.risk_level || 'LOW'} RISK
+          <span className="text-[10px] text-neutral-500 font-bold uppercase tracking-wider block">SAFETY STATUS</span>
+          <div className="font-bold text-[#BC0202] mt-0.5">
+            HUMAN REVIEW REQ
           </div>
         </div>
       </div>
+
+      {/* SQUAWK INCIDENT INTELLIGENCE & RECOVERY ORCHESTRATION PANEL */}
+      <IncidentIntelligencePanel 
+        caseData={caseData} 
+        onRefresh={onRefreshCase} 
+      />
 
       {/* TASK 3: END-TO-END VISUAL RECOVERY TIMELINE */}
       <WorkflowTimeline caseData={caseData} />
@@ -270,7 +264,7 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
       )}
 
       {/* Live Agent Timeline & Auditable Decision Trace */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         {caseData.tool_call_history && caseData.tool_call_history.length > 0 && (
           <LiveAgentTimeline toolCalls={caseData.tool_call_history} />
         )}
@@ -297,35 +291,35 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
 
       {/* Outcome Submission Modal for Vendor Memory feedback */}
       {showOutcomeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
-          <div className="bg-[#0f172a] border border-slate-700 rounded-2xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-slate-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+          <div className="bg-[#000000] border-2 border-[#830000] rounded-xl w-full max-w-lg p-6 space-y-4 shadow-2xl text-neutral-200 font-mono">
             <h3 className="text-base font-bold text-white flex items-center space-x-2">
-              <Sparkles className="w-5 h-5 text-purple-400" />
-              <span>Record Verified Physical Outcome</span>
+              <Sparkles className="w-5 h-5 text-[#BC0202]" />
+              <span>RECORD VERIFIED GATE OUTCOME</span>
             </h3>
-            <p className="text-xs text-slate-400">
-              Updates supplier memory model in RocketRide with physical gate turnaround performance.
+            <p className="text-xs text-neutral-400">
+              Updates supplier memory model with physical turnaround performance.
             </p>
 
             <form onSubmit={handleOutcomeSubmit} className="space-y-3 pt-2">
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div>
-                  <label className="text-slate-400 block mb-1">Actual Delivery Hours</label>
+                  <label className="text-neutral-400 block mb-1">ACTUAL DELIVERY HOURS</label>
                   <input 
                     type="number" 
                     step="0.1" 
                     value={actualDeliveryHours} 
                     onChange={e => setActualDeliveryHours(parseFloat(e.target.value))}
-                    className="w-full bg-[#14161a] border border-slate-700 rounded-lg p-2 text-white font-mono"
+                    className="w-full bg-[#080808] border border-[#1E1E1E] rounded p-2 text-white font-mono"
                   />
                 </div>
                 <div>
-                  <label className="text-slate-400 block mb-1">Actual Landed Cost ($)</label>
+                  <label className="text-neutral-400 block mb-1">ACTUAL LANDED COST ($)</label>
                   <input 
                     type="number" 
                     value={actualCost} 
                     onChange={e => setActualCost(parseFloat(e.target.value))}
-                    className="w-full bg-[#14161a] border border-slate-700 rounded-lg p-2 text-white font-mono"
+                    className="w-full bg-[#080808] border border-[#1E1E1E] rounded p-2 text-white font-mono"
                   />
                 </div>
               </div>
@@ -336,20 +330,20 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
                   id="docAcceptedCheck"
                   checked={docAccepted} 
                   onChange={e => setDocAccepted(e.target.checked)}
-                  className="rounded border-slate-700 text-cyan-500 focus:ring-cyan-500"
+                  className="rounded border-[#830000] bg-[#080808] text-[#BC0202]"
                 />
-                <label htmlFor="docAcceptedCheck" className="text-slate-300">
-                  FAA 8130-3 / EASA Form 1 documentation verified and accepted on arrival
+                <label htmlFor="docAcceptedCheck" className="text-neutral-300">
+                  FAA 8130-3 / EASA Form 1 documentation verified and accepted
                 </label>
               </div>
 
               <div>
-                <label className="text-slate-400 text-xs block mb-1">TechOps Gate Notes</label>
+                <label className="text-neutral-400 text-xs block mb-1">TECHOPS GATE NOTES</label>
                 <input 
                   type="text" 
                   value={outcomeNotes} 
                   onChange={e => setOutcomeNotes(e.target.value)}
-                  className="w-full bg-[#14161a] border border-slate-700 rounded-lg p-2 text-xs text-white"
+                  className="w-full bg-[#080808] border border-[#1E1E1E] rounded p-2 text-xs text-white"
                 />
               </div>
 
@@ -357,15 +351,15 @@ export const CaseDetail: React.FC<CaseDetailProps> = ({
                 <button
                   type="button"
                   onClick={() => setShowOutcomeModal(false)}
-                  className="px-4 py-2 rounded-lg bg-slate-800 text-slate-300 text-xs font-semibold"
+                  className="px-4 py-2 rounded bg-[#0D0D0D] text-neutral-300 text-xs font-semibold cursor-pointer border border-[#1E1E1E]"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-white text-xs font-bold shadow-lg shadow-purple-950/50"
+                  className="px-4 py-2 rounded bg-[#830000] hover:bg-[#BC0202] text-white text-xs font-bold border border-[#BC0202] cursor-pointer"
                 >
-                  Save Outcome to Vendor Memory
+                  SAVE OUTCOME
                 </button>
               </div>
             </form>
