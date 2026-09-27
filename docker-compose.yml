@@ -1,0 +1,13 @@
+services:
+  squawk:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: squawk-aog-platform
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+      - ENVIRONMENT=production
+      - DEMO_MODE=true
+    restart: unless-stopped
