@@ -10,7 +10,7 @@ services:
       - key: PYTHON_VERSION
         value: 3.11.9
       - key: NODE_VERSION
-        value: 20.12.0
+        value: 22.14.0
       - key: ENVIRONMENT
         value: production
       - key: DEMO_MODE
