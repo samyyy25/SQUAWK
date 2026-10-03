@@ -659,7 +659,9 @@ def get_aog_history(db: Session = Depends(get_db)):
         joinedload(SquawkCase.resolution),
         joinedload(SquawkCase.recovery_updates)
     ).filter(
-        (SquawkCase.status == "RESOLVED") | (SquawkCase.resolved_at != None)
+        (SquawkCase.status.in_(["RESOLVED", "Resolved", "Completed", "COMPLETED"])) |
+        (SquawkCase.resolved_at != None) |
+        (SquawkCase.current_stage == "COMPLETED")
     ).order_by(SquawkCase.created_at.desc()).all()
 
     total_resolved = len(resolved_cases)

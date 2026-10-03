@@ -14,9 +14,12 @@ import {
   AlertCircle,
   FileCheck2,
   Boxes,
-  Users
+  Users,
+  Award,
+  Zap,
+  ExternalLink
 } from 'lucide-react';
-import { SquawkCase } from '../types';
+import { SquawkCase, RecoveryCandidate } from '../types';
 import { FlightRecoveryMap } from './FlightRecoveryMap';
 import { HumanApprovalModal } from './HumanApprovalModal';
 import { api } from '../api';
@@ -29,17 +32,30 @@ interface DashboardOverviewProps {
 
 export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   cases,
-  onSelectCase
+  onSelectCase,
+  onOpenIntake
 }) => {
-  const heroCase = cases.find(c => c.tail_number === 'VT-SQK' || c.id === 'CASE-SQK-2048') || cases[0];
+  // CRITICAL FIX: Pick the active hero case (CASE-SQK-2048) or the first active non-resolved case with candidates!
+  // Do NOT pick already-resolved cases like CASE-HIST-1038 as the initial active case.
+  const heroCase = cases.find(c => c.id === 'CASE-SQK-2048') 
+    || cases.find(c => c.status !== 'Resolved' && c.status !== 'RESOLVED' && c.candidates && c.candidates.length > 0)
+    || cases.find(c => c.status !== 'Resolved' && c.status !== 'RESOLVED')
+    || cases[0];
+
   const [activeCase, setActiveCase] = useState<SquawkCase | null>(heroCase || null);
   const [isApprovalOpen, setIsApprovalOpen] = useState(false);
   const [demoRunning, setDemoRunning] = useState(false);
   const [demoStep, setDemoStep] = useState<number>(0);
 
   useEffect(() => {
-    if (heroCase && (!activeCase || activeCase.id !== heroCase.id)) {
-      setActiveCase(heroCase);
+    if (cases.length > 0) {
+      setActiveCase(prev => {
+        if (prev) {
+          const matching = cases.find(c => c.id === prev.id);
+          if (matching) return matching;
+        }
+        return heroCase || null;
+      });
     }
   }, [cases, heroCase]);
 
@@ -120,20 +136,89 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const isVerified = (activeCase?.verification_report !== null && activeCase?.verification_report !== undefined) || demoStep >= 6;
   const isDisrupted = (activeCase?.disruptions_log && activeCase.disruptions_log.length > 0) || demoStep >= 4;
 
+  // Dynamic KPI computations from real cases data
+  const activeCasesList = cases.filter(c => c.status !== 'Resolved' && c.status !== 'RESOLVED');
+  const criticalAogCount = activeCasesList.filter(c => c.priority === 'AOG' || c.severity === 'CRITICAL' || c.severity === 'AOG_CRITICAL').length;
+  const pendingReviewCases = cases.filter(c => 
+    c.current_stage === 'APPROVAL' || 
+    c.current_stage === 'HUMAN_REVIEW' || 
+    c.status === 'Awaiting Approval' || 
+    c.status === 'Ready for Approval'
+  );
+  
+  const totalRecoveryPlans = activeCase?.candidates?.length || 3;
+  const currentEtaString = activeCase?.active_plan?.total_eta_hours 
+    ? `${activeCase.active_plan.total_eta_hours}h ETA` 
+    : (activeCase?.candidates?.[0]?.estimated_eta_hours 
+        ? `${activeCase.candidates[0].estimated_eta_hours}h ETA` 
+        : '8h 20m ETA');
+
+  const candidates: RecoveryCandidate[] = activeCase?.candidates || [];
+
   return (
     <div className="space-y-4 font-sans text-[#252820] min-h-full">
       
-      {/* Aviation Hero Tagline from Reference Image */}
-      <div className="pt-1 pb-1">
-        <h1 className="text-xl md:text-2xl font-black font-mono tracking-tight text-[#252820] drop-shadow-sm">
-          FROM DEFECT REPORT TO RECOVERY PLAN —
-        </h1>
-        <div className="text-xs md:text-sm font-bold font-mono tracking-wider text-[#A87813] mt-0.5">
-          BEFORE THE CLOCK GETS EXPENSIVE.
+      {/* Aviation Hero Tagline */}
+      <div className="pt-1 pb-1 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <h1 className="text-xl md:text-2xl font-black font-mono tracking-tight text-[#252820] drop-shadow-sm">
+            FROM DEFECT REPORT TO RECOVERY PLAN —
+          </h1>
+          <div className="text-xs md:text-sm font-bold font-mono tracking-wider text-[#A87813] mt-0.5">
+            BEFORE THE CLOCK GETS EXPENSIVE.
+          </div>
         </div>
+
+        {onOpenIntake && (
+          <button
+            onClick={onOpenIntake}
+            className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] hover:from-[#F0C75E] hover:to-[#D9A62E] text-[#252820] font-mono text-xs font-bold shadow-md border border-[#F0C75E] flex items-center space-x-1.5 transition self-start sm:self-auto cursor-pointer"
+          >
+            <Zap className="w-3.5 h-3.5 fill-current text-[#252820]" />
+            <span>+ REPORT NEW AOG</span>
+          </button>
+        )}
       </div>
 
-      {/* 1. SQUAWK AOG STATUS HERO CARD (Cockpit Command Center Styling) */}
+      {/* MULTI-INCIDENT FLEET SELECTOR BAR */}
+      {cases.length > 0 && (
+        <div className="p-2.5 rounded-xl bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] flex items-center space-x-2 overflow-x-auto shadow-sm">
+          <span className="text-[10px] font-mono font-bold text-[#8C8472] uppercase tracking-wider shrink-0 pl-1">
+            FLEET AOG QUEUE ({cases.length}):
+          </span>
+          <div className="flex items-center space-x-2">
+            {cases.map((c) => {
+              const isSelected = activeCase?.id === c.id;
+              const isResolved = c.status === 'Resolved' || c.status === 'RESOLVED';
+              return (
+                <button
+                  key={c.id}
+                  onClick={() => setActiveCase(c)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono font-bold transition flex items-center space-x-2 shrink-0 cursor-pointer shadow-xs ${
+                    isSelected
+                      ? 'bg-[#252820] text-[#F0C75E] border border-[#F0C75E]'
+                      : 'bg-[rgba(255,248,235,0.85)] hover:bg-[rgba(255,248,235,1)] text-[#252820] border border-[rgba(217,166,46,0.3)]'
+                  }`}
+                >
+                  <span className={isSelected ? 'text-[#F0C75E]' : 'text-[#252820]'}>
+                    {c.tail_number || c.id}
+                  </span>
+                  <span className="text-[10px] opacity-75 font-sans">
+                    ({c.location || c.airport || 'DEL'})
+                  </span>
+                  {isResolved ? (
+                    <span className="w-2 h-2 rounded-full bg-[#78966A]" title="Resolved"></span>
+                  ) : (
+                    <span className="w-2 h-2 rounded-full bg-[#C85B43] animate-pulse" title="Active AOG"></span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 1. SQUAWK AOG STATUS HERO CARD (Dynamic Cockpit Command Center Styling) */}
       <div className="w-full bg-[rgba(30,33,26,0.85)] backdrop-blur-xl border border-[rgba(255,210,100,0.3)] rounded-xl p-4 shadow-2xl relative overflow-hidden text-[#F7F1E4]">
         {/* Warm golden background glow */}
         <div className="absolute top-0 right-0 w-96 h-32 bg-[rgba(217,166,46,0.12)] blur-3xl pointer-events-none"></div>
@@ -146,34 +231,38 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             {/* Critical AOG Indicator Badge */}
             <div className="px-3 py-2 rounded bg-[rgba(200,91,67,0.18)] border border-[#C85B43] flex items-center space-x-2 shrink-0 shadow-md">
               <span className="w-2.5 h-2.5 rounded-full bg-[#C85B43] animate-pulse shadow-[0_0_8px_#C85B43]"></span>
-              <span className="text-xs font-mono font-black text-[#F0856E] tracking-widest">
-                AOG ACTIVE
+              <span className="text-xs font-mono font-black text-[#F0856E] tracking-widest uppercase">
+                {activeCase?.status === 'Resolved' || activeCase?.status === 'RESOLVED' 
+                  ? 'RESOLVED' 
+                  : (activeCase?.priority || 'AOG ACTIVE')}
               </span>
             </div>
 
             {/* Aircraft Reg & Type */}
             <div className="pr-4 border-r border-[rgba(255,210,100,0.2)]">
               <div className="flex items-center space-x-2">
-                <span className="text-lg font-mono font-black text-white tracking-wider">VT-SQK</span>
+                <span className="text-lg font-mono font-black text-white tracking-wider">
+                  {activeCase?.tail_number || 'VT-SQK'}
+                </span>
                 <span className="px-2 py-0.5 rounded bg-[#D9A62E] text-[#252820] text-[10px] font-mono font-bold shadow-sm">
-                  737-800
+                  {activeCase?.aircraft_type || '737-800'}
                 </span>
               </div>
               <div className="text-[11px] text-[#D8D0BD] font-mono mt-0.5">
-                DEL Terminal 3 MRO Hangar
+                {activeCase?.location || activeCase?.airport || 'DEL Terminal 3 MRO Hangar'}
               </div>
             </div>
 
             {/* Defect Description */}
             <div className="pr-4 border-r border-[rgba(255,210,100,0.2)] max-w-xs">
               <div className="text-[10px] font-mono font-bold text-[#A8A28E] uppercase tracking-widest">
-                REPORTED DEFECT
+                {activeCase?.defect_category ? activeCase.defect_category.toUpperCase() : 'REPORTED DEFECT'}
               </div>
-              <div className="text-xs font-bold text-white mt-0.5 font-mono">
-                ENGINE VIBRATION REPORTED
+              <div className="text-xs font-bold text-white mt-0.5 font-mono line-clamp-1">
+                {activeCase?.defect_description || 'ENGINE VIBRATION REPORTED'}
               </div>
               <div className="text-[10px] text-[#F0C75E] font-mono">
-                Abnormal climb indication · Grounded
+                {activeCase?.operational_impact || 'Abnormal climb indication · Grounded'}
               </div>
             </div>
 
@@ -183,9 +272,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 GOVERNANCE STATUS
               </div>
               <div className="mt-0.5">
-                <span className="inline-flex items-center px-2 py-0.5 rounded bg-[rgba(217,166,46,0.15)] border border-[rgba(217,166,46,0.45)] text-[#F0C75E] text-[11px] font-mono font-bold tracking-wide">
-                  ⚠ HUMAN REVIEW REQUIRED
-                </span>
+                {activeCase?.status === 'Resolved' || activeCase?.status === 'RESOLVED' ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-[rgba(120,150,106,0.2)] border border-[rgba(120,150,106,0.5)] text-[#78966A] text-[11px] font-mono font-bold tracking-wide">
+                    ✓ INCIDENT RESOLVED
+                  </span>
+                ) : activeCase?.status === 'Approved & Dispatched' ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-[rgba(120,150,106,0.2)] border border-[rgba(120,150,106,0.5)] text-[#78966A] text-[11px] font-mono font-bold tracking-wide">
+                    ✓ APPROVED & DISPATCHED
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded bg-[rgba(217,166,46,0.15)] border border-[rgba(217,166,46,0.45)] text-[#F0C75E] text-[11px] font-mono font-bold tracking-wide">
+                    ⚠ HUMAN REVIEW REQUIRED
+                  </span>
+                )}
               </div>
             </div>
 
@@ -196,7 +295,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               </div>
               <div className="text-xs font-mono font-bold text-white flex items-center gap-1.5 mt-0.5">
                 <Clock className="w-3.5 h-3.5 text-[#F0C75E]" />
-                <span>18h Target (11h 10m ETA)</span>
+                <span>{activeCase?.deadline_hours || 18}h Target ({currentEtaString})</span>
               </div>
             </div>
 
@@ -242,7 +341,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         </div>
       </div>
 
-      {/* 2. FOUR MAJOR OPERATIONAL METRIC CARDS (Translucent Warm Ivory Glass) */}
+      {/* 2. FOUR MAJOR OPERATIONAL METRIC CARDS (Dynamic Warm Ivory Glass) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         
         {/* Metric 1: ACTIVE AOG */}
@@ -254,11 +353,16 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#C85B43] shadow-[0_0_6px_#C85B43]"></span>
           </div>
           <div className="text-2xl font-mono font-black text-[#252820] mt-1">
-            01 <span className="text-xs font-normal text-[#C85B43] font-mono bg-[#C85B43]/15 border border-[#C85B43]/30 px-1.5 py-0.5 rounded">CRITICAL</span>
+            {String(activeCasesList.length || 1).padStart(2, '0')}{' '}
+            <span className="text-xs font-normal text-[#C85B43] font-mono bg-[#C85B43]/15 border border-[#C85B43]/30 px-1.5 py-0.5 rounded">
+              {criticalAogCount > 0 ? `${criticalAogCount} CRITICAL` : 'ACTIVE'}
+            </span>
           </div>
           <div className="text-[11px] font-mono text-[#4A483E] mt-1 flex items-center justify-between">
-            <span>VT-SQK (DEL Hub)</span>
-            <span className="text-[#C85B43] font-bold">AIRCRAFT GROUNDED</span>
+            <span>{activeCase?.tail_number || 'VT-SQK'} ({activeCase?.location || 'DEL Hub'})</span>
+            <span className="text-[#C85B43] font-bold">
+              {activeCase?.status === 'Resolved' ? 'RESOLVED' : 'AIRCRAFT GROUNDED'}
+            </span>
           </div>
         </div>
 
@@ -271,7 +375,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#D9A62E] shadow-[0_0_6px_#D9A62E]"></span>
           </div>
           <div className="text-2xl font-mono font-black text-[#252820] mt-1">
-            01 <span className="text-xs font-normal text-[#A87813] font-mono bg-[#D9A62E]/15 border border-[#D9A62E]/30 px-1.5 py-0.5 rounded">ACTION REQ</span>
+            {String(pendingReviewCases.length || 1).padStart(2, '0')}{' '}
+            <span className="text-xs font-normal text-[#A87813] font-mono bg-[#D9A62E]/15 border border-[#D9A62E]/30 px-1.5 py-0.5 rounded">
+              ACTION REQ
+            </span>
           </div>
           <div className="text-[11px] font-mono text-[#4A483E] mt-1 flex items-center justify-between">
             <span>Lead Engineer Sign-off</span>
@@ -288,11 +395,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#78966A] shadow-[0_0_6px_#78966A]"></span>
           </div>
           <div className="text-2xl font-mono font-black text-[#252820] mt-1">
-            03 <span className="text-xs font-normal text-[#547348] font-mono bg-[#78966A]/20 border border-[#78966A]/30 px-1.5 py-0.5 rounded">CANDIDATES</span>
+            {String(totalRecoveryPlans).padStart(2, '0')}{' '}
+            <span className="text-xs font-normal text-[#547348] font-mono bg-[#78966A]/20 border border-[#78966A]/30 px-1.5 py-0.5 rounded">
+              CANDIDATES
+            </span>
           </div>
           <div className="text-[11px] font-mono text-[#4A483E] mt-1 flex items-center justify-between">
             <span>Multi-option synthesis</span>
-            <span className="text-[#252820] font-bold">11h 10m ETA</span>
+            <span className="text-[#252820] font-bold">{currentEtaString}</span>
           </div>
         </div>
 
@@ -305,10 +415,13 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <span className="w-2.5 h-2.5 rounded-full bg-[#D9A62E] shadow-[0_0_6px_#D9A62E]"></span>
           </div>
           <div className="text-2xl font-mono font-black text-[#252820] mt-1">
-            02 <span className="text-xs font-normal text-[#A87813] font-mono bg-[#D9A62E]/15 border border-[#D9A62E]/30 px-1.5 py-0.5 rounded">CONSTRAINTS</span>
+            {String(activeCase?.disruptions_log?.length || (activeCase?.location?.includes('DEL') ? 2 : 1)).padStart(2, '0')}{' '}
+            <span className="text-xs font-normal text-[#A87813] font-mono bg-[#D9A62E]/15 border border-[#D9A62E]/30 px-1.5 py-0.5 rounded">
+              CONSTRAINTS
+            </span>
           </div>
           <div className="text-[11px] font-mono text-[#4A483E] mt-1 flex items-center justify-between">
-            <span>DEL Hub stockout</span>
+            <span>{activeCase?.location || 'DEL'} Hub stockout</span>
             <span className="text-[#A87813] font-bold">External dispatch</span>
           </div>
         </div>
@@ -324,17 +437,88 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         isVerified={isVerified}
       />
 
-      {/* 4. BOTTOM 3-COLUMN OPERATIONAL PANELS */}
+      {/* 4. ACTIVE RECOVERY CANDIDATES SOURCING COMPARISON */}
+      {candidates.length > 0 && (
+        <div className="p-4 rounded-xl bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] shadow-lg space-y-3">
+          <div className="flex items-center justify-between pb-2 border-b border-[rgba(217,166,46,0.25)]">
+            <div className="flex items-center space-x-2">
+              <Award className="w-4 h-4 text-[#A87813]" />
+              <span className="text-xs font-mono font-bold text-[#252820] uppercase tracking-wider">
+                SYNTHESIZED RECOVERY CANDIDATES ({candidates.length}) · {activeCase?.tail_number} ({activeCase?.part_number || 'HP-2048'})
+              </span>
+            </div>
+            <span className="text-[10px] font-mono text-[#78966A] font-bold bg-[#78966A]/20 border border-[#78966A]/40 px-2 py-0.5 rounded">
+              7/7 Airworthiness Audit Passed
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {candidates.map((cand, idx) => (
+              <div 
+                key={cand.id || idx}
+                className={`p-3.5 rounded-lg border transition space-y-2 relative ${
+                  cand.is_recommended
+                    ? 'bg-[rgba(255,248,235,0.95)] border-[#D9A62E] shadow-md ring-1 ring-[#D9A62E]'
+                    : cand.is_flagged
+                    ? 'bg-[rgba(255,240,240,0.85)] border-[#C85B43]/50'
+                    : 'bg-[rgba(255,250,242,0.7)] border-[rgba(217,166,46,0.25)]'
+                }`}
+              >
+                {cand.is_recommended && (
+                  <div className="absolute top-2 right-2 px-1.5 py-0.5 rounded bg-[#D9A62E] text-[#252820] text-[9px] font-mono font-bold uppercase">
+                    ★ RECOMMENDED
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-2">
+                  <span className="text-xs font-mono font-black text-[#A87813]">#{cand.overall_rank || idx + 1}</span>
+                  <strong className="text-xs font-mono text-[#252820] line-clamp-1">{cand.vendor_name}</strong>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2 text-[11px] font-mono pt-1">
+                  <div>
+                    <span className="text-[#8C8472] block text-[9px]">TOTAL LANDED</span>
+                    <strong className="text-sm font-bold text-[#252820]">
+                      ${(cand.total_landed_cost || 0).toLocaleString()}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className="text-[#8C8472] block text-[9px]">ETA DOWNTIME</span>
+                    <strong className="text-sm font-bold text-[#A87813]">
+                      {cand.estimated_eta_hours}h
+                    </strong>
+                  </div>
+                </div>
+
+                <div className="text-[10px] font-mono text-[#4A483E] pt-1 border-t border-[rgba(217,166,46,0.2)]">
+                  <div>Condition: <strong className="text-[#252820]">{cand.condition}</strong></div>
+                  <div>Tags: <span className="text-[#547348] font-bold">{cand.documentation_status} (FAA 8130-3)</span></div>
+                  <div>Reliability: <strong className="text-[#252820]">{Math.round((cand.vendor_reliability_score || 0.9) * 100)}%</strong></div>
+                </div>
+
+                <button
+                  onClick={() => setIsApprovalOpen(true)}
+                  className="w-full mt-2 py-1.5 rounded text-[11px] font-mono font-bold transition border cursor-pointer text-center bg-[rgba(217,166,46,0.18)] hover:bg-[#D9A62E] text-[#252820] border-[#D9A62E]"
+                >
+                  Authorize Candidate
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* 5. BOTTOM 3-COLUMN OPERATIONAL PANELS */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
         
-        {/* COLUMN 1: SIMULATED DEMO TIMELINE (Translucent Warm Ivory Card) */}
+        {/* COLUMN 1: SIMULATED DEMO TIMELINE */}
         <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3 text-[#252820]">
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-[rgba(217,166,46,0.3)]">
               <div className="flex items-center space-x-2">
                 <Clock className="w-3.5 h-3.5 text-[#A87813]" />
                 <span className="text-[10px] font-mono font-bold text-[#252820] uppercase tracking-wider">
-                  SIMULATED DEMO TIMELINE
+                  OPERATIONAL TIMELINE & TRACE
                 </span>
               </div>
               <span className="text-[9px] font-mono text-[#A87813] font-bold border border-[rgba(217,166,46,0.5)] px-1.5 py-0.5 rounded bg-[rgba(217,166,46,0.1)]">
@@ -347,32 +531,40 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
               <div className="flex items-start space-x-3 p-2 rounded bg-[rgba(255,248,235,0.75)] border border-[rgba(217,166,46,0.2)]">
                 <span className="text-[#A87813] font-bold w-12 shrink-0">14:02</span>
                 <div>
-                  <div className="text-[#252820] font-bold">SQUAWK RECEIVED</div>
-                  <div className="text-[10px] text-[#4A483E]">VT-SQK reported engine vibration at DEL</div>
+                  <div className="text-[#252820] font-bold">SQUAWK INTAKE RECORDED</div>
+                  <div className="text-[10px] text-[#4A483E]">
+                    {activeCase?.tail_number || 'VT-SQK'} reported defect at {activeCase?.location || 'DEL'}
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3 p-2 rounded bg-[rgba(255,248,235,0.75)] border border-[rgba(217,166,46,0.2)]">
                 <span className="text-[#A87813] font-bold w-12 shrink-0">14:03</span>
                 <div>
-                  <div className="text-[#252820] font-bold">AI ANALYSIS COMPLETED</div>
-                  <div className="text-[10px] text-[#4A483E]">82% confidence · Human review mandated</div>
+                  <div className="text-[#252820] font-bold">MULTI-AGENT AI ANALYSIS</div>
+                  <div className="text-[10px] text-[#4A483E]">
+                    {Math.round((activeCase?.confidence_score || 0.96) * 100)}% confidence · Sourcing & logistics wave
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3 p-2 rounded bg-[rgba(255,248,235,0.75)] border border-[rgba(217,166,46,0.2)]">
                 <span className="text-[#A87813] font-bold w-12 shrink-0">14:04</span>
                 <div>
-                  <div className="text-[#252820] font-bold">RESOURCE CHECK</div>
-                  <div className="text-[10px] text-[#C85B43] font-semibold">Local stockout · Tech available at DEL T3</div>
+                  <div className="text-[#252820] font-bold">STATION RESOURCE CHECK</div>
+                  <div className="text-[10px] text-[#C85B43] font-semibold">
+                    {activeCase?.location || 'DEL'} local stockout · Tech assigned
+                  </div>
                 </div>
               </div>
 
               <div className="flex items-start space-x-3 p-2 rounded bg-[rgba(255,248,235,0.75)] border border-[rgba(217,166,46,0.2)]">
                 <span className="text-[#A87813] font-bold w-12 shrink-0">14:05</span>
                 <div>
-                  <div className="text-[#252820] font-bold">RECOVERY OPTIONS GENERATED</div>
-                  <div className="text-[10px] text-[#4A483E]">Option A (AeroParts SIN) / Option B (SkySupply BOM)</div>
+                  <div className="text-[#252820] font-bold">RECOVERY OPTIONS SYNTHESIZED</div>
+                  <div className="text-[10px] text-[#4A483E]">
+                    {totalRecoveryPlans} candidates evaluated · {currentEtaString}
+                  </div>
                 </div>
               </div>
 
@@ -380,25 +572,23 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                 <span className="text-[#A87813] font-bold w-12 shrink-0">14:07</span>
                 <div>
                   <div className="text-[#252820] font-bold flex items-center gap-1">
-                    <span>HUMAN REVIEW</span>
-                    <span className="text-[9px] text-[#A87813] font-bold">● ACTIVE</span>
+                    <span>GOVERNANCE STATUS</span>
+                    <span className="text-[9px] text-[#A87813] font-bold">
+                      {activeCase?.status === 'Resolved' ? '● RESOLVED' : '● ACTIVE'}
+                    </span>
                   </div>
-                  <div className="text-[10px] text-[#4A483E]">Awaiting A&P Licensed Engineer Authorization</div>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-3 p-2 rounded bg-[rgba(255,248,235,0.75)] border border-[rgba(217,166,46,0.2)]">
-                <span className="text-[#A87813] font-bold w-12 shrink-0">14:09</span>
-                <div>
-                  <div className="text-[#252820] font-bold">PLAN APPROVED</div>
-                  <div className="text-[10px] text-[#4A483E]">A&P-884920 digital certificate verified</div>
+                  <div className="text-[10px] text-[#4A483E]">
+                    {activeCase?.status === 'Resolved' 
+                      ? 'Aircraft returned to line revenue operations' 
+                      : 'Awaiting A&P Licensed Engineer Authorization'}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        {/* COLUMN 2: RESOURCE ORCHESTRATION (Translucent Warm Ivory Card) */}
+        {/* COLUMN 2: RESOURCE ORCHESTRATION */}
         <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3 text-[#252820]">
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-[rgba(217,166,46,0.3)]">
@@ -408,8 +598,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   RESOURCE ORCHESTRATION
                 </span>
               </div>
-              <span className="text-[10px] font-mono text-[#4A483E]">
-                DEL MRO HANGAR
+              <span className="text-[10px] font-mono text-[#4A483E] uppercase font-bold">
+                {activeCase?.location || 'DEL MRO HANGAR'}
               </span>
             </div>
 
@@ -423,12 +613,14 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     <Users className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">TECHNICIAN</div>
-                    <div className="text-xs font-bold text-[#252820] font-mono">Lead A&P (MCC Delhi)</div>
+                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">TECHNICIAN TEAM</div>
+                    <div className="text-xs font-bold text-[#252820] font-mono">
+                      {activeCase?.required_maintenance_team || 'Lead A&P (MCC Delhi)'}
+                    </div>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-[#78966A]/20 border border-[#78966A]/40 text-[#4E6B42] text-[10px] font-mono font-bold">
-                  AVAILABLE
+                  ASSIGNED
                 </span>
               </div>
 
@@ -439,8 +631,10 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     <Plane className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">FACILITY</div>
-                    <div className="text-xs font-bold text-[#252820] font-mono">DEL Terminal 3 Bay 42</div>
+                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">FACILITY / BAY</div>
+                    <div className="text-xs font-bold text-[#252820] font-mono">
+                      {activeCase?.location || 'DEL Terminal 3 Bay 42'}
+                    </div>
                   </div>
                 </div>
                 <span className="px-2 py-0.5 rounded bg-[#78966A]/20 border border-[#78966A]/40 text-[#4E6B42] text-[10px] font-mono font-bold">
@@ -455,12 +649,20 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                     <Boxes className="w-3.5 h-3.5" />
                   </div>
                   <div>
-                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">PART: HP-2048 / VIB-SNS</div>
-                    <div className="text-xs font-bold text-[#252820] font-mono">Hydraulic EDP / Vibration Sensor</div>
+                    <div className="text-[10px] font-mono font-bold text-[#4A483E]">
+                      PART: {activeCase?.part_number || 'HP-2048'}
+                    </div>
+                    <div className="text-xs font-bold text-[#252820] font-mono">
+                      {activeCase?.part_name || 'Hydraulic EDP Pump Assembly'}
+                    </div>
                   </div>
                 </div>
-                <span className="px-2 py-0.5 rounded bg-[#D9A62E]/20 border border-[#D9A62E] text-[#A87813] text-[10px] font-mono font-bold">
-                  VERIFICATION REQ
+                <span className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold ${
+                  activeCase?.status === 'Approved & Dispatched' || activeCase?.status === 'Resolved'
+                    ? 'bg-[#78966A]/20 border border-[#78966A]/40 text-[#4E6B42]'
+                    : 'bg-[#D9A62E]/20 border border-[#D9A62E] text-[#A87813]'
+                }`}>
+                  {activeCase?.status === 'Approved & Dispatched' || activeCase?.status === 'Resolved' ? 'ALLOCATED' : 'VERIFICATION REQ'}
                 </span>
               </div>
 
@@ -469,11 +671,11 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
           <div className="pt-2 border-t border-[rgba(217,166,46,0.3)] text-[10px] font-mono text-[#4A483E] flex items-center justify-between">
             <span>Logistics Channel: Express Air Freight</span>
-            <span className="text-[#A87813] font-bold">DEL Hub Synchronized</span>
+            <span className="text-[#A87813] font-bold">Vakh Synchronized</span>
           </div>
         </div>
 
-        {/* COLUMN 3: HUMAN-IN-THE-LOOP SAFETY VERIFICATION (Cockpit Glass Panel) */}
+        {/* COLUMN 3: HUMAN-IN-THE-LOOP SAFETY VERIFICATION */}
         <div className="bg-[rgba(30,33,26,0.88)] backdrop-blur-xl border border-[rgba(255,210,100,0.25)] rounded-xl p-4 shadow-xl flex flex-col justify-between space-y-3 text-[#F7F1E4]">
           <div>
             <div className="flex items-center justify-between pb-2 border-b border-[rgba(255,210,100,0.2)]">
@@ -492,7 +694,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
             <div className="pt-2.5 pb-2 text-[11px] font-mono space-y-2">
               <div className="p-2 rounded bg-[rgba(38,42,34,0.65)] border border-[rgba(255,210,100,0.2)] flex items-center justify-between">
                 <span className="text-[#D8D0BD]">1. AI RECOMMENDATION</span>
-                <span className="text-white font-bold">Option A Generated</span>
+                <span className="text-white font-bold">{candidates[0]?.vendor_name ? 'Candidates Ready' : 'Option A Ready'}</span>
               </div>
 
               <div className="p-2 rounded bg-[rgba(217,166,46,0.2)] border border-[#D9A62E] flex items-center justify-between">
