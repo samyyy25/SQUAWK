@@ -4,7 +4,8 @@ from sqlalchemy.orm import Session
 from app.models import (
     Aircraft, Vendor, Part, PartDocument, SquawkCase,
     RecoveryCandidate, AgentResult, ValidationResult,
-    Approval, RecoveryAction, Outcome, VendorMemory, ActivityLog
+    Approval, RecoveryAction, Outcome, VendorMemory, ActivityLog,
+    RecoveryUpdate, IncidentResolution
 )
 from app.incident_intelligence import generate_incident_intelligence
 
@@ -357,17 +358,45 @@ def seed_database(db: Session):
         location="DEL Terminal 3 MRO Hangar",
         part_number="HP-2048"
     )
+    case1_recovery_actions = [
+        {"id": "act-1", "step_number": 1, "title": "Assign hydraulic maintenance technician", "description": "Dispatch certified A&P hydraulic lead to DEL T3 Hangar 4.", "assigned_role": "Hydraulic Lead Specialist", "status": "Completed", "updated_at": "2026-09-27T16:05:00Z"},
+        {"id": "act-2", "step_number": 2, "title": "Inspect affected hydraulic system", "description": "Conduct borescope and visual leak check on EDP pump assembly.", "assigned_role": "Lead Inspector", "status": "In Progress", "updated_at": "2026-09-27T16:15:00Z"},
+        {"id": "act-3", "step_number": 3, "title": "Identify leaking component", "description": "Isolate high-pressure discharge port seal and shaft housing.", "assigned_role": "A&P Technician", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"},
+        {"id": "act-4", "step_number": 4, "title": "Check required replacement component", "description": "Verify part HP-2048 dual airworthiness certification (8130-3/EASA Form 1).", "assigned_role": "Materials / QC Inspector", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"},
+        {"id": "act-5", "step_number": 5, "title": "Replace component if approved", "description": "Torque pump to AMM 29-11-00 specifications with calibrated tooling.", "assigned_role": "Lead Mechanic", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"},
+        {"id": "act-6", "step_number": 6, "title": "Perform required inspection/testing", "description": "Run hydraulic system A ground test cart at 3,000 PSI; verify no pressure drop.", "assigned_role": "Avionics / Systems Tech", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"},
+        {"id": "act-7", "step_number": 7, "title": "Verify aircraft readiness", "description": "Perform full flight deck BITE test; clear master caution annunciator.", "assigned_role": "Duty Maintenance Manager", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"},
+        {"id": "act-8", "step_number": 8, "title": "Release aircraft according to authorized procedures", "description": "Sign CRS (Certificate of Release to Service) and return VT-SQK to line ops.", "assigned_role": "Chief Inspector / Signatory", "status": "Pending", "updated_at": "2026-09-27T16:00:00Z"}
+    ]
     case1 = SquawkCase(
         id="CASE-SQK-2048",
         tail_number="VT-SQK",
         aircraft_type="Boeing 737-800",
         defect_description="Engine vibration reported during climb. Crew observed abnormal vibration indication.",
         raw_intake_payload={
-            "source": "ACARS Defect Feed / Line Maintenance Terminal 3",
+            "source": "Vakh Structured AOG Intake",
             "flight": "SQ-204",
             "reported_by": "Capt. R. Sharma (Air Indigo Wings)",
-            "timestamp": "2026-09-27T16:00:00Z"
+            "timestamp": "2026-09-27T16:00:00Z",
+            "vakh_intake": True
         },
+        vakh_submission_id="vakh_sub_sqk2048_del",
+        vakh_record_url=os.getenv("VAKH_WORKSPACE_URL", "https://vakh.com"),
+        vakh_form_id="vakh_form_aog_intake_v1",
+        vakh_synced_at=datetime.datetime.utcnow(),
+        operator="Air Indigo Wings",
+        airport="DEL",
+        flight_number="SQ-204",
+        defect_category="Hydraulic System / EDP",
+        severity="AOG_CRITICAL",
+        urgency="URGENT_UNDER_4H",
+        reported_symptoms="Engine vibration reported during climb. Crew observed abnormal vibration indication. Hydraulic System A EDP low pressure warning.",
+        operational_impact="Aircraft grounded at DEL T3 MRO Hangar. Scheduled flight SQ-205 to BOM held.",
+        mel_cdl_info="MEL 29-11-01 Non-deferrable for CAT III operations",
+        required_maintenance_team="Hydraulic Line Specialist",
+        reporter_name="Capt. R. Sharma (Air Indigo Wings)",
+        reporter_contact="ops.del@indigoair.in | +91 11 4963 8000",
+        recovery_actions_list=case1_recovery_actions,
         ata_chapter="29 - Hydraulic Power / 72 - Engine",
         part_number="HP-2048",
         part_name="Engine-Driven Hydraulic Pump Assembly (EDP)",
@@ -425,6 +454,39 @@ def seed_database(db: Session):
         ]
     )
     db.add(case1)
+
+    # Initial Recovery Updates for Case 1 (Vakh & SQUAWK sync)
+    db.add(RecoveryUpdate(
+        id="upd-sqk-01",
+        incident_id="CASE-SQK-2048",
+        source="VAKH_INTAKE",
+        author="Capt. R. Sharma",
+        message="AOG reported via Vakh structured intake. Abnormal engine vibration & hydraulic A EDP low pressure warning.",
+        status="ACTIVE",
+        action_id="act-1",
+        action_status="Completed",
+        vakh_sync_status="SYNCED"
+    ))
+    db.add(RecoveryUpdate(
+        id="upd-sqk-02",
+        incident_id="CASE-SQK-2048",
+        source="SQUAWK_AI",
+        author="SQUAWK Recovery Orchestrator",
+        message="Multi-agent AI evaluated 3 global suppliers. Selected AeroParts SIN (Flight SQ-402, ETA 8h 20m, Dual 8130-3/EASA Form 1).",
+        status="ACTIVE",
+        vakh_sync_status="SYNCED"
+    ))
+    db.add(RecoveryUpdate(
+        id="upd-sqk-03",
+        incident_id="CASE-SQK-2048",
+        source="TECHNICIAN",
+        author="K. Nair (A&P Lead)",
+        message="Technician team reached aircraft at DEL Hangar 4. Borescope inspection confirms EDP shaft seal weeping.",
+        status="ACTIVE",
+        action_id="act-2",
+        action_status="In Progress",
+        vakh_sync_status="SYNCED"
+    ))
 
     # Candidates for Case 1
     candidates_c1 = [
@@ -721,6 +783,23 @@ def seed_database(db: Session):
         is_demo=True,
         demo_key="jfk_n311va",
         demo_badge="RESOLVED & VERIFIED",
+        vakh_submission_id="vakh_sub_jfk3105_ca",
+        vakh_record_url=os.getenv("VAKH_WORKSPACE_URL", "https://vakh.com"),
+        vakh_form_id="vakh_form_aog_intake_v1",
+        vakh_synced_at=datetime.datetime.utcnow() - datetime.timedelta(days=2),
+        operator="CoastAir",
+        airport="JFK",
+        flight_number="CA-311",
+        defect_category="Environmental Control System (ECS)",
+        severity="AOG_CRITICAL",
+        urgency="STANDARD_UNDER_12H",
+        reported_symptoms="Pack 1 Air Cycle Machine turbine bearing high friction warning.",
+        operational_impact="Aircraft grounded at JFK T4 Line Station. Revenue flight CA-312 delayed.",
+        mel_cdl_info="MEL 21-50-01 Pack 1 Inoperative",
+        required_maintenance_team="Avionics & Pneumatics Crew",
+        reporter_name="Station Lead A. Kowalski",
+        reporter_contact="ops.jfk@coastair.aero",
+        resolved_at=datetime.datetime.utcnow() - datetime.timedelta(days=2),
         incident_intelligence=case5_intel,
         active_plan={
             "supplier_id": "VEND-GLOBAL",
@@ -764,6 +843,95 @@ def seed_database(db: Session):
         reasoning_summary="Part delivered, physical airworthiness tags verified, installation complete and aircraft cleared for revenue service."
     ))
     db.add(ActivityLog(id=str(uuid.uuid4()), case_id="CASE-JFK-3105", category="OUTCOME", title="AOG Resolved for N311VA", details="Part ACM-ECS-2109 installed at JFK Terminal 4. Airworthiness sign-off issued. Aircraft returned to line service."))
+    
+    # Add IncidentResolution for Case 5
+    db.add(IncidentResolution(
+        id="res-jfk-3105",
+        incident_id="CASE-JFK-3105",
+        actual_resolution="Replaced ACM Pack Assembly with overhauled unit from GlobalParts Aviation. Conducted ground pneumatic run-up test at 45 PSI; turbine bearing temp stable within normal parameters.",
+        actual_recovery_time_hours=6.8,
+        parts_used=["ACM-ECS-2109 (SN-ACM-9104)"],
+        root_cause="Fatigue bearing degradation in Stage 1 turbine rotor causing intermittent friction trips.",
+        delay_minutes=75,
+        maintenance_team="JFK Terminal 4 Line Station Rapid Response Crew",
+        lessons_learned="Air Cycle Machine bearing vibration warning precedes catastrophic seizure by ~12 flight cycles. Recommend fleet-wide borescope check on A321neo batch.",
+        vakh_resolution_id="vakh_res_jfk3105",
+        resolved_by="Lead Inspector A. Kowalski (A&P-559102)"
+    ))
+
+    # HISTORICAL RESOLVED CASE: VT-SQK previous hydraulic incident at DEL (August 2026)
+    case_hist1_actions = [
+        {"id": "act-h1", "step_number": 1, "title": "Assign hydraulic maintenance technician", "description": "Dispatch A&P hydraulic lead to DEL T3.", "assigned_role": "Hydraulic Lead", "status": "Completed", "updated_at": "2026-08-15T09:10:00Z"},
+        {"id": "act-h2", "step_number": 2, "title": "Inspect affected hydraulic system", "description": "Visual and dye-penetrant inspection of System B reservoir return valve.", "assigned_role": "Lead Inspector", "status": "Completed", "updated_at": "2026-08-15T09:30:00Z"},
+        {"id": "act-h3", "step_number": 3, "title": "Identify leaking component", "description": "Identified high-pressure Teflon O-ring degradation on return coupling.", "assigned_role": "A&P Tech", "status": "Completed", "updated_at": "2026-08-15T09:45:00Z"},
+        {"id": "act-h4", "step_number": 4, "title": "Check required replacement component", "description": "Verified seal kit SK-737-HYD-04 in DEL local stock.", "assigned_role": "QC Inspector", "status": "Completed", "updated_at": "2026-08-15T10:00:00Z"},
+        {"id": "act-h5", "step_number": 5, "title": "Replace component if approved", "description": "Replaced seal kit and torqued to AMM 29-21-11 standard.", "assigned_role": "Lead Mechanic", "status": "Completed", "updated_at": "2026-08-15T10:45:00Z"},
+        {"id": "act-h6", "step_number": 6, "title": "Perform required inspection/testing", "description": "System B pressurized to 3,000 PSI; no leakage observed during 30-min hold.", "assigned_role": "Systems Tech", "status": "Completed", "updated_at": "2026-08-15T11:20:00Z"},
+        {"id": "act-h7", "step_number": 7, "title": "Verify aircraft readiness", "description": "Flight deck indications normal. Fluid levels topped with Skydrol LD-4.", "assigned_role": "Maintenance Manager", "status": "Completed", "updated_at": "2026-08-15T11:40:00Z"},
+        {"id": "act-h8", "step_number": 8, "title": "Release aircraft according to authorized procedures", "description": "CRS signed by Chief Inspector. Aircraft cleared for flight SQ-109.", "assigned_role": "Chief Inspector", "status": "Completed", "updated_at": "2026-08-15T12:00:00Z"}
+    ]
+    case_hist1 = SquawkCase(
+        id="CASE-HIST-1038",
+        tail_number="VT-SQK",
+        aircraft_type="Boeing 737-800",
+        defect_description="Hydraulic System B reservoir low level alert on taxi-in. Visible fluid seepage at return manifold.",
+        raw_intake_payload={
+            "source": "Vakh Structured AOG Intake",
+            "flight": "SQ-108",
+            "reported_by": "F/O V. Mehta",
+            "timestamp": "2026-08-15T09:00:00Z",
+            "vakh_intake": True
+        },
+        vakh_submission_id="vakh_sub_hist1038_del",
+        vakh_record_url=os.getenv("VAKH_WORKSPACE_URL", "https://vakh.com"),
+        vakh_form_id="vakh_form_aog_intake_v1",
+        vakh_synced_at=datetime.datetime.utcnow() - datetime.timedelta(days=45),
+        operator="Air Indigo Wings",
+        airport="DEL",
+        flight_number="SQ-108",
+        defect_category="Hydraulic System / Return Valve",
+        severity="AOG_CRITICAL",
+        urgency="URGENT_UNDER_4H",
+        reported_symptoms="Hydraulic System B quantity dropped from 92% to 64% during landing roll.",
+        operational_impact="Turnaround flight SQ-109 delayed. 164 passengers rebooked.",
+        mel_cdl_info="MEL 29-32-01 No Go item",
+        required_maintenance_team="Line Hydraulic Team",
+        reporter_name="F/O V. Mehta",
+        reporter_contact="ops.del@indigoair.in",
+        recovery_actions_list=case_hist1_actions,
+        ata_chapter="29 - Hydraulic Power",
+        part_number="SK-737-HYD-04",
+        part_name="Hydraulic System Return Coupling Seal Kit",
+        priority="AOG",
+        location="DEL Terminal 3 Bay 14",
+        current_stage="COMPLETED",
+        confidence_score=0.97,
+        risk_level="LOW",
+        status="Resolved",
+        estimated_recovery_hours=3.5,
+        deadline_hours=6.0,
+        max_acceptable_cost=5000.0,
+        carbon_kg=45.0,
+        replan_count=0,
+        is_demo=False,
+        demo_key="hist_sqk1038",
+        demo_badge="HISTORICAL ARCHIVE",
+        resolved_at=datetime.datetime.utcnow() - datetime.timedelta(days=45)
+    )
+    db.add(case_hist1)
+    db.add(IncidentResolution(
+        id="res-hist-1038",
+        incident_id="CASE-HIST-1038",
+        actual_resolution="Replaced high-pressure return coupling O-rings with seal kit SK-737-HYD-04 from DEL line stores. Ground pressurization test to 3,000 PSI showed zero seepage. Cleared for line service.",
+        actual_recovery_time_hours=3.2,
+        parts_used=["SK-737-HYD-04 (Lot L-8812)"],
+        root_cause="Thermal degradation of elastomeric seal after 1,400 flight cycles in high ambient temperature operation.",
+        delay_minutes=45,
+        maintenance_team="DEL Line Maintenance Rapid Response Team 2",
+        lessons_learned="High summer ramp temperatures at DEL accelerate seal hardening on System B return manifold. Added mandatory 600-cycle inspection to airline maintenance program (AMP).",
+        vakh_resolution_id="vakh_res_hist1038",
+        resolved_by="Chief Inspector M. Chawla (A&P-440192)"
+    ))
 
     db.commit()
-    print("[SUCCESS] 5 Demo Intakes successfully seeded in SQUAWK database.")
+    print("[SUCCESS] Demo Intakes and Historical Records successfully seeded in SQUAWK database.")

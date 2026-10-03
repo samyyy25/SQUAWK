@@ -112,50 +112,50 @@ export const MemoryLearning: React.FC = () => {
   }));
 
   return (
-    <div className="p-4 space-y-4 max-w-7xl mx-auto bg-[#000000] font-mono text-neutral-200">
+    <div className="p-4 space-y-4 max-w-7xl mx-auto font-mono text-[#252820]">
       
       {/* Header */}
-      <div className="flex items-center justify-between border-b border-[#1E1E1E] pb-3">
+      <div className="flex items-center justify-between border-b border-[rgba(255,210,100,0.3)] pb-3">
         <div>
-          <h2 className="text-base font-bold text-white flex items-center space-x-2 tracking-wide uppercase">
-            <span className="text-[#BC0202]">●</span>
+          <h2 className="text-base font-bold text-[#252820] flex items-center space-x-2 tracking-wide uppercase">
+            <span className="text-[#D9A62E]">●</span>
             <span>PERSISTENT COMPOUNDING VENDOR MEMORY</span>
           </h2>
-          <p className="text-xs text-neutral-400 font-sans mt-0.5">
+          <p className="text-xs text-[#52574A] font-sans mt-0.5 font-medium">
             SQUAWK closes the operational loop — updating supplier reliability scores strictly from verified physical outcomes
           </p>
         </div>
 
         <button 
           onClick={fetchMemory}
-          className="flex items-center space-x-1.5 bg-[#080808] hover:bg-[#0D0D0D] text-neutral-300 hover:text-white text-xs px-3 py-1.5 rounded border border-[#1E1E1E] transition cursor-pointer"
+          className="flex items-center space-x-1.5 bg-[rgba(30,32,27,0.85)] hover:bg-[rgba(45,48,40,0.95)] text-[#F7F1E4] text-xs px-3 py-1.5 rounded border border-[rgba(255,210,100,0.3)] transition cursor-pointer shadow-sm"
         >
-          <RotateCw className="w-3.5 h-3.5 text-[#BC0202]" />
+          <RotateCw className="w-3.5 h-3.5 text-[#F0C75E]" />
           <span>REFRESH MEMORY</span>
         </button>
       </div>
 
       {/* Live Interactive Learning Trigger Panel */}
-      <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 space-y-3 shadow-xl">
+      <div className="bg-[rgba(26,29,23,0.94)] border border-[rgba(255,210,100,0.35)] rounded-xl p-4 space-y-3 shadow-xl backdrop-blur-xl text-[#F7F1E4]">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <Sparkles className="w-4 h-4 text-[#BC0202]" />
+            <Sparkles className="w-4 h-4 text-[#F0C75E]" />
             <h3 className="text-xs font-bold text-white uppercase tracking-wider">
               OPERATIONAL OUTCOME RECORDER — VERIFIED PHYSICAL OUTCOMES UPDATE SUPPLIER MEMORY
             </h3>
           </div>
-          <span className="text-[10px] font-mono bg-[#0D0D0D] text-white border border-[#1E1E1E] px-2 py-0.5 rounded">
+          <span className="text-[10px] font-mono bg-[rgba(217,166,46,0.18)] text-[#F0C75E] border border-[rgba(217,166,46,0.4)] px-2 py-0.5 rounded font-bold">
             MEMORY LEARNING LOOP
           </span>
         </div>
 
         <form onSubmit={handleSimulateOutcome} className="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
           <div>
-            <label className="block text-[10px] text-neutral-400 mb-1 font-bold">TARGET SUPPLIER</label>
+            <label className="block text-[10px] text-[#D8D0BD] mb-1 font-bold">TARGET SUPPLIER</label>
             <select
               value={selectedVendorId}
               onChange={e => setSelectedVendorId(e.target.value)}
-              className="w-full bg-[#080808] border border-[#1E1E1E] rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#830000] font-medium"
+              className="w-full bg-[rgba(16,18,14,0.9)] border border-[rgba(255,210,100,0.25)] rounded px-3 py-2 text-xs text-[#F7F1E4] focus:outline-none focus:border-[#D9A62E] font-medium"
             >
               {vendors.map(v => (
                 <option key={v.id} value={v.id}>
@@ -166,11 +166,11 @@ export const MemoryLearning: React.FC = () => {
           </div>
 
           <div>
-            <label className="block text-[10px] text-neutral-400 mb-1 font-bold">PHYSICAL DELIVERY OUTCOME</label>
+            <label className="block text-[10px] text-[#D8D0BD] mb-1 font-bold">PHYSICAL DELIVERY OUTCOME</label>
             <select
               value={deliveryType}
               onChange={e => setDeliveryType(e.target.value as any)}
-              className="w-full bg-[#080808] border border-[#1E1E1E] rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#830000] font-medium"
+              className="w-full bg-[rgba(16,18,14,0.9)] border border-[rgba(255,210,100,0.25)] rounded px-3 py-2 text-xs text-[#F7F1E4] focus:outline-none focus:border-[#D9A62E] font-medium"
             >
               <option value="on_time">✅ On-Time Arrival & 8130-3 Verified (+ Reliability)</option>
               <option value="delayed">⚠️ Late Delivery (5.5h Delay Penalty)</option>
@@ -182,16 +182,16 @@ export const MemoryLearning: React.FC = () => {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 flex items-center justify-center space-x-2 bg-[#830000] hover:bg-[#BC0202] text-white text-xs font-bold px-4 py-2 rounded border border-[#BC0202] transition active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
+              className="flex-1 flex items-center justify-center space-x-2 bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] hover:from-[#E2B139] hover:to-[#F7D475] text-[#252820] text-xs font-bold px-4 py-2.5 rounded border border-[#F0C75E] transition active:scale-95 disabled:opacity-50 cursor-pointer shadow-md"
             >
               {isSubmitting ? (
                 <>
-                  <Sparkles className="w-4 h-4 animate-spin" />
+                  <Sparkles className="w-4 h-4 animate-spin text-[#252820]" />
                   <span>UPDATING SUPPLIER MEMORY...</span>
                 </>
               ) : (
                 <>
-                  <Send className="w-3.5 h-3.5" />
+                  <Send className="w-3.5 h-3.5 text-[#252820]" />
                   <span>LOG OUTCOME & RECALCULATE RELIABILITY</span>
                 </>
               )}
@@ -200,8 +200,8 @@ export const MemoryLearning: React.FC = () => {
         </form>
 
         {lastUpdateNotice && (
-          <div className="p-2.5 bg-[#080808] border border-[#830000] rounded text-xs text-white flex items-center space-x-2">
-            <CheckCircle2 className="w-4 h-4 text-[#BC0202] shrink-0" />
+          <div className="p-2.5 bg-[rgba(120,150,106,0.25)] border border-[rgba(120,150,106,0.5)] rounded text-xs text-[#F7F1E4] flex items-center space-x-2 font-bold">
+            <CheckCircle2 className="w-4 h-4 text-[#A0C49D] shrink-0" />
             <span>{lastUpdateNotice}</span>
           </div>
         )}
@@ -209,51 +209,51 @@ export const MemoryLearning: React.FC = () => {
 
       {/* Memory Metric Highlight Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5">
-          <div className="text-[10px] text-neutral-400 font-bold uppercase">TRACKED SUPPLIER HUBS</div>
-          <div className="text-xl font-bold text-white mt-1">{memoryStats.length} Vendors</div>
-          <div className="text-[10px] text-neutral-500 mt-0.5 font-sans">DEL, BOM, SIN, FRA, DXB, ORD, DFW</div>
+        <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl p-3.5 shadow-md">
+          <div className="text-[10px] text-[#616657] font-bold uppercase">TRACKED SUPPLIER HUBS</div>
+          <div className="text-xl font-bold text-[#252820] mt-1">{memoryStats.length} Vendors</div>
+          <div className="text-[10px] text-[#717667] mt-0.5 font-sans font-medium">DEL, BOM, SIN, FRA, DXB, ORD, DFW</div>
         </div>
 
-        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5">
-          <div className="text-[10px] text-neutral-400 font-bold uppercase">TOTAL TRACKED OUTCOMES</div>
-          <div className="text-xl font-bold text-white mt-1">
+        <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl p-3.5 shadow-md">
+          <div className="text-[10px] text-[#616657] font-bold uppercase">TOTAL TRACKED OUTCOMES</div>
+          <div className="text-xl font-bold text-[#252820] mt-1">
             {memoryStats.reduce((acc, m) => acc + m.orders, 0)} Events
           </div>
-          <div className="text-[10px] text-neutral-400 mt-0.5">Historical & Verified Deliveries</div>
+          <div className="text-[10px] text-[#717667] mt-0.5">Historical & Verified Deliveries</div>
         </div>
 
-        <div className="bg-[#000000] border border-[#830000] rounded-xl p-3.5">
-          <div className="text-[10px] text-neutral-400 font-bold uppercase">NETWORK AVG RELIABILITY</div>
-          <div className="text-xl font-bold text-white mt-1">
+        <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl p-3.5 shadow-md">
+          <div className="text-[10px] text-[#616657] font-bold uppercase">NETWORK AVG RELIABILITY</div>
+          <div className="text-xl font-bold text-[#252820] mt-1">
             {memoryStats.length ? Math.round(memoryStats.reduce((acc, m) => acc + m.reliability_pct, 0) / memoryStats.length) : 92}%
           </div>
-          <div className="text-[10px] text-neutral-500 mt-0.5">Dynamically Computed from Outcomes</div>
+          <div className="text-[10px] text-[#717667] mt-0.5">Dynamically Computed from Outcomes</div>
         </div>
       </div>
 
       {/* Chart: Vendor Reliability Trends */}
-      <div className="bg-[#000000] border border-[#830000] rounded-xl p-4 space-y-3">
+      <div className="bg-[rgba(26,29,23,0.94)] border border-[rgba(255,210,100,0.35)] rounded-xl p-4 space-y-3 backdrop-blur-xl text-[#F7F1E4] shadow-xl">
         <h3 className="text-xs font-bold text-white uppercase tracking-wider flex items-center space-x-2">
-          <TrendingUp className="w-4 h-4 text-[#BC0202]" />
+          <TrendingUp className="w-4 h-4 text-[#F0C75E]" />
           <span>SUPPLIER RELIABILITY INDEX (% VERIFIED AIRWORTHINESS & SLA COMPLIANCE)</span>
         </h3>
 
         <div className="h-60 w-full">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#1E1E1E" />
-              <XAxis dataKey="name" stroke="#64748B" fontSize={11} />
-              <YAxis stroke="#64748B" fontSize={11} domain={[0, 100]} />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,210,100,0.12)" />
+              <XAxis dataKey="name" stroke="#D8D0BD" fontSize={11} />
+              <YAxis stroke="#D8D0BD" fontSize={11} domain={[0, 100]} />
               <Tooltip 
-                contentStyle={{ backgroundColor: '#000000', borderColor: '#830000', borderRadius: '4px', fontSize: '11px', color: '#FFFFFF' }}
-                itemStyle={{ color: '#FFFFFF' }}
+                contentStyle={{ backgroundColor: 'rgba(26,29,23,0.96)', borderColor: '#D9A62E', borderRadius: '8px', fontSize: '11px', color: '#F7F1E4' }}
+                itemStyle={{ color: '#F7F1E4' }}
               />
-              <Bar dataKey="reliability" radius={[2, 2, 0, 0]}>
+              <Bar dataKey="reliability" radius={[4, 4, 0, 0]}>
                 {chartData.map((entry, index) => (
                   <Cell 
                     key={`cell-${index}`} 
-                    fill={entry.reliability >= 90 ? '#830000' : (entry.reliability >= 75 ? '#BC0202' : '#FF0000')} 
+                    fill={entry.reliability >= 90 ? '#78966A' : (entry.reliability >= 75 ? '#D9A62E' : '#C85B43')} 
                   />
                 ))}
               </Bar>
@@ -263,47 +263,47 @@ export const MemoryLearning: React.FC = () => {
       </div>
 
       {/* Vendor Reliability Table */}
-      <div className="bg-[#000000] border border-[#830000] rounded-xl overflow-hidden">
-        <div className="px-5 py-3 border-b border-[#1E1E1E] flex items-center justify-between">
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+      <div className="bg-[rgba(255,250,242,0.88)] backdrop-blur-xl border border-[rgba(255,244,214,0.65)] rounded-xl overflow-hidden shadow-lg">
+        <div className="px-5 py-3 border-b border-[rgba(217,166,46,0.2)] flex items-center justify-between bg-[rgba(245,236,218,0.7)]">
+          <h3 className="text-xs font-bold text-[#252820] uppercase tracking-wider">
             VERIFIED SUPPLIER PERFORMANCE SCORECARD
           </h3>
-          <span className="text-[10px] text-neutral-400">DATABASE BACKED</span>
+          <span className="text-[10px] text-[#616657] font-bold">DATABASE BACKED</span>
         </div>
 
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-neutral-300">
-            <thead className="bg-[#080808] text-[10px] uppercase tracking-wider text-neutral-400 border-b border-[#1E1E1E]">
+          <table className="w-full text-left text-xs text-[#252820]">
+            <thead className="bg-[rgba(238,228,208,0.85)] text-[10px] uppercase tracking-wider text-[#555a4e] border-b border-[rgba(217,166,46,0.2)]">
               <tr>
-                <th className="py-2.5 px-4 font-semibold">VENDOR</th>
-                <th className="py-2.5 px-4 font-semibold">HUB</th>
-                <th className="py-2.5 px-4 font-semibold">ORDERS</th>
-                <th className="py-2.5 px-4 font-semibold">ON-TIME</th>
-                <th className="py-2.5 px-4 font-semibold">AVG DELAY</th>
-                <th className="py-2.5 px-4 font-semibold">DOC DEFECTS</th>
-                <th className="py-2.5 px-4 font-semibold text-right">RELIABILITY</th>
+                <th className="py-2.5 px-4 font-bold">VENDOR</th>
+                <th className="py-2.5 px-4 font-bold">HUB</th>
+                <th className="py-2.5 px-4 font-bold">ORDERS</th>
+                <th className="py-2.5 px-4 font-bold">ON-TIME</th>
+                <th className="py-2.5 px-4 font-bold">AVG DELAY</th>
+                <th className="py-2.5 px-4 font-bold">DOC DEFECTS</th>
+                <th className="py-2.5 px-4 font-bold text-right">RELIABILITY</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-[#1E1E1E]">
+            <tbody className="divide-y divide-[rgba(217,166,46,0.12)]">
               {memoryStats.map((v, i) => (
-                <tr key={i} className="hover:bg-[#080808] transition">
-                  <td className="py-3 px-4 font-bold text-white flex items-center space-x-2">
-                    <Building className="w-3.5 h-3.5 text-[#BC0202]" />
-                    <span className="font-sans">{v.vendor_name}</span>
+                <tr key={i} className="hover:bg-[rgba(217,166,46,0.08)] transition">
+                  <td className="py-3 px-4 font-bold text-[#252820] flex items-center space-x-2">
+                    <Building className="w-3.5 h-3.5 text-[#D9A62E]" />
+                    <span className="font-sans font-bold">{v.vendor_name}</span>
                   </td>
-                  <td className="py-3 px-4 text-neutral-400">{v.hub}</td>
-                  <td className="py-3 px-4 text-neutral-300">{v.orders}</td>
-                  <td className="py-3 px-4 text-neutral-300">{v.on_time_rate}%</td>
-                  <td className="py-3 px-4 text-neutral-300">{v.avg_delay_min} mins</td>
+                  <td className="py-3 px-4 text-[#555a4e] font-medium">{v.hub}</td>
+                  <td className="py-3 px-4 text-[#252820] font-bold">{v.orders}</td>
+                  <td className="py-3 px-4 text-[#252820] font-bold">{v.on_time_rate}%</td>
+                  <td className="py-3 px-4 text-[#555a4e]">{v.avg_delay_min} mins</td>
                   <td className="py-3 px-4">
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      v.doc_defects === 0 ? 'text-white bg-[#0D0D0D]' : 'text-[#FF0000] bg-[#000000] border border-[#FF0000]'
+                      v.doc_defects === 0 ? 'text-[#4A723D] bg-[rgba(120,150,106,0.2)] border border-[rgba(120,150,106,0.4)]' : 'text-[#C85B43] bg-[rgba(200,91,67,0.15)] border border-[rgba(200,91,67,0.35)]'
                     }`}>
                       {v.doc_defects} issues
                     </span>
                   </td>
                   <td className="py-3 px-4 text-right font-bold">
-                    <span className="px-2 py-0.5 rounded text-white bg-[#830000] border border-[#BC0202]">
+                    <span className="px-2 py-0.5 rounded text-[#252820] bg-[rgba(217,166,46,0.25)] border border-[#D9A62E]">
                       {v.reliability_pct}%
                     </span>
                   </td>

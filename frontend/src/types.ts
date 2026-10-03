@@ -188,6 +188,172 @@ export interface IncidentIntelligence {
   ai_failure_reason?: string | null;
 }
 
+export interface RecoveryActionItem {
+  id: string;
+  step_number: number;
+  title: string;
+  description: string;
+  assigned_role: string;
+  status: 'Pending' | 'In Progress' | 'Completed' | 'Blocked';
+  updated_at: string;
+}
+
+export interface RecoveryUpdate {
+  id: string;
+  case_id: string;
+  incident_id?: string;
+  source: 'VAKH_INTAKE' | 'SQUAWK_AI' | 'TECHNICIAN' | 'OPERATIONS' | 'VAKH' | 'SQUAWK';
+  message: string;
+  author: string;
+  status?: string;
+  action_id?: string;
+  action_status?: string;
+  vakh_sync_status: 'SYNCED' | 'PENDING' | 'LOCAL_FALLBACK';
+  vakh_update_id?: string;
+  created_at: string;
+}
+
+export interface IncidentResolution {
+  id: string;
+  case_id: string;
+  incident_id?: string;
+  actual_resolution: string;
+  actual_recovery_time_hours: number;
+  parts_used: string[];
+  root_cause: string;
+  delay_minutes: number;
+  maintenance_team?: string;
+  additional_observations?: string;
+  lessons_learned?: string;
+  vakh_resolution_id?: string;
+  resolved_by?: string;
+  created_at: string;
+}
+
+export interface VakhIntakePayload {
+  aircraft_registration: string;
+  aircraft_type: string;
+  operator: string;
+  airport: string;
+  flight_number?: string;
+  defect_category: string;
+  defect_description: string;
+  reported_symptoms?: string;
+  operational_impact?: string;
+  departure_time?: string;
+  estimated_time_available_hours?: number;
+  mel_cdl_info?: string;
+  required_maintenance_team?: string;
+  required_parts?: string;
+  reporter_name: string;
+  contact_information: string;
+  vakh_submission_id?: string;
+  vakh_record_url?: string;
+}
+
+export interface VakhWorkspaceData {
+  workspace_id: string;
+  vakh_submission_id?: string;
+  vakh_record_url: string;
+  vakh_form_key: string;
+  last_synced_at: string;
+  incident: {
+    incident_id: string;
+    aircraft: string;
+    aircraft_type: string;
+    location: string;
+    flight_number?: string;
+    defect: string;
+    defect_category?: string;
+    severity?: string;
+    urgency?: string;
+    status: string;
+    confidence_score?: number;
+    hours_remaining?: number;
+  };
+  recovery: {
+    current_status: string;
+    assigned_team?: string;
+    required_part?: string;
+    recommended_vendor?: string;
+    estimated_recovery_hours?: number;
+    recovery_actions: RecoveryActionItem[];
+  };
+  updates: RecoveryUpdate[];
+  resolution?: IncidentResolution | null;
+  views: {
+    active_view: string;
+    available_views: string[];
+  };
+}
+
+export interface HistoricalCase {
+  id?: string;
+  case_id?: string;
+  tail_number: string;
+  aircraft_type: string;
+  defect_category: string;
+  defect_description?: string;
+  part_number?: string;
+  severity?: string;
+  operator?: string;
+  airport?: string;
+  location?: string;
+  status?: string;
+  recovery_plan_summary?: string;
+  vakh_submission_id?: string;
+  vakh_record_url?: string;
+  created_at?: string;
+  resolved_at?: string;
+  resolution?: {
+    actual_resolution: string;
+    actual_recovery_time_hours: number;
+    parts_used: string[];
+    root_cause: string;
+    delay_minutes: number;
+    lessons_learned?: string;
+    maintenance_team?: string;
+    resolved_by?: string;
+    vakh_resolution_id?: string;
+  } | null;
+}
+
+export interface HistoricalLearningResponse {
+  total_resolved_incidents: number;
+  average_recovery_time_hours: number;
+  total_delay_minutes_logged: number;
+  defect_categories_distribution: Record<string, number>;
+  historical_cases: HistoricalCase[];
+  learning_system_status?: {
+    vendor_memory_connected?: boolean;
+    airworthiness_rules_verified?: boolean;
+    historical_retrieval_active?: boolean;
+    description?: string;
+    mechanism?: string;
+    active?: boolean;
+    note?: string;
+  };
+}
+
+export interface AogTimelineEvent {
+  id: string;
+  timestamp: string;
+  title: string;
+  description: string;
+  source: 'VAKH' | 'SQUAWK' | 'TECHNICIAN' | 'LOGISTICS';
+  stage: string;
+  badge_color?: string;
+}
+
+export interface AogTimelineResponse {
+  case_id: string;
+  tail_number: string;
+  vakh_submission_id?: string;
+  vakh_record_url?: string;
+  total_events: number;
+  timeline: AogTimelineEvent[];
+}
+
 export interface SquawkCase {
   id: string;
   tail_number?: string;
@@ -227,6 +393,28 @@ export interface SquawkCase {
   validation_result?: ValidationResult;
   recovery_actions: RecoveryAction[];
   shipments?: ShipmentRecord[];
+  
+  // Vakh Integration Fields
+  vakh_submission_id?: string;
+  vakh_record_url?: string;
+  vakh_form_id?: string;
+  vakh_synced_at?: string;
+  operator?: string;
+  airport?: string;
+  flight_number?: string;
+  defect_category?: string;
+  severity?: string;
+  urgency?: string;
+  reported_symptoms?: string;
+  operational_impact?: string;
+  mel_cdl_info?: string;
+  required_maintenance_team?: string;
+  reporter_name?: string;
+  reporter_contact?: string;
+  recovery_actions_list?: RecoveryActionItem[];
+  resolved_at?: string;
+  resolution?: IncidentResolution;
+  recovery_updates?: RecoveryUpdate[];
 }
 
 export interface Vendor {

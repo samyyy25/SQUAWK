@@ -10,8 +10,11 @@ import { MemoryLearning } from './components/MemoryLearning';
 import { ActivityTimeline } from './components/ActivityTimeline';
 import { VendorsList } from './components/VendorsList';
 import { JudgesSafetyModal } from './components/JudgesSafetyModal';
+import { HistoricalLearning } from './components/HistoricalLearning';
 import { SquawkCase } from './types';
 import { api } from './api';
+
+import { ShieldCheck } from 'lucide-react';
 
 export function App() {
   const [currentTab, setCurrentTab] = useState<string>('overview');
@@ -71,9 +74,18 @@ export function App() {
   };
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-[#000000] text-neutral-200 font-sans selection:bg-[#830000] selection:text-white">
+    <div 
+      className="flex h-screen w-screen overflow-hidden text-[#252820] font-sans selection:bg-[#D9A62E] selection:text-[#252820] relative"
+      style={{
+        backgroundImage: `linear-gradient(to bottom, rgba(28, 31, 24, 0.40), rgba(216, 199, 165, 0.18)), url('/squawk-bg.jpg')`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center 30%',
+        backgroundAttachment: 'fixed',
+        backgroundColor: '#D8C7A5'
+      }}
+    >
       
-      {/* Sleek Left Sidebar */}
+      {/* Sleek Translucent Left Sidebar */}
       <Sidebar 
         currentTab={currentTab}
         setCurrentTab={(tab) => {
@@ -88,8 +100,8 @@ export function App() {
         onResetDemo={handleResetDemo}
       />
 
-      {/* Main Screen Layout with Topbar + Scrollable View */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      {/* Main Screen Layout with Topbar + Scrollable View + Operational Footer */}
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden backdrop-blur-[2px]">
         
         {/* Top Operations Header */}
         <Topbar 
@@ -100,7 +112,7 @@ export function App() {
         />
 
         {/* Scrollable Main Operations Dashboard */}
-        <main className="flex-1 overflow-y-auto bg-[#000000]">
+        <main className="flex-1 overflow-y-auto bg-transparent p-4 md:p-5">
           {selectedCase ? (
             <CaseDetail 
               caseData={selectedCase}
@@ -130,6 +142,8 @@ export function App() {
 
               {currentTab === 'batch' && <BatchProcessing />}
 
+              {currentTab === 'history' && <HistoricalLearning />}
+
               {currentTab === 'vendors' && <VendorsList />}
 
               {currentTab === 'memory' && <MemoryLearning />}
@@ -138,6 +152,27 @@ export function App() {
             </>
           )}
         </main>
+
+        {/* Aviation Operations Footer Bar (Matching Reference Visual Style) */}
+        <footer className="h-9 bg-[rgba(26,29,23,0.88)] backdrop-blur-md border-t border-[rgba(255,210,100,0.2)] px-5 flex items-center justify-between text-[11px] font-mono text-[#D8D0BD] shrink-0 select-none z-20">
+          <div className="flex items-center space-x-2">
+            <span className="text-[#D9A62E] font-bold tracking-wider">✈ SQUAWK</span>
+            <span className="text-[#A8A28E]">|</span>
+            <span className="text-neutral-300 font-semibold text-[10px]">AI AOG RECOVERY ORCHESTRATOR</span>
+          </div>
+          <div className="flex items-center space-x-1.5 text-neutral-300 text-[10px]">
+            <ShieldCheck className="w-3.5 h-3.5 text-[#78966A]" />
+            <span>Powered by Vakh · Operational Record</span>
+          </div>
+          <div className="hidden md:flex items-center space-x-3 text-[#A8A28E] text-[10px]">
+            <span>Faster Recovery</span>
+            <span>|</span>
+            <span>Safer Skies</span>
+            <span>|</span>
+            <span>Smarter Operations</span>
+          </div>
+        </footer>
+
       </div>
 
       {/* Case Intake Modal */}

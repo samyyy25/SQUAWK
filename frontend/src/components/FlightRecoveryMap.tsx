@@ -932,8 +932,8 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
 
       const markerHtml = `
         <div class="group relative flex items-center justify-center cursor-pointer">
-          <div class="w-3 h-3 rounded-full ${isRelevant ? 'bg-cyan-400 ring-4 ring-cyan-500/30' : 'bg-blue-500'} border border-white shadow-md"></div>
-          <span class="absolute -bottom-4 text-[9px] font-mono font-bold ${isRelevant ? 'text-cyan-300' : 'text-slate-400'} bg-[#070B11]/90 px-1 rounded shadow pointer-events-none">
+          <div class="w-3 h-3 rounded-full ${isRelevant ? 'bg-[#D9A62E] ring-4 ring-[#D9A62E]/30' : 'bg-[#5A6352]'} border border-white shadow-md"></div>
+          <span class="absolute -bottom-4 text-[9px] font-mono font-bold ${isRelevant ? 'text-[#F0C75E]' : 'text-slate-300'} bg-[#1A1D17]/95 border border-[rgba(217,166,46,0.3)] px-1 rounded shadow pointer-events-none">
             ${airport.code}
           </span>
         </div>
@@ -1059,14 +1059,14 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
       const aircraftHtml = `
         <div class="relative flex items-center justify-center cursor-pointer transition transform ${isSelected ? 'scale-125 z-50' : 'opacity-85 hover:scale-110 z-20'}">
           ${isSelected ? `
-            <div class="absolute -inset-2 rounded-full bg-cyan-400/20 border border-cyan-400 animate-pulse"></div>
+            <div class="absolute -inset-2 rounded-full bg-[#D9A62E]/20 border border-[#D9A62E] animate-pulse"></div>
           ` : ''}
-          <div class="px-2 py-0.5 rounded-full ${isSelected ? 'bg-cyan-500 text-black font-extrabold shadow-lg shadow-cyan-500/50' : 'bg-slate-800 text-slate-200 border border-slate-600'} flex items-center space-x-1 shadow-md">
+          <div class="px-2 py-0.5 rounded-full ${isSelected ? 'bg-[#D9A62E] text-[#1A1D17] font-extrabold shadow-lg shadow-[#D9A62E]/40' : 'bg-[#1A1D17] text-[#EDE8DC] border border-[rgba(217,166,46,0.3)]'} flex items-center space-x-1 shadow-md">
             <svg class="w-3.5 h-3.5 -rotate-45" fill="currentColor" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></svg>
             <span class="text-[9px] font-mono font-bold leading-none">${flight.flightNumber}</span>
           </div>
           ${isSelected ? `
-            <div class="absolute -bottom-5 px-1.5 py-0.2 rounded bg-cyan-950/90 border border-cyan-500 text-[8px] font-mono text-cyan-300 font-bold whitespace-nowrap shadow-md pointer-events-none">
+            <div class="absolute -bottom-5 px-1.5 py-0.2 rounded bg-[#1A1D17]/95 border border-[#D9A62E] text-[8px] font-mono text-[#F0C75E] font-bold whitespace-nowrap shadow-md pointer-events-none">
               ${flight.aircraft} · ${flight.statusLabel}
             </div>
           ` : ''}
@@ -1203,35 +1203,35 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
   };
 
   return (
-    <div className="w-full bg-[#080C14] border border-[#151D2A] rounded-xl overflow-hidden shadow-2xl flex flex-col font-sans">
+    <div className="w-full bg-[rgba(26,29,23,0.92)] backdrop-blur-xl border border-[rgba(255,210,100,0.25)] rounded-xl overflow-hidden shadow-2xl flex flex-col font-sans">
       
       {/* 1. TOP HEADER & MAP CONTROLS */}
-      <div className="px-4 py-2.5 bg-[#090E17] border-b border-[#151D2A] flex flex-wrap items-center justify-between gap-2">
+      <div className="px-4 py-2.5 bg-[rgba(34,38,30,0.95)] border-b border-[rgba(255,210,100,0.2)] flex flex-wrap items-center justify-between gap-2">
         
         {/* Left Title & Status */}
         <div className="flex items-center space-x-3">
-          <div className="w-7 h-7 rounded-lg bg-[#0284c7] flex items-center justify-center text-white shadow-md">
+          <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-[#D9A62E] to-[#A87813] flex items-center justify-center text-[#252820] shadow-md border border-[#F0C75E]">
             <Navigation className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
               <span className="text-xs font-bold text-white tracking-wider">FLIGHT & RECOVERY MAP</span>
-              <span className="px-1.5 py-0.2 rounded-full bg-emerald-950/90 text-emerald-400 border border-emerald-500/50 text-[9px] font-mono font-bold uppercase">
+              <span className="px-1.5 py-0.2 rounded-full bg-[#78966A]/20 text-[#9EBE8E] border border-[#78966A]/50 text-[9px] font-mono font-bold uppercase">
                 OPERATIONS ACTIVE
               </span>
             </div>
-            <div className="text-[10px] text-slate-400">
+            <div className="text-[10px] text-[#D8D0BD]">
               Interactive fleet tracking · 100% synchronized with multi-agent orchestrator
             </div>
           </div>
         </div>
 
         {/* Center: Map Modes Segmented Control */}
-        <div className="flex items-center bg-[#070B11] border border-[#1E293B] rounded-lg p-0.5 text-[11px] font-mono font-bold">
+        <div className="flex items-center bg-[rgba(20,22,17,0.85)] border border-[rgba(255,210,100,0.2)] rounded-lg p-0.5 text-[11px] font-mono font-bold">
           <button
             onClick={() => setMapMode('NETWORK')}
             className={`px-3 py-1 rounded transition cursor-pointer ${
-              mapMode === 'NETWORK' ? 'bg-cyan-500 text-black font-extrabold shadow' : 'text-slate-400 hover:text-white'
+              mapMode === 'NETWORK' ? 'bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] text-[#252820] font-black shadow' : 'text-[#D8D0BD] hover:text-white'
             }`}
           >
             NETWORK
@@ -1239,7 +1239,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           <button
             onClick={() => setMapMode('SELECTED_FLIGHT')}
             className={`px-3 py-1 rounded transition cursor-pointer ${
-              mapMode === 'SELECTED_FLIGHT' ? 'bg-cyan-500 text-black font-extrabold shadow' : 'text-slate-400 hover:text-white'
+              mapMode === 'SELECTED_FLIGHT' ? 'bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] text-[#252820] font-black shadow' : 'text-[#D8D0BD] hover:text-white'
             }`}
           >
             SELECTED FLIGHT
@@ -1247,7 +1247,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           <button
             onClick={() => setMapMode('RECOVERY')}
             className={`px-3 py-1 rounded transition cursor-pointer ${
-              mapMode === 'RECOVERY' ? 'bg-emerald-500 text-black font-extrabold shadow' : 'text-slate-400 hover:text-white'
+              mapMode === 'RECOVERY' ? 'bg-gradient-to-r from-[#78966A] to-[#9EBE8E] text-[#252820] font-black shadow' : 'text-[#D8D0BD] hover:text-white'
             }`}
           >
             RECOVERY
@@ -1261,20 +1261,20 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           <div className="relative">
             <button
               onClick={() => setShowFlightDropdown(!showFlightDropdown)}
-              className="bg-[#0D1420] border border-[#1E293B] hover:border-cyan-500 text-white px-3 py-1 rounded-lg text-xs font-mono font-bold flex items-center space-x-2 transition cursor-pointer"
+              className="bg-[rgba(38,42,34,0.8)] border border-[rgba(255,210,100,0.25)] hover:border-[#D9A62E] text-white px-3 py-1 rounded-lg text-xs font-mono font-bold flex items-center space-x-2 transition cursor-pointer"
             >
               <span>{mapMode === 'NETWORK' ? 'ALL FLIGHTS' : `${selectedFlight.flightNumber} — ${selectedFlight.groundedLocation.code}`}</span>
-              <ChevronDown className="w-3.5 h-3.5 text-slate-400" />
+              <ChevronDown className="w-3.5 h-3.5 text-[#D8D0BD]" />
             </button>
 
             {showFlightDropdown && (
-              <div className="absolute right-0 top-8 z-30 w-52 bg-[#0A101A] border border-[#1E293B] rounded-lg shadow-2xl py-1 text-xs font-mono select-none">
+              <div className="absolute right-0 top-8 z-30 w-52 bg-[rgba(24,27,21,0.96)] border border-[rgba(255,210,100,0.3)] rounded-lg shadow-2xl py-1 text-xs font-mono select-none">
                 <div
                   onClick={() => {
                     setMapMode('NETWORK');
                     setShowFlightDropdown(false);
                   }}
-                  className="px-3 py-1.5 hover:bg-[#152238] text-slate-300 hover:text-cyan-400 cursor-pointer font-bold border-b border-[#1E293B]"
+                  className="px-3 py-1.5 hover:bg-[rgba(217,166,46,0.18)] text-[#D8D0BD] hover:text-[#F0C75E] cursor-pointer font-bold border-b border-[rgba(255,210,100,0.15)]"
                 >
                   All Flights (Network Overview)
                 </div>
@@ -1286,12 +1286,12 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                       setMapMode('SELECTED_FLIGHT');
                       setShowFlightDropdown(false);
                     }}
-                    className={`px-3 py-1.5 hover:bg-[#152238] cursor-pointer flex items-center justify-between ${
-                      selectedFlightId === f.id && mapMode !== 'NETWORK' ? 'text-cyan-400 font-bold bg-[#0D1624]' : 'text-slate-300'
+                    className={`px-3 py-1.5 hover:bg-[rgba(217,166,46,0.18)] cursor-pointer flex items-center justify-between ${
+                      selectedFlightId === f.id && mapMode !== 'NETWORK' ? 'text-[#F0C75E] font-bold bg-[rgba(217,166,46,0.1)]' : 'text-[#D8D0BD]'
                     }`}
                   >
                     <span>{f.flightNumber}</span>
-                    <span className="text-[10px] text-slate-500">{f.groundedLocation.code} ({f.aircraft})</span>
+                    <span className="text-[10px] text-[#A8A28E]">{f.groundedLocation.code} ({f.aircraft})</span>
                   </div>
                 ))}
               </div>
@@ -1302,7 +1302,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           <button
             onClick={() => setShowLayersModal(!showLayersModal)}
             className={`px-2.5 py-1 rounded-lg text-xs font-semibold flex items-center space-x-1.5 border transition cursor-pointer ${
-              showLayersModal ? 'bg-cyan-950 text-cyan-300 border-cyan-600' : 'bg-[#0D1420] text-slate-300 border-[#1E293B] hover:text-white'
+              showLayersModal ? 'bg-[rgba(217,166,46,0.25)] text-[#F0C75E] border-[#D9A62E]' : 'bg-[rgba(38,42,34,0.8)] text-[#D8D0BD] border-[rgba(255,210,100,0.25)] hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -1315,7 +1315,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
       <div className="flex flex-col lg:flex-row h-[510px] relative">
         
         {/* Left Map Viewport */}
-        <div className="flex-1 h-full relative overflow-hidden bg-[#05080E]">
+        <div className="flex-1 h-full relative overflow-hidden bg-[#1E201B]">
           
           {/* Leaflet Canvas Container */}
           <div ref={mapContainerRef} className="w-full h-full z-0" />
@@ -1325,28 +1325,28 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
             <button 
               onClick={handleZoomIn}
               title="Zoom In"
-              className="w-7 h-7 rounded bg-[#0A101A]/95 hover:bg-[#142032] border border-[#1E293B] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
+              className="w-7 h-7 rounded bg-[rgba(26,29,23,0.92)] hover:bg-[rgba(26,29,23,1)] border border-[rgba(217,166,46,0.3)] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
             >
-              <Plus className="w-3.5 h-3.5" />
+              <Plus className="w-3.5 h-3.5 text-[#F0C75E]" />
             </button>
             <button 
               onClick={handleZoomOut}
               title="Zoom Out"
-              className="w-7 h-7 rounded bg-[#0A101A]/95 hover:bg-[#142032] border border-[#1E293B] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
+              className="w-7 h-7 rounded bg-[rgba(26,29,23,0.92)] hover:bg-[rgba(26,29,23,1)] border border-[rgba(217,166,46,0.3)] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
             >
-              <Minus className="w-3.5 h-3.5" />
+              <Minus className="w-3.5 h-3.5 text-[#F0C75E]" />
             </button>
             <button 
               onClick={handleFitAll}
               title="Fit All Network Flights"
-              className="w-7 h-7 rounded bg-[#0A101A]/95 hover:bg-[#142032] border border-[#1E293B] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
+              className="w-7 h-7 rounded bg-[rgba(26,29,23,0.92)] hover:bg-[rgba(26,29,23,1)] border border-[rgba(217,166,46,0.3)] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
             >
-              <Maximize2 className="w-3.5 h-3.5 text-cyan-400" />
+              <Maximize2 className="w-3.5 h-3.5 text-[#D9A62E]" />
             </button>
             <button 
               onClick={handleFitSelected}
               title="Fit Selected Flight Route"
-              className="w-7 h-7 rounded bg-[#0A101A]/95 hover:bg-[#142032] border border-[#1E293B] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
+              className="w-7 h-7 rounded bg-[rgba(26,29,23,0.92)] hover:bg-[rgba(26,29,23,1)] border border-[rgba(217,166,46,0.3)] text-slate-200 flex items-center justify-center shadow-lg transition cursor-pointer"
             >
               <Crosshair className="w-3.5 h-3.5 text-emerald-400" />
             </button>
@@ -1354,9 +1354,9 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
 
           {/* Floating Map Layers Control Widget */}
           {showLayersModal && (
-            <div className="absolute top-3 right-3 z-20 w-48 bg-[#0A101A]/95 border border-[#1A2536] rounded-lg p-2.5 shadow-2xl backdrop-blur-sm text-[11px] space-y-1.5 select-none">
-              <div className="flex items-center justify-between pb-1 border-b border-[#1A2536]">
-                <span className="text-[10px] font-bold text-slate-300 font-mono tracking-wider uppercase">MAP LAYERS</span>
+            <div className="absolute top-3 right-3 z-20 w-48 bg-[rgba(26,29,23,0.96)] border border-[rgba(217,166,46,0.4)] rounded-lg p-2.5 shadow-2xl backdrop-blur-sm text-[11px] space-y-1.5 select-none">
+              <div className="flex items-center justify-between pb-1 border-b border-[rgba(217,166,46,0.2)]">
+                <span className="text-[10px] font-bold text-[#F0C75E] font-mono tracking-wider uppercase">MAP LAYERS</span>
                 <div className="flex items-center space-x-1 text-slate-400">
                   <button onClick={resetLayersToDefault} title="Reset to Default" className="hover:text-white cursor-pointer">
                     <RotateCcw className="w-3 h-3" />
@@ -1383,7 +1383,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                     <button
                       onClick={() => toggleLayer(key as keyof typeof layers)}
                       className={`w-6 h-3.5 flex items-center rounded-full p-0.5 cursor-pointer transition ${
-                        layers[key as keyof typeof layers] ? 'bg-cyan-500' : 'bg-slate-700'
+                        layers[key as keyof typeof layers] ? 'bg-[#D9A62E]' : 'bg-slate-700'
                       }`}
                     >
                       <div
@@ -1396,8 +1396,8 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                 ))}
               </div>
 
-              <div className="pt-1 border-t border-[#1A2536] space-y-0.5">
-                <div className="text-[9px] font-mono text-slate-500 uppercase tracking-wider">Advanced Overlays</div>
+              <div className="pt-1 border-t border-[rgba(217,166,46,0.2)] space-y-0.5">
+                <div className="text-[9px] font-mono text-slate-400 uppercase tracking-wider">Advanced Overlays</div>
                 {[
                   { key: 'radarRange', label: 'Radar / Coverage' },
                   { key: 'firBoundaries', label: 'FIR Boundaries' },
@@ -1407,7 +1407,7 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                     <button
                       onClick={() => toggleLayer(key as keyof typeof layers)}
                       className={`w-6 h-3.5 flex items-center rounded-full p-0.5 cursor-pointer transition ${
-                        layers[key as keyof typeof layers] ? 'bg-cyan-500' : 'bg-slate-700'
+                        layers[key as keyof typeof layers] ? 'bg-[#D9A62E]' : 'bg-slate-700'
                       }`}
                     >
                       <div
@@ -1424,29 +1424,29 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
 
           {/* Airport Inspector Overlay */}
           {inspectedAirport && (
-            <div className="absolute bottom-12 left-3 z-20 w-64 bg-[#0A101A]/95 border border-cyan-500/60 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs space-y-2">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <div className="absolute bottom-12 left-3 z-20 w-64 bg-[rgba(26,29,23,0.96)] border border-[rgba(217,166,46,0.5)] rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs space-y-2">
+              <div className="flex items-center justify-between border-b border-[rgba(217,166,46,0.2)] pb-1.5">
                 <div className="flex items-center space-x-1.5">
-                  <Building2 className="w-4 h-4 text-cyan-400" />
+                  <Building2 className="w-4 h-4 text-[#D9A62E]" />
                   <span className="font-bold text-white font-mono">{inspectedAirport.code} · {inspectedAirport.city}</span>
                 </div>
                 <button onClick={() => setInspectedAirport(null)} className="text-slate-400 hover:text-white cursor-pointer">
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="text-[11px] text-slate-300 font-medium">{inspectedAirport.name}</div>
+              <div className="text-[11px] text-[#EDE8DC] font-medium">{inspectedAirport.name}</div>
               <div className="grid grid-cols-3 gap-1.5 pt-1 text-center font-mono">
-                <div className="p-1 rounded bg-[#111A28] border border-[#1E293B]">
-                  <div className="text-[8px] text-slate-500">ACTIVE AOG</div>
-                  <div className="text-xs font-bold text-red-400">{inspectedAirport.aogCount}</div>
+                <div className="p-1 rounded bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.2)]">
+                  <div className="text-[8px] text-slate-400">ACTIVE AOG</div>
+                  <div className="text-xs font-bold text-rose-400">{inspectedAirport.aogCount}</div>
                 </div>
-                <div className="p-1 rounded bg-[#111A28] border border-[#1E293B]">
-                  <div className="text-[8px] text-slate-500">SUPPLIERS</div>
+                <div className="p-1 rounded bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.2)]">
+                  <div className="text-[8px] text-slate-400">SUPPLIERS</div>
                   <div className="text-xs font-bold text-emerald-400">{inspectedAirport.availableSuppliers}</div>
                 </div>
-                <div className="p-1 rounded bg-[#111A28] border border-[#1E293B]">
-                  <div className="text-[8px] text-slate-500">RECOVERIES</div>
-                  <div className="text-xs font-bold text-cyan-400">{inspectedAirport.activeRecoveries}</div>
+                <div className="p-1 rounded bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.2)]">
+                  <div className="text-[8px] text-slate-400">RECOVERIES</div>
+                  <div className="text-xs font-bold text-[#F0C75E]">{inspectedAirport.activeRecoveries}</div>
                 </div>
               </div>
             </div>
@@ -1454,8 +1454,8 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
 
           {/* Supplier Inspector Overlay */}
           {inspectedSupplier && (
-            <div className="absolute bottom-12 left-3 z-20 w-72 bg-[#0A101A]/95 border border-emerald-500/60 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs space-y-2">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-1.5">
+            <div className="absolute bottom-12 left-3 z-20 w-72 bg-[rgba(26,29,23,0.96)] border border-emerald-500/60 rounded-xl p-3 shadow-2xl backdrop-blur-md text-xs space-y-2">
+              <div className="flex items-center justify-between border-b border-[rgba(217,166,46,0.2)] pb-1.5">
                 <div className="flex items-center space-x-1.5">
                   <Package className="w-4 h-4 text-emerald-400" />
                   <span className="font-bold text-white">{inspectedSupplier.name}</span>
@@ -1464,59 +1464,59 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                   <X className="w-3.5 h-3.5" />
                 </button>
               </div>
-              <div className="text-[11px] text-slate-300 font-medium">{inspectedSupplier.locationName} ({inspectedSupplier.locationCode})</div>
+              <div className="text-[11px] text-[#EDE8DC] font-medium">{inspectedSupplier.locationName} ({inspectedSupplier.locationCode})</div>
               
               <div className="grid grid-cols-2 gap-1 text-[10px] font-mono pt-1">
-                <div className="flex justify-between bg-[#111A28] p-1 rounded">
+                <div className="flex justify-between bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.15)] p-1 rounded">
                   <span className="text-slate-400">Stock:</span>
-                  <span className={`font-bold ${inspectedSupplier.stock > 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                  <span className={`font-bold ${inspectedSupplier.stock > 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                     {inspectedSupplier.stock} units
                   </span>
                 </div>
-                <div className="flex justify-between bg-[#111A28] p-1 rounded">
+                <div className="flex justify-between bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.15)] p-1 rounded">
                   <span className="text-slate-400">ETA:</span>
-                  <span className="text-cyan-400 font-bold">{inspectedSupplier.etaLabel}</span>
+                  <span className="text-[#F0C75E] font-bold">{inspectedSupplier.etaLabel}</span>
                 </div>
-                <div className="flex justify-between bg-[#111A28] p-1 rounded">
+                <div className="flex justify-between bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.15)] p-1 rounded">
                   <span className="text-slate-400">Cost:</span>
                   <span className="text-white font-bold">${inspectedSupplier.cost.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between bg-[#111A28] p-1 rounded">
+                <div className="flex justify-between bg-[rgba(26,29,23,0.7)] border border-[rgba(217,166,46,0.15)] p-1 rounded">
                   <span className="text-slate-400">Reliability:</span>
-                  <span className="text-cyan-300 font-bold">{inspectedSupplier.reliability}%</span>
+                  <span className="text-[#F0C75E] font-bold">{inspectedSupplier.reliability}%</span>
                 </div>
               </div>
 
-              <div className="text-[10px] text-slate-400 pt-0.5 flex items-center space-x-1">
-                <ShieldCheck className="w-3 h-3 text-cyan-400" />
+              <div className="text-[10px] text-slate-300 pt-0.5 flex items-center space-x-1">
+                <ShieldCheck className="w-3 h-3 text-[#D9A62E]" />
                 <span>{inspectedSupplier.compliance}</span>
               </div>
             </div>
           )}
 
           {/* Bottom Map Legend Bar */}
-          <div className="absolute bottom-2 left-2 z-10 bg-[#080E17]/90 border border-[#172233] px-3 py-1.5 rounded-lg shadow-lg flex items-center space-x-3 text-[10px] font-mono text-slate-300">
+          <div className="absolute bottom-2 left-2 z-10 bg-[rgba(26,29,23,0.92)] border border-[rgba(217,166,46,0.3)] px-3 py-1.5 rounded-lg shadow-lg flex items-center space-x-3 text-[10px] font-mono text-slate-300">
             <span className="flex items-center space-x-1">
-              <Plane className="w-3 h-3 text-cyan-400" />
+              <Plane className="w-3 h-3 text-[#F0C75E]" />
               <span>Aircraft</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-blue-400"></span>
+              <span className="w-2 h-2 rounded-full bg-[#D9A62E]"></span>
               <span>Airport</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span className="w-2 h-2 rounded-full bg-[#78966A]"></span>
               <span>Supplier</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-3.5 h-0.5 bg-cyan-400 inline-block"></span>
+              <span className="w-3.5 h-0.5 bg-[#F0C75E] inline-block"></span>
               <span>Flight Route</span>
             </span>
             <span className="flex items-center space-x-1">
-              <span className="w-3.5 h-0.5 border-t border-dashed border-emerald-400 inline-block"></span>
+              <span className="w-3.5 h-0.5 border-t border-dashed border-[#78966A] inline-block"></span>
               <span>Recovery Route</span>
             </span>
-            <span className="flex items-center space-x-1 text-red-400">
+            <span className="flex items-center space-x-1 text-[#E07A5F]">
               <AlertTriangle className="w-3 h-3" />
               <span>AOG</span>
             </span>
@@ -1525,16 +1525,16 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
         </div>
 
         {/* 3. RIGHT DOCKED OPERATIONS PANEL */}
-        <div className="w-full lg:w-[380px] bg-[#090E17] border-t lg:border-t-0 lg:border-l border-[#151D2A] flex flex-col justify-between overflow-hidden">
+        <div className="w-full lg:w-[380px] bg-[rgba(26,29,23,0.95)] backdrop-blur-xl border-t lg:border-t-0 lg:border-l border-[rgba(255,210,100,0.25)] text-[#F7F1E4] flex flex-col justify-between overflow-hidden">
           
           {/* Top Panel Tabs Header */}
-          <div className="border-b border-[#151D2A] flex items-center text-[11px] font-bold font-mono">
+          <div className="border-b border-[rgba(255,210,100,0.2)] flex items-center text-[11px] font-bold font-mono">
             <button 
               onClick={() => setActiveTab('flights')}
               className={`flex-1 py-2 text-center transition cursor-pointer ${
                 activeTab === 'flights' 
-                  ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#0E1522]' 
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-[#F0C75E] border-b-2 border-[#D9A62E] bg-[rgba(217,166,46,0.15)]' 
+                  : 'text-[#D8D0BD] hover:text-[#F7F1E4]'
               }`}
             >
               FLIGHT & RECOVERY
@@ -1543,8 +1543,8 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
               onClick={() => setActiveTab('events')}
               className={`flex-1 py-2 text-center transition cursor-pointer ${
                 activeTab === 'events' 
-                  ? 'text-cyan-400 border-b-2 border-cyan-400 bg-[#0E1522]' 
-                  : 'text-slate-400 hover:text-slate-200'
+                  ? 'text-[#F0C75E] border-b-2 border-[#D9A62E] bg-[rgba(217,166,46,0.15)]' 
+                  : 'text-[#D8D0BD] hover:text-[#F7F1E4]'
               }`}
             >
               TIMELINE ({selectedFlight.timeline.length})
@@ -1570,29 +1570,29 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                       }}
                       className={`p-2 rounded-lg border transition cursor-pointer space-y-1 ${
                         isSelected
-                          ? 'bg-[#111A28] border-cyan-500 shadow-md shadow-cyan-950/50'
-                          : 'bg-[#0D1420] border-[#1E293B] hover:border-slate-600'
+                          ? 'bg-[rgba(38,42,34,0.9)] border-[#D9A62E] shadow-md shadow-[#D9A62E]/10'
+                          : 'bg-[rgba(30,33,26,0.7)] border-[rgba(255,210,100,0.2)] hover:border-[#D9A62E]/60'
                       }`}
                     >
                       <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-1.5">
-                          <Plane className={`w-3.5 h-3.5 -rotate-45 ${isSelected ? 'text-cyan-400' : 'text-slate-400'}`} />
-                          <span className="text-xs font-black text-white">{f.flightNumber}</span>
-                          <span className="text-[10px] text-slate-400 font-mono">{f.aircraft}</span>
+                          <Plane className={`w-3.5 h-3.5 -rotate-45 ${isSelected ? 'text-[#F0C75E]' : 'text-[#A8A28E]'}`} />
+                          <span className="text-xs font-black text-[#F7F1E4]">{f.flightNumber}</span>
+                          <span className="text-[10px] text-[#D8D0BD] font-mono">{f.aircraft}</span>
                         </div>
                         <span className={`px-1.5 py-0.2 rounded text-[8px] font-bold font-mono border ${
                           f.status === 'TURNBACK'
-                            ? 'bg-amber-950 text-amber-300 border-amber-800'
+                            ? 'bg-[#D9A62E]/20 text-[#F0C75E] border-[#D9A62E]/50'
                             : f.status === 'DIVERTED'
-                            ? 'bg-purple-950 text-purple-300 border-purple-800'
-                            : 'bg-red-950 text-red-400 border-red-800'
+                            ? 'bg-[#D9A62E]/20 text-[#F0C75E] border-[#D9A62E]/50'
+                            : 'bg-[#C85B43]/20 text-[#E07A5F] border-[#C85B43]/50'
                         }`}>
                           {f.statusLabel}
                         </span>
                       </div>
-                      <div className="flex items-center justify-between text-[10px] font-mono text-slate-400">
+                      <div className="flex items-center justify-between text-[10px] font-mono text-[#D8D0BD]">
                         <span>{f.origin.code} → {f.destination.code}</span>
-                        <span className="text-slate-500 truncate max-w-[140px]">{f.defect}</span>
+                        <span className="text-[#A8A28E] truncate max-w-[140px]">{f.defect}</span>
                       </div>
                     </div>
                   );
@@ -1600,49 +1600,49 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
               </div>
 
               {/* Selected Flight Detailed Operational Profile */}
-              <div className="p-3 rounded-lg bg-[#0C121E] border border-[#1E293B] space-y-2 text-xs">
+              <div className="p-3 rounded-lg bg-[rgba(30,33,26,0.75)] border border-[rgba(255,210,100,0.25)] space-y-2 text-xs">
                 
                 {/* Header */}
-                <div className="flex items-center justify-between pb-1.5 border-b border-[#1E293B]">
+                <div className="flex items-center justify-between pb-1.5 border-b border-[rgba(255,210,100,0.2)]">
                   <div>
-                    <div className="text-sm font-extrabold text-white font-mono">{selectedFlight.flightNumber} · {selectedFlight.aircraft}</div>
-                    <div className="text-[10px] text-slate-400 font-mono">{selectedFlight.airline} · {selectedFlight.aircraftType}</div>
+                    <div className="text-sm font-extrabold text-[#F7F1E4] font-mono">{selectedFlight.flightNumber} · {selectedFlight.aircraft}</div>
+                    <div className="text-[10px] text-[#D8D0BD] font-mono">{selectedFlight.airline} · {selectedFlight.aircraftType}</div>
                   </div>
-                  <span className="px-2 py-0.5 rounded bg-red-950/80 border border-red-500 text-red-400 text-[10px] font-mono font-bold">
+                  <span className="px-2 py-0.5 rounded bg-[#C85B43]/20 border border-[#C85B43]/60 text-[#E07A5F] text-[10px] font-mono font-bold">
                     AOG GROUNDED
                   </span>
                 </div>
 
                 {/* Location & Bay */}
                 <div className="flex items-center justify-between text-[11px] font-mono">
-                  <span className="text-slate-400">Grounded At:</span>
-                  <span className="text-cyan-300 font-bold">{selectedFlight.groundedLocation.code} · {selectedFlight.groundedLocation.bay}</span>
+                  <span className="text-[#D8D0BD]">Grounded At:</span>
+                  <span className="text-[#F0C75E] font-bold">{selectedFlight.groundedLocation.code} · {selectedFlight.groundedLocation.bay}</span>
                 </div>
 
                 {/* Defect Telemetry */}
-                <div className="p-2 rounded bg-[#111A28] border border-[#1E293B] space-y-1">
-                  <div className="text-[10px] font-mono text-slate-400">DEFECT & ATA CHAPTER</div>
-                  <div className="text-xs font-bold text-slate-200">{selectedFlight.defect}</div>
-                  <div className="text-[10px] text-amber-300 font-mono">{selectedFlight.defectDetail}</div>
+                <div className="p-2 rounded bg-[rgba(26,29,23,0.8)] border border-[rgba(255,210,100,0.2)] space-y-1">
+                  <div className="text-[10px] font-mono text-[#A8A28E]">DEFECT & ATA CHAPTER</div>
+                  <div className="text-xs font-bold text-[#F7F1E4]">{selectedFlight.defect}</div>
+                  <div className="text-[10px] text-[#F0C75E] font-mono">{selectedFlight.defectDetail}</div>
                 </div>
 
                 {/* Required Part & Quantity */}
                 <div className="grid grid-cols-2 gap-2 text-center font-mono">
-                  <div className="p-1.5 rounded bg-[#111A28] border border-[#1E293B]">
-                    <div className="text-[9px] text-slate-400">REQUIRED PART</div>
-                    <div className="text-xs font-bold text-cyan-400">{selectedFlight.requiredPart}</div>
+                  <div className="p-1.5 rounded bg-[rgba(26,29,23,0.8)] border border-[rgba(255,210,100,0.2)]">
+                    <div className="text-[9px] text-[#A8A28E]">REQUIRED PART</div>
+                    <div className="text-xs font-bold text-[#F0C75E]">{selectedFlight.requiredPart}</div>
                   </div>
-                  <div className="p-1.5 rounded bg-[#111A28] border border-[#1E293B]">
-                    <div className="text-[9px] text-slate-400">RECOVERY DEADLINE</div>
-                    <div className="text-xs font-bold text-red-400">{selectedFlight.recoveryDeadline}</div>
+                  <div className="p-1.5 rounded bg-[rgba(26,29,23,0.8)] border border-[rgba(255,210,100,0.2)]">
+                    <div className="text-[9px] text-[#A8A28E]">RECOVERY DEADLINE</div>
+                    <div className="text-xs font-bold text-[#E07A5F]">{selectedFlight.recoveryDeadline}</div>
                   </div>
                 </div>
 
                 {/* Selected Supplier & Plan Matrix */}
                 <div className="pt-1 space-y-1.5">
                   <div className="flex items-center justify-between text-[10px] font-mono">
-                    <span className="text-slate-400 uppercase font-bold tracking-wider">SUPPLIER CANDIDATES ({selectedFlight.suppliers.length})</span>
-                    <span className="text-emerald-400 font-bold">OPTIMIZED</span>
+                    <span className="text-[#D8D0BD] uppercase font-bold tracking-wider">SUPPLIER CANDIDATES ({selectedFlight.suppliers.length})</span>
+                    <span className="text-[#95B885] font-bold">OPTIMIZED</span>
                   </div>
 
                   <div className="space-y-1">
@@ -1661,37 +1661,37 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                           }}
                           className={`p-2 rounded border text-[11px] font-mono transition cursor-pointer space-y-1 ${
                             isChosen
-                              ? 'bg-[#142338] border-emerald-500 shadow-md'
+                              ? 'bg-[rgba(38,42,34,0.9)] border-[#78966A] shadow-md'
                               : isOut
-                              ? 'bg-red-950/20 border-red-900/50 opacity-75'
+                              ? 'bg-[#C85B43]/10 border-[#C85B43]/30 opacity-75'
                               : isDisq
-                              ? 'bg-[#0A101A] border-slate-800 opacity-60'
-                              : 'bg-[#101826] border-[#1E293B] hover:border-slate-500'
+                              ? 'bg-[rgba(26,29,23,0.6)] border-[rgba(255,210,100,0.15)] opacity-60'
+                              : 'bg-[rgba(30,33,26,0.7)] border-[rgba(255,210,100,0.2)] hover:border-[#D9A62E]/60'
                           }`}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5 font-bold">
-                              <span className={isChosen ? 'text-emerald-400' : isOut ? 'text-red-400 line-through' : 'text-slate-200'}>
+                              <span className={isChosen ? 'text-[#95B885]' : isOut ? 'text-[#E07A5F] line-through' : 'text-[#F7F1E4]'}>
                                 {sup.name}
                               </span>
-                              <span className="text-[9px] text-slate-400">({sup.locationCode})</span>
+                              <span className="text-[9px] text-[#A8A28E]">({sup.locationCode})</span>
                             </div>
                             <span className={`px-1.5 py-0.2 rounded text-[8px] font-bold ${
-                              isOut ? 'bg-red-950 text-red-400 border border-red-700' : isDisq ? 'bg-slate-900 text-slate-400' : isChosen ? 'bg-emerald-950 text-emerald-300 border border-emerald-600' : 'bg-slate-800 text-slate-300'
+                              isOut ? 'bg-[#C85B43]/20 text-[#E07A5F] border border-[#C85B43]/40' : isDisq ? 'bg-neutral-800 text-neutral-400' : isChosen ? 'bg-[#78966A]/20 text-[#95B885] border border-[#78966A]/50' : 'bg-neutral-800 text-neutral-300'
                             }`}>
                               {isOut ? 'OUT OF STOCK' : isDisq ? 'INFEASIBLE' : isChosen ? 'SELECTED' : 'AVAILABLE'}
                             </span>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-1 text-[9px] text-slate-400">
-                            <div>ETA: <span className="text-cyan-300 font-bold">{sup.etaLabel}</span></div>
-                            <div>Cost: <span className="text-white font-bold">${sup.cost.toLocaleString()}</span></div>
-                            <div>Rel: <span className="text-cyan-300 font-bold">{sup.reliability}%</span></div>
-                            <div>CO2: <span className="text-slate-300">{sup.carbonKg}kg</span></div>
+                          <div className="grid grid-cols-4 gap-1 text-[9px] text-[#D8D0BD]">
+                            <div>ETA: <span className="text-[#F0C75E] font-bold">{sup.etaLabel}</span></div>
+                            <div>Cost: <span className="text-[#F7F1E4] font-bold">${sup.cost.toLocaleString()}</span></div>
+                            <div>Rel: <span className="text-[#95B885] font-bold">{sup.reliability}%</span></div>
+                            <div>CO2: <span className="text-[#A8A28E]">{sup.carbonKg}kg</span></div>
                           </div>
 
                           {isDisq && (
-                            <div className="text-[8px] text-red-400/90">{sup.disqualifyReason}</div>
+                            <div className="text-[8px] text-[#E07A5F]/90">{sup.disqualifyReason}</div>
                           )}
                         </div>
                       );
@@ -1701,10 +1701,10 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
 
                 {/* Disruption & Replanning Interactive Action for SQ-402 */}
                 {selectedFlight.id === 'SQ-402' && (
-                  <div className="pt-2 border-t border-[#1E293B] space-y-1.5">
+                  <div className="pt-2 border-t border-[rgba(255,210,100,0.2)] space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[10px] font-mono font-bold text-amber-400 flex items-center space-x-1">
-                        <Zap className="w-3 h-3" />
+                      <span className="text-[10px] font-mono font-bold text-[#F0C75E] flex items-center space-x-1">
+                        <Zap className="w-3 h-3 text-[#D9A62E]" />
                         <span>AGENTIC FAILURE & REPLAN TEST</span>
                       </span>
                     </div>
@@ -1712,28 +1712,28 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
                     {!isStockoutDisrupted ? (
                       <button
                         onClick={handleTriggerStockout}
-                        className="w-full py-1.5 rounded-lg bg-red-950/80 hover:bg-red-900 border border-red-500 text-red-300 text-xs font-mono font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-lg"
+                        className="w-full py-1.5 rounded-lg bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] hover:from-[#E2B139] hover:to-[#F7D475] text-[#252820] text-xs font-mono font-bold flex items-center justify-center space-x-2 transition cursor-pointer shadow-md border border-[#F0C75E]"
                       >
-                        <AlertTriangle className="w-3.5 h-3.5 text-red-400" />
+                        <AlertTriangle className="w-3.5 h-3.5 text-[#252820]" />
                         <span>Trigger Supplier Stockout (AeroParts SIN)</span>
                       </button>
                     ) : (
                       <div className="space-y-1.5">
-                        <div className="p-2 rounded bg-red-950/50 border border-red-600/70 text-[10px] font-mono text-red-200">
-                          <div className="font-bold flex items-center space-x-1 text-red-400">
+                        <div className="p-2 rounded bg-[#C85B43]/20 border border-[#C85B43]/50 text-[10px] font-mono text-[#F7F1E4]">
+                          <div className="font-bold flex items-center space-x-1 text-[#E07A5F]">
                             <AlertCircle className="w-3.5 h-3.5" />
                             <span>AeroParts Reported Stockout (2 → 0)</span>
                           </div>
-                          <div className="text-[9px] text-slate-300 pt-0.5">
+                          <div className="text-[9px] text-[#D8D0BD] pt-0.5">
                             Previous recovery route invalidated. SQUAWK autonomous replanner activated SkySupply Global (BOM Hub).
                           </div>
                         </div>
 
                         <button
                           onClick={handleResetScenario}
-                          className="w-full py-1 rounded bg-[#101928] hover:bg-[#18263D] border border-[#1E293B] text-slate-300 text-[10px] font-mono flex items-center justify-center space-x-1.5 transition cursor-pointer"
+                          className="w-full py-1 rounded bg-[rgba(38,42,34,0.7)] hover:bg-[rgba(52,58,46,0.9)] border border-[rgba(255,210,100,0.3)] text-[#F7F1E4] text-[10px] font-mono flex items-center justify-center space-x-1.5 transition cursor-pointer"
                         >
-                          <RotateCcw className="w-3 h-3 text-cyan-400" />
+                          <RotateCcw className="w-3 h-3 text-[#F0C75E]" />
                           <span>Reset Recovery Scenario</span>
                         </button>
                       </div>
@@ -1748,24 +1748,24 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           {/* TAB 2: LIVE OPERATIONAL EVENT TIMELINE */}
           {activeTab === 'events' && (
             <div className="flex-1 overflow-y-auto p-3 space-y-2 font-mono text-xs">
-              <div className="text-[10px] text-slate-400 pb-1 border-b border-[#1E293B] flex items-center justify-between">
+              <div className="text-[10px] text-[#D8D0BD] pb-1 border-b border-[rgba(255,210,100,0.2)] flex items-center justify-between">
                 <span>EVENTS FOR {selectedFlight.flightNumber} ({selectedFlight.aircraft})</span>
-                <span className="text-cyan-400">{selectedFlight.groundedLocation.code}</span>
+                <span className="text-[#F0C75E]">{selectedFlight.groundedLocation.code}</span>
               </div>
 
               <div className="space-y-2 pt-1">
                 {selectedFlight.timeline.map((item, idx) => (
                   <div key={idx} className="flex items-start space-x-2 text-[11px]">
-                    <span className="text-[10px] text-slate-500 font-bold shrink-0">{item.time}</span>
-                    <div className="w-1.5 h-1.5 rounded-full mt-1 shrink-0 bg-cyan-400"></div>
+                    <span className="text-[10px] text-[#A8A28E] font-bold shrink-0">{item.time}</span>
+                    <div className="w-1.5 h-1.5 rounded-full mt-1 shrink-0 bg-[#D9A62E]"></div>
                     <div className={`leading-tight ${
                       item.type === 'alert'
-                        ? 'text-red-400 font-bold'
+                        ? 'text-[#E07A5F] font-bold'
                         : item.type === 'warn'
-                        ? 'text-amber-300 font-semibold'
+                        ? 'text-[#F0C75E] font-semibold'
                         : item.type === 'success'
-                        ? 'text-emerald-400 font-semibold'
-                        : 'text-slate-300'
+                        ? 'text-[#95B885] font-semibold'
+                        : 'text-[#D8D0BD]'
                     }`}>
                       {item.label}
                     </div>
@@ -1776,9 +1776,9 @@ export const FlightRecoveryMap: React.FC<FlightRecoveryMapProps> = ({
           )}
 
           {/* Footer Bar */}
-          <div className="p-2.5 bg-[#070B11] border-t border-[#151D2A] flex items-center justify-between text-[10px] font-mono text-slate-400">
-            <span>ORCHESTRATOR: <strong className="text-emerald-400">ONLINE</strong></span>
-            <span>OPTIMIZATION WEIGHT: <strong>DEL 40% · REL 25% · COST 15%</strong></span>
+          <div className="p-2.5 bg-[rgba(20,23,17,0.9)] border-t border-[rgba(255,210,100,0.2)] flex items-center justify-between text-[10px] font-mono text-[#D8D0BD]">
+            <span>ORCHESTRATOR: <strong className="text-[#95B885]">ONLINE</strong></span>
+            <span>OPTIMIZATION WEIGHT: <strong className="text-[#F7F1E4]">DEL 40% · REL 25% · COST 15%</strong></span>
           </div>
 
         </div>

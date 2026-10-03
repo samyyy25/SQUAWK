@@ -60,41 +60,41 @@ export const JudgesSafetyModal: React.FC<JudgesSafetyModalProps> = ({
   ];
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 overflow-y-auto font-mono">
-      <div className="bg-[#000000] border-2 border-[#830000] rounded-xl w-full max-w-3xl text-neutral-200 shadow-2xl overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 overflow-y-auto font-mono">
+      <div className="bg-[rgba(26,29,23,0.96)] border-2 border-[rgba(255,210,100,0.4)] rounded-xl w-full max-w-3xl text-[#F7F1E4] shadow-2xl overflow-hidden">
         
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-[#1E1E1E] bg-[#080808]">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[rgba(255,210,100,0.2)] bg-[rgba(34,38,30,0.95)]">
           <div className="flex items-center space-x-3">
-            <div className="p-2 rounded bg-[#0D0D0D] border border-[#830000] text-[#BC0202]">
+            <div className="p-2 rounded bg-[rgba(217,166,46,0.2)] border border-[#D9A62E] text-[#F0C75E]">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-sm font-bold text-white flex items-center space-x-2">
                 <span>JUDGES & AVIATION SAFETY GOVERNANCE</span>
-                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[#000000] text-[#BC0202] border border-[#830000]">
+                <span className="text-[10px] uppercase font-mono px-2 py-0.5 rounded bg-[rgba(217,166,46,0.18)] text-[#F0C75E] border border-[rgba(217,166,46,0.4)] font-bold">
                   COMPLIANCE AUDIT
                 </span>
               </h2>
-              <p className="text-xs text-neutral-400 font-sans mt-0.5">
+              <p className="text-xs text-[#D8D0BD] font-sans mt-0.5">
                 Core AI safety principles, human-in-the-loop safeguards, and architecture answers
               </p>
             </div>
           </div>
           <button 
             onClick={onClose}
-            className="text-neutral-400 hover:text-white p-1 rounded hover:bg-[#0D0D0D] transition cursor-pointer"
+            className="text-[#D8D0BD] hover:text-white p-1 rounded hover:bg-[rgba(255,210,100,0.15)] transition cursor-pointer"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Tagline Banner */}
-        <div className="px-6 py-2.5 bg-[#080808] border-b border-[#1E1E1E] text-xs flex items-center justify-between">
-          <span className="text-white font-semibold">
+        <div className="px-6 py-2.5 bg-[rgba(20,22,17,0.85)] border-b border-[rgba(255,210,100,0.15)] text-xs flex items-center justify-between">
+          <span className="text-[#F7F1E4] font-semibold">
             "AI suggests · Human decides · High-contrast aviation mission control."
           </span>
-          <span className="text-[10px] font-mono text-[#BC0202] font-bold">
+          <span className="text-[10px] font-mono text-[#E07A63] font-bold">
             SIMULATED DEMO DATA
           </span>
         </div>
@@ -104,17 +104,17 @@ export const JudgesSafetyModal: React.FC<JudgesSafetyModalProps> = ({
           {faqs.map((faq, idx) => {
             const Icon = faq.icon;
             return (
-              <div key={idx} className="bg-[#080808] p-3.5 rounded border border-[#1E1E1E] space-y-2">
+              <div key={idx} className="bg-[rgba(20,22,17,0.7)] p-3.5 rounded border border-[rgba(255,210,100,0.2)] space-y-2">
                 <div className="flex items-center space-x-2">
-                  <Icon className="w-4 h-4 text-[#BC0202] shrink-0" />
+                  <Icon className="w-4 h-4 text-[#F0C75E] shrink-0" />
                   <h3 className="text-xs font-bold text-white leading-snug">{faq.q}</h3>
                 </div>
 
-                <div className="p-2 rounded bg-[#0D0D0D] border border-[#830000] text-[11px] font-semibold text-white">
+                <div className="p-2 rounded bg-[rgba(28,31,24,0.9)] border border-[rgba(217,166,46,0.4)] text-[11px] font-semibold text-[#F7F1E4]">
                   ⚡ {faq.shortAns}
                 </div>
 
-                <p className="text-[11px] text-neutral-400 leading-relaxed font-sans">
+                <p className="text-[11px] text-[#D8D0BD] leading-relaxed font-sans">
                   {faq.fullAns}
                 </p>
               </div>
@@ -123,11 +123,11 @@ export const JudgesSafetyModal: React.FC<JudgesSafetyModalProps> = ({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between px-6 py-3 border-t border-[#1E1E1E] bg-[#080808] text-xs text-neutral-400">
+        <div className="flex items-center justify-between px-6 py-3 border-t border-[rgba(255,210,100,0.2)] bg-[rgba(20,22,17,0.95)] text-xs text-[#D8D0BD]">
           <span>Safety guarantee: AI is advisory; final authority is certified human engineering.</span>
           <button
             onClick={onClose}
-            className="px-5 py-1.5 rounded bg-[#830000] hover:bg-[#BC0202] text-white font-bold transition text-xs border border-[#BC0202] cursor-pointer"
+            className="px-5 py-2 rounded bg-gradient-to-r from-[#D9A62E] to-[#F0C75E] hover:from-[#E2B139] hover:to-[#F7D475] text-[#252820] font-bold transition text-xs border border-[#F0C75E] cursor-pointer shadow-md"
           >
             UNDERSTOOD
           </button>

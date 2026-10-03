@@ -85,27 +85,27 @@ export const AgentActivityCards: React.FC<AgentActivityCardsProps> = ({
         return (
           <div 
             key={ag.id}
-            className="p-3.5 rounded-xl bg-[#151B23] border border-[#26313D] flex flex-col justify-between"
+            className="p-3.5 rounded-xl bg-[rgba(255,250,242,0.88)] border border-[rgba(217,166,46,0.35)] shadow-sm backdrop-blur-md flex flex-col justify-between"
           >
             <div>
               <div className="flex items-center justify-between mb-1.5">
-                <div className="p-1.5 rounded-lg bg-[#11161D] border border-[#26313D] text-slate-300">
-                  <Icon className="w-3.5 h-3.5" />
+                <div className="p-1.5 rounded-lg bg-[rgba(26,29,23,0.06)] border border-[rgba(217,166,46,0.3)] text-[#1A1D17]">
+                  <Icon className="w-3.5 h-3.5 text-[#D9A62E]" />
                 </div>
-                <span className={`text-[10px] font-mono font-bold ${ag.statusColor}`}>
+                <span className={`text-[10px] font-mono font-bold ${ag.statusColor === 'text-cyan-400' ? 'text-[#D9A62E]' : ag.statusColor}`}>
                   ● {ag.status}
                 </span>
               </div>
-              <h4 className="text-xs font-bold text-white tracking-wide">
+              <h4 className="text-xs font-bold text-[#1A1D17] tracking-wide">
                 {ag.name}
               </h4>
-              <p className="text-[11px] text-slate-400 mt-0.5 leading-snug">
+              <p className="text-[11px] text-[#5A6352] mt-0.5 leading-snug">
                 {ag.purpose}
               </p>
             </div>
 
-            <div className="mt-2.5 pt-2 border-t border-[#26313D]">
-              <span className="text-[10px] font-mono text-cyan-400 font-semibold block truncate">
+            <div className="mt-2.5 pt-2 border-t border-[rgba(217,166,46,0.2)]">
+              <span className="text-[10px] font-mono text-[#D9A62E] font-semibold block truncate">
                 {ag.activeTool}
               </span>
             </div>

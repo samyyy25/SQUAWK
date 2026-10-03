@@ -133,6 +133,83 @@ class DisruptionSchema(BaseModel):
     description: str
     applied_at: datetime.datetime
 
+class RecoveryUpdateCreate(BaseModel):
+    message: str
+    source: Optional[str] = "VAKH" # 'VAKH' | 'SQUAWK' | 'OPERATIONS'
+    author: Optional[str] = "Lead Maintenance Tech"
+    action_status: Optional[str] = None
+
+class RecoveryUpdateSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    case_id: str
+    source: str
+    message: str
+    author: str
+    action_status: Optional[str] = None
+    vakh_sync_status: str
+    vakh_update_id: Optional[str] = None
+    created_at: datetime.datetime
+
+class IncidentResolutionCreate(BaseModel):
+    actual_resolution: str
+    actual_recovery_time_hours: float
+    parts_used: Optional[List[str]] = []
+    root_cause: str
+    delay_minutes: Optional[int] = 0
+    maintenance_team: Optional[str] = "Line Maintenance Team B"
+    additional_observations: Optional[str] = None
+    lessons_learned: Optional[str] = None
+    resolved_by: Optional[str] = "Capt. Marcus Vance (Duty Tech Ops Director)"
+
+class IncidentResolutionSchema(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+    id: str
+    case_id: str
+    actual_resolution: str
+    actual_recovery_time_hours: float
+    parts_used: List[Any] = []
+    root_cause: str
+    delay_minutes: int
+    maintenance_team: Optional[str] = None
+    additional_observations: Optional[str] = None
+    lessons_learned: Optional[str] = None
+    vakh_resolution_id: Optional[str] = None
+    resolved_by: str
+    created_at: datetime.datetime
+
+class RecoveryActionStatusUpdate(BaseModel):
+    status: str # 'Pending', 'In Progress', 'Completed', 'Blocked'
+    notes: Optional[str] = None
+
+class VakhIntakePayload(BaseModel):
+    aircraft_registration: str
+    aircraft_type: str
+    operator: str
+    airport: str
+    flight_number: Optional[str] = None
+    current_aircraft_status: str = "Grounded at Gate / Hangar"
+    defect_category: str
+    defect_description: str
+    reported_symptoms: Optional[str] = None
+    operational_impact: Optional[str] = None
+    departure_time: Optional[str] = None
+    estimated_time_available: Optional[float] = 18.0
+    mel_cdl_info: Optional[str] = None
+    required_maintenance_team: Optional[str] = None
+    required_parts: Optional[str] = None
+    reporter_name: str
+    reporter_contact: Optional[str] = None
+    evidence_attachments: Optional[List[str]] = None
+    vakh_submission_id: Optional[str] = None
+
+class VakhWebhookPayload(BaseModel):
+    event_type: str = "form_submission" # "form_submission" | "post_update" | "record_resolved"
+    submission_id: str
+    form_key: str = "aog_defect_intake"
+    timestamp: Optional[str] = None
+    data: VakhIntakePayload
+
 class SquawkCaseSchema(BaseModel):
     model_config = ConfigDict(from_attributes=True)
     id: str
@@ -168,11 +245,34 @@ class SquawkCaseSchema(BaseModel):
     scoring_weights: Optional[Dict[str, float]] = None
     created_at: datetime.datetime
     updated_at: datetime.datetime
+
+    # Vakh Integration and Collaborative Record Fields
+    vakh_submission_id: Optional[str] = None
+    vakh_record_url: Optional[str] = None
+    vakh_form_id: Optional[str] = "aog_defect_intake"
+    vakh_synced_at: Optional[datetime.datetime] = None
+    operator: Optional[str] = None
+    airport: Optional[str] = None
+    flight_number: Optional[str] = None
+    defect_category: Optional[str] = None
+    severity: Optional[str] = "HIGH"
+    urgency: Optional[str] = "IMMEDIATE"
+    reported_symptoms: Optional[str] = None
+    operational_impact: Optional[str] = None
+    mel_cdl_info: Optional[str] = None
+    required_maintenance_team: Optional[str] = None
+    reporter_name: Optional[str] = None
+    reporter_contact: Optional[str] = None
+    recovery_actions_list: List[Dict[str, Any]] = []
+    resolved_at: Optional[datetime.datetime] = None
+
     candidates: List[RecoveryCandidateSchema] = []
     agent_results: List[AgentResultSchema] = []
     validation_result: Optional[ValidationResultSchema] = None
     recovery_actions: List[RecoveryActionSchema] = []
     shipments: List[ShipmentSchema] = []
+    recovery_updates: List[RecoveryUpdateSchema] = []
+    resolution: Optional[IncidentResolutionSchema] = None
 
 class CaseCreateRequest(BaseModel):
     tail_number: Optional[str] = None
@@ -189,6 +289,22 @@ class CaseCreateRequest(BaseModel):
     demo_key: Optional[str] = None
     demo_badge: Optional[str] = None
     raw_intake_payload: Optional[Dict[str, Any]] = None
+
+    # Optional Vakh metadata
+    vakh_submission_id: Optional[str] = None
+    vakh_record_url: Optional[str] = None
+    operator: Optional[str] = None
+    airport: Optional[str] = None
+    flight_number: Optional[str] = None
+    defect_category: Optional[str] = None
+    severity: Optional[str] = "HIGH"
+    urgency: Optional[str] = "IMMEDIATE"
+    reported_symptoms: Optional[str] = None
+    operational_impact: Optional[str] = None
+    mel_cdl_info: Optional[str] = None
+    required_maintenance_team: Optional[str] = None
+    reporter_name: Optional[str] = None
+    reporter_contact: Optional[str] = None
 
 class ApprovalRequest(BaseModel):
     selected_candidate_id: Optional[str] = None

@@ -16,6 +16,85 @@ from app.agent_tools import (
 )
 from app.incident_intelligence import generate_incident_intelligence
 
+def generate_default_recovery_plan(defect_category: str = "Hydraulic Power", part_name: str = "Engine-Driven Hydraulic Pump") -> list:
+    """Generates standard 8-step aviation AOG recovery plan with status tracking."""
+    base_category = defect_category.split("/")[0].strip() if defect_category else "Hydraulic Power"
+    now_iso = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    return [
+        {
+            "id": "ACT-1",
+            "step_number": 1,
+            "title": f"Assign {base_category.lower()} maintenance technician",
+            "description": "Dispatch certified A&P / Part 66 technician team to aircraft bay.",
+            "assigned_team": f"{base_category} Specialist Team",
+            "status": "In Progress",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-2",
+            "step_number": 2,
+            "title": f"Inspect affected {base_category.lower()} system",
+            "description": "Examine fluid lines, return manifolds, harness connections, and system reservoirs against AMM.",
+            "assigned_team": "Lead Systems Specialist",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-3",
+            "step_number": 3,
+            "title": "Identify leaking component",
+            "description": "Isolate leak or abnormal parameter to sub-assembly; verify no casing fracture or metal contamination.",
+            "assigned_team": "Lead Systems Specialist",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-4",
+            "step_number": 4,
+            "title": "Check required replacement component",
+            "description": f"Verify rotable {part_name}, check airworthiness release tags (FAA 8130-3 / EASA Form 1) and required seal kit.",
+            "assigned_team": "MRO Stores / TechOps",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-5",
+            "step_number": 5,
+            "title": "Replace component if approved",
+            "description": "De-pressurize system, remove unserviceable unit, install replacement assembly to specified torque values.",
+            "assigned_team": "Line Maintenance Technicians",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-6",
+            "step_number": 6,
+            "title": "Perform required inspection/testing",
+            "description": "Pressurize system to operating tolerance, conduct high-pressure leak check and full functional test.",
+            "assigned_team": "Quality Inspector / A&P",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-7",
+            "step_number": 7,
+            "title": "Verify aircraft readiness",
+            "description": "Perform cockpit BITE test, verify system indications and clear all fault codes on MCDU.",
+            "assigned_team": "Duty Maintenance Controller",
+            "status": "Pending",
+            "updated_at": now_iso
+        },
+        {
+            "id": "ACT-8",
+            "step_number": 8,
+            "title": "Release aircraft according to authorized procedures",
+            "description": "Complete Technical Logbook entry, sign Airworthiness Release Certificate (CRS) under Part 145 / FAR 43.9.",
+            "assigned_team": "Lead Certifying Engineer",
+            "status": "Pending",
+            "updated_at": now_iso
+        }
+    ]
+
 def execute_squawk_orchestration(db: Session, case_id: str, simulate_ai_failure: bool = False) -> Optional[SquawkCase]:
     """
     Executes the full SQUAWK agentic supply chain recovery loop:
@@ -255,12 +334,18 @@ def execute_squawk_orchestration(db: Session, case_id: str, simulate_ai_failure:
     case.current_stage = "HUMAN_REVIEW"
     case.status = "Awaiting Approval"
 
+    if not case.recovery_actions_list:
+        case.recovery_actions_list = generate_default_recovery_plan(
+            defect_category=case.defect_category or "Hydraulic Power",
+            part_name=case.part_name or "Engine-Driven Hydraulic Pump"
+        )
+
     db.add(ActivityLog(
         id=str(uuid.uuid4()),
         case_id=case.id,
         category="PIPELINE",
         title="Autonomous Recovery Plan Generated",
-        details=f"Recommended: {recommended['supplier_name'] if recommended else 'N/A'} (ETA: {recommended['total_eta_hours'] if recommended else 0}h, Landed: ${recommended['total_landed_cost'] if recommended else 0:,}). Awaiting Demo Engineer Authorization."
+        details=f"Recommended: {recommended['supplier_name'] if recommended else 'N/A'} (ETA: {recommended['total_eta_hours'] if recommended else 0}h, Landed: ${recommended['total_landed_cost'] if recommended else 0:,}). 8-step recovery procedure dispatched to Vakh operational record."
     ))
 
     db.commit()

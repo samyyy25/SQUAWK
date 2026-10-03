@@ -1,96 +1,197 @@
 @import "tailwindcss";
 
 @theme {
-  --color-squawk-black: #000000;
-  --color-squawk-surface: #080808;
-  --color-squawk-panel: #0D0D0D;
-  --color-squawk-maroon: #830000;
-  --color-squawk-red: #BC0202;
-  --color-squawk-critical: #FF0000;
-  --color-squawk-border: #1E1E1E;
-  --color-squawk-border-maroon: rgba(131, 0, 0, 0.4);
+  --color-squawk-bg: #D8C7A5;
+  --color-squawk-dark: #252820;
+  --color-squawk-dark-surface: rgba(30, 32, 27, 0.75);
+  --color-squawk-panel: rgba(38, 40, 32, 0.72);
+  --color-squawk-panel-light: rgba(255, 248, 232, 0.78);
+  --color-squawk-panel-dark: rgba(30, 32, 27, 0.78);
+  --color-squawk-amber: #D9A62E;
+  --color-squawk-amber-light: #F0C75E;
+  --color-squawk-amber-dark: #A87813;
+  --color-squawk-olive: #2E3327;
+  --color-squawk-green: #78966A;
+  --color-squawk-red: #C85B43;
+  --color-squawk-border-gold: rgba(255, 210, 100, 0.25);
+  --color-squawk-border-light: rgba(255, 244, 214, 0.35);
+
+  /* Legacy aliases gracefully mapped to new daytime aviation palette */
+  --color-squawk-black: #20231C;
+  --color-squawk-surface: rgba(30, 32, 27, 0.82);
+  --color-squawk-maroon: #D9A62E;
+  --color-squawk-red: #C85B43;
+  --color-squawk-critical: #C85B43;
+  --color-squawk-border: rgba(255, 210, 100, 0.2);
+  --color-squawk-border-maroon: rgba(217, 166, 46, 0.35);
 }
 
 @layer base {
   :root {
-    --bg-primary: #000000;
-    --bg-secondary: #080808;
-    --bg-panel: #0D0D0D;
-    --border-main: #1E1E1E;
-    --border-maroon: #830000;
-    --color-maroon: #830000;
-    --color-alert-red: #BC0202;
-    --color-critical-red: #FF0000;
-    --text-primary: #FFFFFF;
-    --text-secondary: #CBD5E1;
-    --text-muted: #64748B;
+    --bg-main: #D8C7A5;
+    --bg-dark: #252820;
+    --bg-panel: rgba(38, 40, 32, 0.72);
+    --surface-light: rgba(255, 248, 232, 0.78);
+    --surface-dark: rgba(30, 32, 27, 0.75);
+    --border-light: rgba(255, 244, 214, 0.35);
+    --border-dark: rgba(255, 210, 100, 0.25);
+    --accent: #D9A62E;
+    --accent-light: #F0C75E;
+    --accent-dark: #A87813;
+    --text-primary: #F7F1E4;
+    --text-secondary: #D8D0BD;
+    --text-dark: #292A23;
+    --success: #78966A;
+    --warning: #D8A52E;
+    --danger: #C85B43;
   }
 
   body {
-    background-color: #000000;
-    color: #FFFFFF;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #D8C7A5;
+    color: #252820;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     overflow-x: hidden;
+  }
+
+  code, pre, kbd, samp {
+    font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
   }
 }
 
 /* Operational Cockpit Scrollbar */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: rgba(34, 38, 30, 0.6);
 }
 ::-webkit-scrollbar-thumb {
-  background: #2A1010;
-  border-radius: 2px;
+  background: rgba(217, 166, 46, 0.4);
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #830000;
+  background: #D9A62E;
 }
 
-/* Leaflet Dark Aviation Map Styling with Red/Maroon theme */
+/* Leaflet Aviation Map Styling with Warm Sepia & Golden Amber Cockpit HUD Tone */
 .dark-aviation-tiles img.leaflet-tile {
-  filter: brightness(0.45) invert(1) contrast(3.5) hue-rotate(340deg) saturate(0.5);
+  filter: brightness(0.7) invert(1) contrast(2.2) sepia(0.65) hue-rotate(5deg) saturate(1.2);
 }
 
 .leaflet-container {
-  background-color: #000000 !important;
+  background-color: #1E201B !important;
   font-family: inherit;
 }
 
 .leaflet-control-attribution {
-  background: rgba(0, 0, 0, 0.85) !important;
-  color: #64748B !important;
+  background: rgba(28, 31, 24, 0.85) !important;
+  color: #D8D0BD !important;
   font-size: 9px !important;
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace !important;
+  font-family: 'JetBrains Mono', ui-monospace, monospace !important;
   padding: 1px 6px !important;
   border-top-left-radius: 4px;
-  border: 1px solid #1E1E1E;
+  border: 1px solid rgba(255, 210, 100, 0.25);
 }
 
 .leaflet-control-attribution a {
-  color: #BC0202 !important;
+  color: #F0C75E !important;
   text-decoration: none;
 }
 .leaflet-control-attribution a:hover {
   text-decoration: underline;
 }
 
-/* Utility classes for the SQUAWK Color Hunt system */
-.bg-squawk-black { background-color: #000000; }
-.bg-squawk-surface { background-color: #080808; }
-.bg-squawk-panel { background-color: #0D0D0D; }
-.bg-squawk-maroon { background-color: #830000; }
-.bg-squawk-red { background-color: #BC0202; }
-.bg-squawk-critical { background-color: #FF0000; }
+/* Aviation Glassmorphism Design Tokens */
+.glass-panel-dark {
+  background: rgba(30, 32, 27, 0.78);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 210, 100, 0.22);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.22);
+}
 
-.border-squawk-maroon { border-color: #830000; }
-.border-squawk-red { border-color: #BC0202; }
-.border-squawk-critical { border-color: #FF0000; }
-.border-squawk-dark { border-color: #1E1E1E; }
+.glass-panel-light {
+  background: rgba(255, 248, 235, 0.84);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 240, 200, 0.5);
+  box-shadow: 0 8px 24px rgba(40, 35, 20, 0.12);
+}
 
-.text-squawk-maroon { color: #830000; }
-.text-squawk-red { color: #BC0202; }
-.text-squawk-critical { color: #FF0000; }
+.glass-panel-translucent {
+  background: rgba(38, 42, 34, 0.65);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 220, 140, 0.18);
+}
+
+/* Aviation HUD Reticle Corner Brackets */
+.hud-reticle {
+  position: relative;
+}
+.hud-reticle::before,
+.hud-reticle::after {
+  content: '';
+  position: absolute;
+  width: 7px;
+  height: 7px;
+  border-color: rgba(217, 166, 46, 0.6);
+  pointer-events: none;
+}
+.hud-reticle::before {
+  top: -2px;
+  left: -2px;
+  border-top: 1.5px solid;
+  border-left: 1.5px solid;
+}
+.hud-reticle::after {
+  bottom: -2px;
+  right: -2px;
+  border-bottom: 1.5px solid;
+  border-right: 1.5px solid;
+}
+
+/* Buttons */
+.btn-aviation-amber {
+  background: linear-gradient(135deg, #D9A62E 0%, #F0C75E 100%);
+  color: #252820;
+  font-weight: 700;
+  border: 1px solid #F0C75E;
+  box-shadow: 0 4px 14px rgba(217, 166, 46, 0.35);
+  transition: all 0.2s ease;
+}
+.btn-aviation-amber:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 20px rgba(217, 166, 46, 0.5);
+}
+
+.btn-aviation-olive {
+  background: rgba(38, 42, 34, 0.78);
+  backdrop-filter: blur(8px);
+  color: #F7F1E4;
+  border: 1px solid rgba(255, 210, 100, 0.25);
+  transition: all 0.2s ease;
+}
+.btn-aviation-olive:hover {
+  background: rgba(52, 58, 46, 0.9);
+  border-color: rgba(255, 210, 100, 0.45);
+  color: #FFFFFF;
+}
+
+/* Utility classes for backward-compatibility aliases */
+.bg-squawk-black { background-color: rgba(30, 32, 27, 0.85); }
+.bg-squawk-surface { background-color: rgba(38, 42, 34, 0.75); }
+.bg-squawk-panel { background-color: rgba(30, 32, 27, 0.78); }
+.bg-squawk-maroon { background-color: #D9A62E; }
+.bg-squawk-red { background-color: #C85B43; }
+.bg-squawk-critical { background-color: #C85B43; }
+
+.border-squawk-maroon { border-color: rgba(217, 166, 46, 0.4); }
+.border-squawk-red { border-color: #C85B43; }
+.border-squawk-critical { border-color: #C85B43; }
+.border-squawk-dark { border-color: rgba(255, 210, 100, 0.2); }
+
+.text-squawk-maroon { color: #D9A62E; }
+.text-squawk-red { color: #C85B43; }
+.text-squawk-critical { color: #C85B43; }

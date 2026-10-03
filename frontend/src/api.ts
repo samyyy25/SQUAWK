@@ -177,5 +177,64 @@ export const api = {
   async resetDemo(): Promise<any> {
     const res = await axios.post(`${API_BASE}/demo/reset`);
     return res.data;
+  },
+
+  // -----------------------------------------------------------------------
+  // VAKH INTEGRATION & AOG ORCHESTRATION LAYER
+  // -----------------------------------------------------------------------
+  async submitVakhIntake(payload: any): Promise<SquawkCase> {
+    const res = await axios.post(`${API_BASE}/vakh/intake`, payload);
+    return res.data;
+  },
+
+  async getVakhFormSpec(): Promise<any> {
+    const res = await axios.get(`${API_BASE}/vakh/form-spec`);
+    return res.data;
+  },
+
+  async getVakhWorkspace(caseId: string): Promise<any> {
+    const res = await axios.get(`${API_BASE}/vakh/workspace/${caseId}`);
+    return res.data;
+  },
+
+  async addIncidentUpdate(caseId: string, payload: {
+    message: string;
+    author?: string;
+    action_id?: string;
+    action_status?: string;
+    source?: string;
+  }): Promise<any> {
+    const res = await axios.post(`${API_BASE}/aog/incidents/${caseId}/updates`, payload);
+    return res.data;
+  },
+
+  async updateRecoveryActionStatus(caseId: string, actionId: string, status: string): Promise<any> {
+    const res = await axios.post(`${API_BASE}/aog/incidents/${caseId}/actions/${actionId}/status`, { status });
+    return res.data;
+  },
+
+  async resolveIncident(caseId: string, payload: {
+    actual_resolution: string;
+    actual_recovery_time_hours: number;
+    parts_used?: string[];
+    root_cause: string;
+    delay_minutes?: number;
+    maintenance_team?: string;
+    additional_observations?: string;
+    lessons_learned?: string;
+    resolved_by?: string;
+  }): Promise<any> {
+    const res = await axios.post(`${API_BASE}/aog/incidents/${caseId}/resolve`, payload);
+    return res.data;
+  },
+
+  async getAogHistory(): Promise<any> {
+    const res = await axios.get(`${API_BASE}/aog/history`);
+    return res.data;
+  },
+
+  async getAogTimeline(caseId: string): Promise<any> {
+    const res = await axios.get(`${API_BASE}/aog/incidents/${caseId}/timeline`);
+    return res.data;
   }
 };

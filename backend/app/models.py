@@ -52,6 +52,26 @@ class SquawkCase(Base):
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
 
+    # Vakh Structured Intake & Operational Record Fields
+    vakh_submission_id = Column(String, index=True, nullable=True) # External Vakh post / submission reference ID
+    vakh_record_url = Column(String, nullable=True) # Direct link to Vakh post
+    vakh_form_id = Column(String, default="aog_defect_intake")
+    vakh_synced_at = Column(DateTime, nullable=True)
+    operator = Column(String, nullable=True) # Airline / Operator (e.g. Air Indigo Wings, SpiceJet)
+    airport = Column(String, nullable=True) # Station code (e.g. DEL, ORD, BOM)
+    flight_number = Column(String, nullable=True)
+    defect_category = Column(String, nullable=True) # e.g. "Hydraulic Power", "Engine / Propulsion"
+    severity = Column(String, default="HIGH") # CRITICAL, HIGH, MEDIUM, LOW
+    urgency = Column(String, default="IMMEDIATE") # IMMEDIATE (<4h), HIGH (<8h), ROUTINE
+    reported_symptoms = Column(Text, nullable=True)
+    operational_impact = Column(Text, nullable=True)
+    mel_cdl_info = Column(String, nullable=True)
+    required_maintenance_team = Column(String, nullable=True)
+    reporter_name = Column(String, nullable=True)
+    reporter_contact = Column(String, nullable=True)
+    recovery_actions_list = Column(JSON, default=list) # 8-step structured recovery plan with status
+    resolved_at = Column(DateTime, nullable=True)
+
     aircraft = relationship("Aircraft", back_populates="cases")
     agent_results = relationship("AgentResult", back_populates="case", cascade="all, delete-orphan")
     validation_result = relationship("ValidationResult", back_populates="case", uselist=False, cascade="all, delete-orphan")
@@ -61,6 +81,8 @@ class SquawkCase(Base):
     outcomes = relationship("Outcome", back_populates="case", cascade="all, delete-orphan")
     shipments = relationship("Shipment", back_populates="case", cascade="all, delete-orphan")
     disruptions = relationship("Disruption", back_populates="case", cascade="all, delete-orphan")
+    recovery_updates = relationship("RecoveryUpdate", back_populates="case", cascade="all, delete-orphan", order_by="desc(RecoveryUpdate.created_at)")
+    resolution = relationship("IncidentResolution", back_populates="case", uselist=False, cascade="all, delete-orphan")
 
 
 class Vendor(Base):
@@ -287,3 +309,59 @@ class Disruption(Base):
     applied_at = Column(DateTime, default=datetime.datetime.utcnow)
 
     case = relationship("SquawkCase", back_populates="disruptions")
+
+
+class RecoveryUpdate(Base):
+    __tablename__ = "recovery_updates"
+
+    id = Column(String, primary_key=True, index=True)
+    case_id = Column(String, ForeignKey("squawk_cases.id"), nullable=False)
+    source = Column(String, default="VAKH") # 'VAKH_INTAKE' | 'SQUAWK_AI' | 'TECHNICIAN' | 'OPERATIONS'
+    message = Column(Text, nullable=False)
+    author = Column(String, default="Maintenance Tech")
+    status = Column(String, default="ACTIVE") # ACTIVE, RESOLVED, ARCHIVED
+    action_id = Column(String, nullable=True) # e.g. act-1, act-2
+    action_status = Column(String, nullable=True) # Optional stage or action marker
+    vakh_sync_status = Column(String, default="SYNCED") # SYNCED, PENDING, LOCAL_FALLBACK
+    vakh_update_id = Column(String, nullable=True)
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    case = relationship("SquawkCase", back_populates="recovery_updates")
+
+    def __init__(self, **kwargs):
+        if "incident_id" in kwargs and "case_id" not in kwargs:
+            kwargs["case_id"] = kwargs.pop("incident_id")
+        super().__init__(**kwargs)
+
+    @property
+    def incident_id(self):
+        return self.case_id
+
+
+class IncidentResolution(Base):
+    __tablename__ = "incident_resolutions"
+
+    id = Column(String, primary_key=True, index=True)
+    case_id = Column(String, ForeignKey("squawk_cases.id"), unique=True, nullable=False)
+    actual_resolution = Column(Text, nullable=False)
+    actual_recovery_time_hours = Column(Float, nullable=False)
+    parts_used = Column(JSON, default=list) # List of parts replaced / utilized
+    root_cause = Column(Text, nullable=False)
+    delay_minutes = Column(Integer, default=0)
+    maintenance_team = Column(String, nullable=True)
+    additional_observations = Column(Text, nullable=True)
+    lessons_learned = Column(Text, nullable=True)
+    vakh_resolution_id = Column(String, nullable=True)
+    resolved_by = Column(String, default="Duty Lead Engineer")
+    created_at = Column(DateTime, default=datetime.datetime.utcnow)
+
+    case = relationship("SquawkCase", back_populates="resolution")
+
+    def __init__(self, **kwargs):
+        if "incident_id" in kwargs and "case_id" not in kwargs:
+            kwargs["case_id"] = kwargs.pop("incident_id")
+        super().__init__(**kwargs)
+
+    @property
+    def incident_id(self):
+        return self.case_id
