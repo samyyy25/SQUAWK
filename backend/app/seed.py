@@ -1,3 +1,4 @@
+import os
 import uuid
 import datetime
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ from app.incident_intelligence import generate_incident_intelligence
 
 def seed_database(db: Session):
     # Check if already seeded
-    if db.query(Aircraft).count() > 0:
+    if db.query(SquawkCase).count() > 0:
         return
 
     print("[INFO] Seeding SQUAWK database with 5 pristine AOG demo intakes...")

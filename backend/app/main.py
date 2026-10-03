@@ -40,6 +40,12 @@ from app.orchestrator import (
 from app.pipeline_runner import pipeline_runner, INPUT_TOKEN_RATE, OUTPUT_TOKEN_RATE
 
 # Initialize Database Schema & Seed
+from sqlalchemy import inspect
+inspector = inspect(engine)
+if 'squawk_cases' in inspector.get_table_names():
+    cols = [c['name'] for c in inspector.get_columns('squawk_cases')]
+    if 'vakh_submission_id' not in cols:
+        Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 with Session(engine) as init_db:
     seed_database(init_db)
