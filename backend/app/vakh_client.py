@@ -3,7 +3,11 @@ import hashlib
 import uuid
 import datetime
 from typing import Dict, Any, Optional, List
-import requests
+try:
+    import requests
+except ImportError:
+    requests = None
+
 
 from app.config import (
     VAKH_BASE_URL, VAKH_API_KEY, VAKH_WEBHOOK_SECRET,
